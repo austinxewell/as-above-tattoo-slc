@@ -1,5 +1,6 @@
 import { Outlet } from "react-router";
 import { SiteHeader } from "../components/layout/site-header";
+import { SiteFooter } from "~/components/layout/site-footer";
 
 export default function SiteLayout() {
   return (
@@ -11,7 +12,7 @@ export default function SiteLayout() {
           <Outlet />
         </main>
 
-        <footer>{/* Shared site footer will go here. */}</footer>
+        <SiteFooter />
       </div>
     </div>
   );

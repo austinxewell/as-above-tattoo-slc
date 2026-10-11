@@ -8,13 +8,15 @@ type SiteNavigationProps = {
 const navigationItems = [
   { label: "Home", to: "/" },
   { label: "Artists", to: "/artists" },
-  { label: "Gallery", to: "/gallery" },
-  { label: "About", to: "/about" },
+  { label: "Portfolio", to: "/portfolio" },
+  { label: "After Care", to: "/after-care" },
+  { label: "Pricing", to: "/pricing" },
+  { label: "Shop", to: "/shop" },
 ];
 
 export function SiteNavigation({ orientation = "horizontal", onNavigate }: SiteNavigationProps) {
   const listClasses =
-    orientation === "horizontal" ? "flex items-center gap-8" : "flex flex-col gap-6";
+    orientation === "horizontal" ? "flex items-center gap-4 2xl:gap-6" : "flex flex-col gap-6";
 
   return (
     <nav aria-label="Main navigation">
@@ -27,7 +29,7 @@ export function SiteNavigation({ orientation = "horizontal", onNavigate }: SiteN
               onClick={onNavigate}
               className={({ isActive }) =>
                 [
-                  "text-sm font-medium uppercase tracking-widest transition-colors",
+                  "text-sm font-medium uppercase whitespace-nowrap tracking-widest transition-colors",
                   "hover:text-[#ddbd7b]",
                   isActive ? "text-[#ddbd7b]" : "text-[#f2ede4]/80",
                 ].join(" ")
