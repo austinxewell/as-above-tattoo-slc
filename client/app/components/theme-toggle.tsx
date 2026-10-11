@@ -1,6 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark";
+
+type ThemeToggleProps = {
+  showLabel?: boolean;
+};
 
 const THEME_STORAGE_KEY = "as-above-theme";
 
@@ -12,35 +17,43 @@ function getSavedTheme(): Theme {
   }
 }
 
-export function ThemeToggle() {
-  useEffect(() => {
-    const savedTheme = getSavedTheme();
+export function ThemeToggle({ showLabel = false }: ThemeToggleProps) {
+  const [theme, setTheme] = useState<Theme>(getSavedTheme);
 
-    document.documentElement.classList.toggle("dark", savedTheme === "dark");
-  }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
   function toggleTheme() {
-    const isDark = document.documentElement.classList.contains("dark");
-    const nextTheme: Theme = isDark ? "light" : "dark";
+    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
 
     document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    setTheme(nextTheme);
 
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     } catch {
-      // Storage may be unavailable, but theme switching still works.
-      return;
+      // Theme switching still works if browser storage is unavailable.
     }
   }
+
+  const isDark = theme === "dark";
+  const label = isDark ? "Light Mode" : "Dark Mode";
+  const Icon = isDark ? Sun : Moon;
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label="Toggle color theme"
-      className="rounded-md border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:bg-surface-raised focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus-ring"
+      aria-label={`Switch to ${label.toLowerCase()}`}
+      className={
+        showLabel
+          ? "flex items-center gap-3 text-sm font-medium uppercase tracking-widest text-[#f2ede4]/80 transition-colors hover:text-[#ddbd7b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ddbd7b]"
+          : "inline-flex size-10 items-center justify-center rounded-full text-[#c5a15b] transition-colors hover:bg-[#2d2a27] hover:text-[#ddbd7b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddbd7b]"
+      }
     >
-      Toggle theme
+      <Icon className="size-5 shrink-0" aria-hidden="true" />
+      {showLabel && <span>{label}</span>}
     </button>
   );
 }
