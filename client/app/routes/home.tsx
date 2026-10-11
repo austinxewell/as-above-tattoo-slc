@@ -3,7 +3,7 @@ import { Button } from "~/components/ui/button";
 
 export function meta() {
   return [
-    { title: "As Above Tattoo SLC" },
+    { title: "As Above Tattoo - Home" },
     {
       name: "description",
       content: "Explore the artists and tattoo work at As Above Tattoo SLC.",
