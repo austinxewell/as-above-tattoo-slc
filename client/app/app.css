@@ -5,75 +5,84 @@
  * Design system — Tailwind CSS v4
  */
 
-/* Use the .dark class for explicit theme selection. */
+/* Explicit dark-mode variant, controlled by the .dark class. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Semantic tokens exposed as Tailwind utilities. */
+/* Expose semantic design tokens as Tailwind utilities. */
 @theme inline {
+  /* Surfaces */
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
 
+  /* Text */
   --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-border: var(--border);
+  --color-muted-foreground: var(--muted-foreground);
 
+  /* Structure */
+  --color-border: var(--border);
+  --color-focus-ring: var(--focus-ring);
+
+  /* Brand and actions */
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);
-  --color-focus-ring: var(--focus-ring);
 
+  /* Typography */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bodoni Moda", "Cormorant Garamond", Georgia, serif;
+  --font-display: "DM Serif Display", Georgia, serif;
 }
 
-/* Light mode: warm paper and alternative editorial styling. */
+/* Light theme: warm paper and editorial styling. */
 :root {
   color-scheme: light;
 
-  :root {
-    /* Surfaces */
-    --background: #f1e9dc;
-    --surface: #f8f4ed;
-    --surface-raised: #e7dccb;
+  /* Surfaces */
+  --background: #f1e9dc;
+  --surface: #f8f4ed;
+  --surface-raised: #e7dccb;
 
-    /* Content */
-    --foreground: #201c1a;
-    --muted-foreground: #62574d;
+  /* Text */
+  --foreground: #201c1a;
+  --muted-foreground: #62574d;
 
-    /* Brand and actions */
-    --accent: #956c31;
-    --accent-hover: #795323;
-    --accent-foreground: #fffaf2;
+  /* Structure */
+  --border: #cbbba7;
+  --focus-ring: #956c31;
 
-    /* Structure and accessibility */
-    --border: #cbbba7;
-    --focus-ring: #956c31;
-  }
+  /* Brand and actions */
+  --accent: #956c31;
+  --accent-hover: #795323;
+  --accent-foreground: #fffaf2;
 }
 
-/* Dark mode: charcoal, ivory, and restrained gold. */
+/* Dark theme: charcoal, ivory, and restrained gold. */
 .dark {
   color-scheme: dark;
 
+  /* Surfaces */
   --background: #151515;
   --surface: #222120;
   --surface-raised: #2d2a27;
 
+  /* Text */
   --foreground: #f2ede4;
-  --muted: #b8afa3;
-  --border: #45403a;
+  --muted-foreground: #b8afa3;
 
+  /* Structure */
+  --border: #45403a;
+  --focus-ring: #ddbd7b;
+
+  /* Brand and actions */
   --accent: #c5a15b;
   --accent-hover: #ddbd7b;
   --accent-foreground: #17130d;
-  --focus-ring: #ddbd7b;
 }
 
 /* Global document defaults. */
 html {
   min-height: 100%;
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   scroll-behavior: smooth;
 }
@@ -81,13 +90,23 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
   @apply antialiased;
 }
 
-/* Consistent keyboard accessibility. */
+/* Consistent box sizing across the application. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Visible keyboard focus. */
 :focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
@@ -95,11 +114,11 @@ body {
 
 /* Brand-consistent text selection. */
 ::selection {
-  background: var(--accent);
+  background-color: var(--accent);
   color: var(--accent-foreground);
 }
 
-/* Respect users who prefer reduced motion. */
+/* Respect reduced-motion preferences. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

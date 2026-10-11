@@ -1,4 +1,5 @@
 import type { Route } from "./+types/home";
+import { ThemeToggle } from "../components/theme-toggle";
 
 export function meta() {
   return [
@@ -12,21 +13,51 @@ export function meta() {
 
 export default function Home() {
   return (
-    <main className="dark min-h-screen bg-background p-8 text-foreground">
-      <section className="mx-auto max-w-3xl rounded-xl bg-surface p-8">
-        <p className="font-sans text-muted-foreground">As Above Tattoo SLC</p>
+    <main className="min-h-screen bg-background p-8 text-foreground">
+      <div className="mb-8 flex justify-end">
+        <ThemeToggle />
+      </div>
+      <div className="mx-auto max-w-3xl space-y-8">
+        <header>
+          <p className="font-sans text-sm text-muted-foreground">
+            AS ABOVE TATTOO SLC
+          </p>
+          <h1 className="mt-3 font-display text-5xl">
+            Art that stays with you.
+          </h1>
+          <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
+            A visual test of our typography, colors, surfaces, and interactive
+            elements.
+          </p>
+        </header>
 
-        <h1 className="mt-4 font-display text-4xl">Art that stays with you.</h1>
+        <section className="space-y-4 rounded-xl border border-border bg-surface p-6">
+          <h2 className="font-display text-2xl">Design tokens</h2>
 
-        <p className="mt-4 text-muted-foreground">A test of our new design system.</p>
+          <div className="flex flex-wrap gap-3">
+            <div className="rounded-md bg-background p-3 text-sm">
+              Background
+            </div>
+            <div className="rounded-md bg-surface-raised p-3 text-sm">
+              Raised surface
+            </div>
+            <div className="rounded-md bg-accent px-4 py-3 text-sm text-accent-foreground">
+              Accent
+            </div>
+          </div>
 
-        <button
-          type="button"
-          className="mt-6 rounded-md bg-accent px-6 py-3 text-accent-foreground transition-colors hover:bg-accent-hover"
-        >
-          Explore the artists
-        </button>
-      </section>
+          <p className="text-muted-foreground">
+            Muted text should remain readable against the surface.
+          </p>
+
+          <button
+            type="button"
+            className="rounded-md bg-accent px-5 py-3 text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus-ring"
+          >
+            Test button
+          </button>
+        </section>
+      </div>
     </main>
   );
 }
