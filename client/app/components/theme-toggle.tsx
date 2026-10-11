@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 
 type Theme = "light" | "dark";
@@ -7,9 +6,7 @@ const THEME_STORAGE_KEY = "as-above-theme";
 
 function getSavedTheme(): Theme {
   try {
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === "light"
-      ? "light"
-      : "dark";
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light" : "dark";
   } catch {
     return "dark";
   }

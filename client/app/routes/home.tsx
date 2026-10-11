@@ -19,15 +19,10 @@ export default function Home() {
       </div>
       <div className="mx-auto max-w-3xl space-y-8">
         <header>
-          <p className="font-sans text-sm text-muted-foreground">
-            AS ABOVE TATTOO SLC
-          </p>
-          <h1 className="mt-3 font-display text-5xl">
-            Art that stays with you.
-          </h1>
+          <p className="font-sans text-sm text-muted-foreground">AS ABOVE TATTOO SLC</p>
+          <h1 className="mt-3 font-display text-5xl">Art that stays with you.</h1>
           <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
-            A visual test of our typography, colors, surfaces, and interactive
-            elements.
+            A visual test of our typography, colors, surfaces, and interactive elements.
           </p>
         </header>
 
@@ -35,12 +30,8 @@ export default function Home() {
           <h2 className="font-display text-2xl">Design tokens</h2>
 
           <div className="flex flex-wrap gap-3">
-            <div className="rounded-md bg-background p-3 text-sm">
-              Background
-            </div>
-            <div className="rounded-md bg-surface-raised p-3 text-sm">
-              Raised surface
-            </div>
+            <div className="rounded-md bg-background p-3 text-sm">Background</div>
+            <div className="rounded-md bg-surface-raised p-3 text-sm">Raised surface</div>
             <div className="rounded-md bg-accent px-4 py-3 text-sm text-accent-foreground">
               Accent
             </div>
