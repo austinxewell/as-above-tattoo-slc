@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { ThemeToggle } from "../components/theme-toggle";
+import { Button } from "~/components/ui/button";
 
 export function meta() {
   return [
@@ -41,12 +42,14 @@ export default function Home() {
             Muted text should remain readable against the surface.
           </p>
 
-          <button
-            type="button"
-            className="rounded-md bg-accent px-5 py-3 text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus-ring"
-          >
-            Test button
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <Button>Default</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="destructive">Destructive</Button>
+            <Button variant="link">Link</Button>
+          </div>
         </section>
       </div>
     </main>

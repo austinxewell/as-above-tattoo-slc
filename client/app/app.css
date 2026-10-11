@@ -1,14 +1,15 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
 
 /*
  * As Above Tattoo SLC
  * Design system — Tailwind CSS v4
  */
 
-/* Explicit dark-mode variant, controlled by the .dark class. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Expose semantic design tokens as Tailwind utilities. */
 @theme inline {
   /* Surfaces */
   --color-background: var(--background);
@@ -29,11 +30,48 @@
   --color-accent-foreground: var(--accent-foreground);
 
   /* Typography */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-display: "DM Serif Display", Georgia, serif;
+  --font-heading: var(--font-display);
+
+  /* shadcn/ui semantic colors */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-destructive: var(--destructive);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Component corner radii */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Light theme: warm paper and editorial styling. */
+/* Light theme: warm paper, dark ink, and antique gold. */
 :root {
   color-scheme: light;
 
@@ -54,6 +92,40 @@
   --accent: #956c31;
   --accent-hover: #795323;
   --accent-foreground: #fffaf2;
+
+  /* shadcn/ui component colors */
+  --card: #f8f4ed;
+  --card-foreground: #201c1a;
+  --popover: #f8f4ed;
+  --popover-foreground: #201c1a;
+  --primary: #956c31;
+  --primary-foreground: #fffaf2;
+  --secondary: #e7dccb;
+  --secondary-foreground: #201c1a;
+  --muted: #e7dccb;
+  --destructive: #b42318;
+  --input: #cbbba7;
+  --ring: #956c31;
+
+  /* Charts */
+  --chart-1: #956c31;
+  --chart-2: #62574d;
+  --chart-3: #795323;
+  --chart-4: #b8a083;
+  --chart-5: #201c1a;
+
+  /* Sidebar */
+  --sidebar: #f8f4ed;
+  --sidebar-foreground: #201c1a;
+  --sidebar-primary: #956c31;
+  --sidebar-primary-foreground: #fffaf2;
+  --sidebar-accent: #e7dccb;
+  --sidebar-accent-foreground: #201c1a;
+  --sidebar-border: #cbbba7;
+  --sidebar-ring: #956c31;
+
+  /* Components */
+  --radius: 0.45rem;
 }
 
 /* Dark theme: charcoal, ivory, and restrained gold. */
@@ -77,6 +149,37 @@
   --accent: #c5a15b;
   --accent-hover: #ddbd7b;
   --accent-foreground: #17130d;
+
+  /* shadcn/ui component colors */
+  --card: #222120;
+  --card-foreground: #f2ede4;
+  --popover: #222120;
+  --popover-foreground: #f2ede4;
+  --primary: #c5a15b;
+  --primary-foreground: #17130d;
+  --secondary: #2d2a27;
+  --secondary-foreground: #f2ede4;
+  --muted: #2d2a27;
+  --destructive: #ef6a60;
+  --input: #45403a;
+  --ring: #ddbd7b;
+
+  /* Charts */
+  --chart-1: #c5a15b;
+  --chart-2: #b8afa3;
+  --chart-3: #ddbd7b;
+  --chart-4: #795323;
+  --chart-5: #f2ede4;
+
+  /* Sidebar */
+  --sidebar: #222120;
+  --sidebar-foreground: #f2ede4;
+  --sidebar-primary: #c5a15b;
+  --sidebar-primary-foreground: #17130d;
+  --sidebar-accent: #2d2a27;
+  --sidebar-accent-foreground: #f2ede4;
+  --sidebar-border: #45403a;
+  --sidebar-ring: #ddbd7b;
 }
 
 /* Global document defaults. */
@@ -127,5 +230,20 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* shadcn/ui base styles. */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    @apply font-sans;
   }
 }
