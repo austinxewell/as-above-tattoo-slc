@@ -1,10 +1,9 @@
 import type { Route } from "./+types/home";
-import { ThemeToggle } from "../components/theme-toggle";
 import { Button } from "~/components/ui/button";
 
 export function meta() {
   return [
-    { title: "As Above Tattoo SLC" },
+    { title: "As Above Tattoo - Home" },
     {
       name: "description",
       content: "Explore the artists and tattoo work at As Above Tattoo SLC.",
@@ -15,9 +14,6 @@ export function meta() {
 export default function Home() {
   return (
     <main className="min-h-screen bg-background p-8 text-foreground">
-      <div className="mb-8 flex justify-end">
-        <ThemeToggle />
-      </div>
       <div className="mx-auto max-w-3xl space-y-8">
         <header>
           <p className="font-sans text-sm text-muted-foreground">AS ABOVE TATTOO SLC</p>
