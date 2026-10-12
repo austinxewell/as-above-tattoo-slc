@@ -1,5 +1,6 @@
 import type { Route } from "./+types/portfolio";
 import { Link } from "react-router";
+import { PageHeader } from "~/components/shared/page-header";
 import { PortfolioFilters } from "~/components/portfolio/portfolio-filters";
 import { PortfolioGallery } from "~/components/portfolio/portfolio-gallery";
 
@@ -60,21 +61,12 @@ export default function Portfolio({ loaderData }: Route.ComponentProps) {
         className="pointer-events-none absolute top-4 -right-10 -z-10 w-[28rem] opacity-[0.18] dark:opacity-[0.07]"
       />
 
-      <p className="flex items-center gap-4 text-[0.7rem] font-medium uppercase tracking-[0.36em] text-accent">
-        <span>Selected work</span>
-        <span className="h-px w-12 bg-accent" aria-hidden="true" />
-      </p>
-
-      <h1
-        id="portfolio-title"
-        className="mt-6 font-display text-5xl uppercase leading-[0.91] tracking-[-0.055em] md:text-7xl"
-      >
-        The portfolio
-      </h1>
-
-      <p className="mt-6 max-w-md leading-7 text-muted-foreground">
-        Every piece is drawn custom. Filter by artist or style, or search for what you have in mind.
-      </p>
+      <PageHeader
+        eyebrow="Selected work"
+        title="The portfolio"
+        titleId="portfolio-title"
+        description="Every piece is drawn custom. Filter by artist or style, or search for what you have in mind."
+      />
 
       <PortfolioFilters artists={loaderData.artists} styles={loaderData.styles} />
 
