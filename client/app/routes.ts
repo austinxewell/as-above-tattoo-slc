@@ -4,6 +4,7 @@ export default [
   layout("layouts/site-layout.tsx", [
     index("routes/home.tsx"),
     route("artists", "routes/artists.tsx"),
+    route("artists/:slug", "routes/artist.tsx"),
     route("portfolio", "routes/portfolio.tsx"),
     route("after-care", "routes/after-care.tsx"),
     route("pricing", "routes/pricing.tsx"),

@@ -1,0 +1,56 @@
+import { Link } from "react-router";
+import { ArrowRight } from "lucide-react";
+import { SectionHeading } from "./section-heading";
+
+type PortfolioPreviewProps = {
+  portfolio: { id: number; style: string; artist: string; imgUrl: string }[];
+};
+
+export function PortfolioPreview({ portfolio }: PortfolioPreviewProps) {
+  return (
+    <section
+      id="portfolio"
+      className="scroll-mt-20 px-6 py-24 md:px-[6.2vw] md:py-32"
+      aria-labelledby="portfolio-preview-title"
+    >
+      <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <SectionHeading
+          id="portfolio-preview-title"
+          index="02"
+          eyebrow="Selected work"
+          title="The portfolio"
+          description="A look at recent pieces from the studio. Every tattoo is drawn custom for the person wearing it."
+        />
+
+        <Link
+          to="/portfolio"
+          className="inline-flex items-center gap-3 self-start border-b border-accent pb-1 text-[0.65rem] font-medium uppercase tracking-[0.17em] md:self-auto"
+        >
+          View full portfolio
+          <ArrowRight size={14} strokeWidth={1.5} />
+        </Link>
+      </div>
+
+      <ul className="mt-14 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">
+        {portfolio.map((piece) => (
+          <li key={piece.id}>
+            <figure>
+              <div className="overflow-hidden border border-border">
+                <img
+                  src={piece.imgUrl}
+                  alt={`${piece.style} tattoo by ${piece.artist}`}
+                  loading="lazy"
+                  className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08]"
+                />
+              </div>
+              <figcaption className="mt-3 flex justify-between gap-2 text-[0.65rem] uppercase tracking-[0.15em]">
+                <span>{piece.style}</span>
+                <span className="text-muted-foreground">{piece.artist}</span>
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}

@@ -4,8 +4,8 @@ import { ShoppingCart } from "lucide-react";
 
 const footerLinks = [
   { label: "Home", to: "/" },
-  { label: "Artists", to: "/artists" },
   { label: "Portfolio", to: "/portfolio" },
+  { label: "Artists", to: "/artists" },
   { label: "After Care", to: "/after-care" },
   { label: "Pricing", to: "/pricing" },
   { label: "Shop", to: "/shop" },

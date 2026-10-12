@@ -10,7 +10,7 @@ export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="shrink-0 border-b border-[#45403a] bg-[#151515] text-[#f2ede4]">
+    <header className="sticky top-0 z-50 border-b border-[#45403a] bg-[#151515] text-[#f2ede4]">
       <div className="mx-auto flex min-h-24 w-full max-w-screen-2xl items-center justify-between gap-4 px-6 py-3 lg:gap-5 lg:px-8 2xl:gap-6 2xl:px-12">
         {/* Shop branding and desktop navigation */}
         <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-4 2xl:gap-6">
