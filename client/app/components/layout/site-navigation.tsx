@@ -30,8 +30,8 @@ export function SiteNavigation({ orientation = "horizontal", onNavigate }: SiteN
               className={({ isActive }) =>
                 [
                   "text-sm font-medium uppercase whitespace-nowrap tracking-widest transition-colors",
-                  "hover:text-[#ddbd7b]",
-                  isActive ? "text-[#ddbd7b]" : "text-[#f2ede4]/80",
+                  "hover:text-accent-hover",
+                  isActive ? "text-accent-hover" : "text-foreground/80",
                 ].join(" ")
               }
             >

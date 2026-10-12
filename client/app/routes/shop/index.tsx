@@ -1,4 +1,4 @@
-import type { Route } from "../+types/home";
+import type { Route } from "./+types/index";
 import { ComingSoon } from "~/components/shared/coming-soon";
 
 export function meta() {
@@ -8,9 +8,5 @@ export function meta() {
   ] satisfies Route.MetaDescriptors;
 }
 export default function Shop() {
-  return (
-    <main>
-      <ComingSoon title="Shop" />
-    </main>
-  );
+  return <ComingSoon title="Shop" />;
 }

@@ -1,0 +1,88 @@
+{
+  "pieces": [
+    {
+      "id": 1,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk4g-xNjP230X5K3QzQH63j05aNgz3NRnNf_FliZzF1Q&s=10",
+      "style": "Fine line",
+      "artist": { "id": 4, "name": "Chels Johnson", "slug": "chels-johnson" },
+      "tags": ["geometric", "space", "forearm", "arm", "black and grey"]
+    },
+    {
+      "id": 2,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdz1AnTVUsKUzrsADs1LKGoJKrah5haCLPdF4wiZ0ZEg&s=10",
+      "style": "Blackwork",
+      "artist": { "id": 3, "name": "Angel", "slug": "angel" },
+      "tags": ["dark", "evil", "animal", "arm", "black and grey"]
+    },
+    {
+      "id": 3,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYf7mXyVUNnt-2SVWfMMmOoBu7mKFzua9XLBk02PMMbQ&s=10",
+      "style": "Ornamental",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["geometric", "fine line", "black"]
+    },
+    {
+      "id": 4,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgxR5SnKQO6t5xVqw7l6VK5XMJYlISPNPUnLvFFQHDiA&s=10",
+      "style": "Neo traditional",
+      "artist": { "id": 2, "name": "Jeff Cusack", "slug": "jeff-cusack" },
+      "tags": ["face", "lady", "animal", "color"]
+    },
+    {
+      "id": 5,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy5jJuCWk_iC4k_dElg13ScG7dCFhzU5L-W58VRHvFbw&s=10",
+      "style": "Realism",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["animal", "portrait", "black and grey", "lion", "elephant"]
+    },
+    {
+      "id": 6,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuTlUevYDbfVRGNkhfhomQRxBNW138Wy4EadwhvcgS7A&s=10",
+      "style": "Color",
+      "artist": { "id": 2, "name": "Jeff Cusack", "slug": "jeff-cusack" },
+      "tags": ["traditional", "record", "rose"]
+    },
+    {
+      "id": 7,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGqgQfu_RBVqMIt0qfDpYwLttSle-A-3tJTxfwokj65w&s=10",
+      "style": "Color",
+      "artist": { "id": 2, "name": "Jeff Cusack", "slug": "jeff-cusack" },
+      "tags": ["black and grey", "color", "skull", "flower"]
+    },
+    {
+      "id": 8,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBk2dC6PDUI8x9zaAjWXUBBg3GTd7BoyIFeyrUShi6EQ&s=10",
+      "style": "Blackwork",
+      "artist": { "id": 3, "name": "Angel", "slug": "angel" },
+      "tags": ["dark", "evil", "back", "black and grey"]
+    },
+    {
+      "id": 9,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa1a_5cKagy7d_ZBw4KNGFQ0kUSxxqEJGWj8jhyTgywg&s=10",
+      "style": "Fine line",
+      "artist": { "id": 4, "name": "Chels Johnson", "slug": "chels-johnson" },
+      "tags": ["hand", "small"]
+    },
+    {
+      "id": 10,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4nql_kNPrKAoNCuFPO4CoIPYImulrlb9U5uI3LfiHPw&s=10",
+      "style": "Blackwork",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["blackout", "cover up", "black", "arm"]
+    },
+    {
+      "id": 11,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuE5z6PyIk0MPE7gjoFiQt5c9ikpYNJdV_rRRq3Qikng&s=10",
+      "style": "Japanese",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["hand", "color", "fish", "koi", "finger waves"]
+    },
+    {
+      "id": 12,
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStNuC1B8HyARbs6PIEer8c2yYhgyMq-I3t4NZcFyULHg&s=10",
+      "style": "New school",
+      "artist": { "id": 4, "name": "Chels Johnson", "slug": "chels-johnson" },
+      "tags": ["simpsons", "color", "cartoon"]
+    }
+  ]
+}
