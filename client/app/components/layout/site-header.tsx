@@ -5,12 +5,14 @@ import { Link } from "react-router";
 import { SiteNavigation } from "./site-navigation";
 import { ThemeToggle } from "../theme-toggle";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
+import { buttonVariants } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="shrink-0 border-b border-[#45403a] bg-[#151515] text-[#f2ede4]">
+    <header className="dark sticky top-0 z-50 border-b border-border bg-background text-foreground">
       <div className="mx-auto flex min-h-24 w-full max-w-screen-2xl items-center justify-between gap-4 px-6 py-3 lg:gap-5 lg:px-8 2xl:gap-6 2xl:px-12">
         {/* Shop branding and desktop navigation */}
         <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-4 2xl:gap-6">
@@ -38,7 +40,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
             aria-label="Instagram"
-            className="inline-flex size-9 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b] 2xl:size-10"
+            className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
           >
             <FaInstagram className="size-5" aria-hidden="true" />
           </a>
@@ -48,7 +50,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
             aria-label="Facebook"
-            className="inline-flex size-9 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b] 2xl:size-10"
+            className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
           >
             <FaFacebook className="size-5" aria-hidden="true" />
           </a>
@@ -56,7 +58,7 @@ export function SiteHeader() {
           <Link
             to="/shop/cart"
             aria-label="Shopping cart"
-            className="inline-flex size-9 items-center justify-center text-[#b8afa3] 2xl:size-10"
+            className="inline-flex size-9 items-center justify-center text-muted-foreground 2xl:size-10"
           >
             <ShoppingCart className="size-5" aria-hidden="true" />
           </Link>
@@ -65,7 +67,10 @@ export function SiteHeader() {
 
           <Link
             to="/booking"
-            className="inline-flex border border-[#c5a15b] px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a15b] transition-colors hover:bg-[#c5a15b] hover:text-[#151515] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ddbd7b]"
+            className={cn(
+              buttonVariants({ variant: "brand", size: "cta" }),
+              "px-6 text-xs text-accent",
+            )}
           >
             Book Now
           </Link>
@@ -76,7 +81,7 @@ export function SiteHeader() {
           <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger
               aria-label="Open navigation menu"
-              className="inline-flex size-10 items-center justify-center rounded-md border border-[#45403a] bg-transparent text-[#f2ede4] transition-colors hover:bg-[#2d2a27] hover:text-[#ddbd7b]"
+              className="inline-flex size-10 items-center justify-center rounded-md border border-border bg-transparent text-foreground transition-colors hover:bg-surface-raised hover:text-accent-hover"
             >
               <span className="text-xl" aria-hidden="true">
                 ☰
@@ -85,7 +90,7 @@ export function SiteHeader() {
 
             <SheetContent
               side="right"
-              className="overflow-y-auto border-[#45403a] bg-[#151515] text-[#f2ede4]"
+              className="dark overflow-y-auto border-border bg-background text-foreground"
             >
               <SheetHeader>
                 <SheetTitle>
@@ -109,18 +114,21 @@ export function SiteHeader() {
                 <Link
                   to="/booking"
                   onClick={() => setIsMenuOpen(false)}
-                  className="mt-8 inline-flex border border-[#c5a15b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a15b] transition-colors hover:bg-[#c5a15b] hover:text-[#151515]"
+                  className={cn(
+                    buttonVariants({ variant: "brand", size: "cta" }),
+                    "mt-8 text-xs text-accent",
+                  )}
                 >
                   Book Now
                 </Link>
 
-                <div className="mt-8 flex items-center gap-5 border-t border-[#45403a] pt-6">
+                <div className="mt-8 flex items-center gap-5 border-t border-border pt-6">
                   <a
                     href="https://www.instagram.com/asabovetattooslc/"
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Instagram"
-                    className="inline-flex size-10 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b]"
+                    className="inline-flex size-10 items-center justify-center text-accent transition-colors hover:text-accent-hover"
                   >
                     <FaInstagram className="size-5" aria-hidden="true" />
                   </a>
@@ -130,7 +138,7 @@ export function SiteHeader() {
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Facebook"
-                    className="inline-flex size-9 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b] 2xl:size-10"
+                    className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
                   >
                     <FaFacebook className="size-5" aria-hidden="true" />
                   </a>
@@ -139,14 +147,14 @@ export function SiteHeader() {
                     to="/shop/cart"
                     onClick={() => setIsMenuOpen(false)}
                     aria-label="Shopping cart"
-                    className="inline-flex size-9 items-center justify-center text-[#b8afa3] 2xl:size-10"
+                    className="inline-flex size-9 items-center justify-center text-muted-foreground 2xl:size-10"
                   >
                     <ShoppingCart className="size-5" aria-hidden="true" />
                   </Link>
                 </div>
 
-                <div className="mt-6 border-t border-[#45403a] pt-6">
-                  <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#b8afa3]">
+                <div className="mt-6 border-t border-border pt-6">
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                     Appearance
                   </p>
                   <ThemeToggle showLabel />

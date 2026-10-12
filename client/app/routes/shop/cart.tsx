@@ -8,9 +8,5 @@ export function meta() {
   ] satisfies Route.MetaDescriptors;
 }
 export default function Cart() {
-  return (
-    <main>
-      <ComingSoon title="Shopping Cart" />
-    </main>
-  );
+  return <ComingSoon title="Shopping Cart" />;
 }

@@ -1,0 +1,96 @@
+{
+  "portfolio": [
+    {
+      "id": 1,
+      "style": "Fine line",
+      "artist": "Chels Johnson",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk4g-xNjP230X5K3QzQH63j05aNgz3NRnNf_FliZzF1Q&s=10"
+    },
+    {
+      "id": 2,
+      "style": "Blackwork",
+      "artist": "Angel",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdz1AnTVUsKUzrsADs1LKGoJKrah5haCLPdF4wiZ0ZEg&s=10"
+    },
+    {
+      "id": 3,
+      "style": "Neo traditional",
+      "artist": "Jeff Cusack",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgxR5SnKQO6t5xVqw7l6VK5XMJYlISPNPUnLvFFQHDiA&s=10"
+    },
+    {
+      "id": 4,
+      "style": "Realism",
+      "artist": "Taylor Goble",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy5jJuCWk_iC4k_dElg13ScG7dCFhzU5L-W58VRHvFbw&s=10"
+    },
+    {
+      "id": 5,
+      "style": "Ornamental",
+      "artist": "Taylor Goble",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYf7mXyVUNnt-2SVWfMMmOoBu7mKFzua9XLBk02PMMbQ&s=10"
+    },
+    {
+      "id": 6,
+      "style": "Color",
+      "artist": "Jeff Cusack",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuTlUevYDbfVRGNkhfhomQRxBNW138Wy4EadwhvcgS7A&s=10"
+    }
+  ],
+  "about": {
+    "heading": "A Higher Standard of Tattooing",
+    "body": "As Above Tattoo is a Salt Lake City tattoo studio built around artistic expression, thoughtful craftsmanship, and a commitment to doing things right. We believe a great tattoo is about more than the finished piece. It's about the entire experience, from the first conversation to the final result. Whether you're bringing a fully realized idea or working with an artist to develop something entirely your own, our goal is to create meaningful, lasting work in a space where you feel comfortable, respected, and confident in your choice.",
+    "values": [
+      {
+        "id": 1,
+        "title": "Cleanliness",
+        "description": "Your health comes first. We maintain rigorous hygiene standards, use proper sterilization practices, and keep our workspace clean and professional."
+      },
+      {
+        "id": 2,
+        "title": "Comfort",
+        "description": "Getting tattooed is a personal experience. We want you to feel welcome, heard, and comfortable throughout the entire process."
+      },
+      {
+        "id": 3,
+        "title": "Artistry",
+        "description": "Every tattoo deserves intention and attention to detail. We value individual expression, thoughtful design, and craftsmanship that stands the test of time."
+      },
+      {
+        "id": 4,
+        "title": "Quality",
+        "description": "We take pride in the work we put into the world. From the initial design to the finished tattoo, we focus on precision, consistency, and results you'll be proud to wear."
+      }
+    ]
+  },
+  "artists": [
+    {
+      "id": 1,
+      "name": "Taylor Goble",
+      "slug": "taylor-goble",
+      "specialty": "Fine line & botanical",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLdQzdpnfC6Ja9zoWGGopJVga7qcWPkxAYmGBYy-7VZg&s=10"
+    },
+    {
+      "id": 2,
+      "name": "Jeff Cusack",
+      "slug": "jeff-cusack",
+      "specialty": "Traditional",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgPGOzKyFTHwsmbqW4JgLiLUMbMtCCLEWuesnRypcnEg&s=10"
+    },
+    {
+      "id": 3,
+      "name": "Angel",
+      "slug": "angel",
+      "specialty": "Dark Art By Mushy Fella",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3_yaOP8dpWX_rrOdLKbgfSdo4JOzmgbdFJecmNMlPWg&s=10"
+    },
+    {
+      "id": 4,
+      "name": "Chels Johnson",
+      "slug": "chels-johnson",
+      "specialty": "Fine line",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUO8n0KzbBlUpmciFpDNrqPV4AYY10dDOhBT6nWPD67g&s=10"
+    }
+  ]
+}

@@ -70,7 +70,7 @@ export function Hero() {
       </a>
 
       <span className="hero__index" aria-hidden="true">
-        01 <span>/</span> 04
+        01 <span>/</span> 05
       </span>
     </section>
   );

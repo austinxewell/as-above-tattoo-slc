@@ -7,8 +7,8 @@ type SiteNavigationProps = {
 
 const navigationItems = [
   { label: "Home", to: "/" },
-  { label: "Artists", to: "/artists" },
   { label: "Portfolio", to: "/portfolio" },
+  { label: "Artists", to: "/artists" },
   { label: "After Care", to: "/after-care" },
   { label: "Pricing", to: "/pricing" },
   { label: "Shop", to: "/shop" },
@@ -30,8 +30,8 @@ export function SiteNavigation({ orientation = "horizontal", onNavigate }: SiteN
               className={({ isActive }) =>
                 [
                   "text-sm font-medium uppercase whitespace-nowrap tracking-widest transition-colors",
-                  "hover:text-[#ddbd7b]",
-                  isActive ? "text-[#ddbd7b]" : "text-[#f2ede4]/80",
+                  "hover:text-accent-hover",
+                  isActive ? "text-accent-hover" : "text-foreground/80",
                 ].join(" ")
               }
             >

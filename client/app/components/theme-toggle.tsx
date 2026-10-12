@@ -48,8 +48,8 @@ export function ThemeToggle({ showLabel = false }: ThemeToggleProps) {
       aria-label={`Switch to ${label.toLowerCase()}`}
       className={
         showLabel
-          ? "flex items-center gap-3 text-sm font-medium uppercase tracking-widest text-[#f2ede4]/80 transition-colors hover:text-[#ddbd7b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ddbd7b]"
-          : "inline-flex size-10 items-center justify-center rounded-full text-[#c5a15b] transition-colors hover:bg-[#2d2a27] hover:text-[#ddbd7b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddbd7b]"
+          ? "flex items-center gap-3 text-sm font-medium uppercase tracking-widest text-foreground/80 transition-colors hover:text-accent-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-hover"
+          : "inline-flex size-10 items-center justify-center rounded-full text-accent transition-colors hover:bg-surface-raised hover:text-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-hover"
       }
     >
       <Icon className="size-5 shrink-0" aria-hidden="true" />
