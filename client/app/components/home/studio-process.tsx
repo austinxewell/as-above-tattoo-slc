@@ -1,5 +1,7 @@
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
+import { buttonVariants } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 import { SectionHeading } from "./section-heading";
 
 const steps = [
@@ -58,10 +60,10 @@ export function StudioProcess() {
       <div className="mt-14 flex flex-wrap items-center gap-8">
         <Link
           to="/booking"
-          className="inline-flex min-h-[52px] items-center gap-6 border border-accent px-5 text-[0.65rem] font-semibold uppercase tracking-[0.2em] transition-colors hover:bg-accent hover:text-accent-foreground"
+          className={cn(buttonVariants({ variant: "brand", size: "cta" }), "min-h-[52px] gap-6")}
         >
           Start your booking
-          <ArrowRight size={18} strokeWidth={1.5} />
+          <ArrowRight className="size-[18px]" strokeWidth={1.5} />
         </Link>
 
         <Link
