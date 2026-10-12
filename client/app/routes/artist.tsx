@@ -2,6 +2,7 @@ import { data } from "react-router";
 import type { Route } from "./+types/artist";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import { PageHeader } from "~/components/shared/page-header";
 import { ArtistInfo } from "~/components/artists/artist-info";
 import { ArtistBooking } from "~/components/artists/artist-booking";
 import { PortfolioGallery } from "~/components/portfolio/portfolio-gallery";
@@ -58,7 +59,11 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
           All artists
         </Link>
 
-        <div className="mt-12 grid items-center gap-10 md:grid-cols-2 md:gap-16">
+        <div className="mt-10">
+          <PageHeader eyebrow="Artist profile" title={artist.name} titleId="artist-title" />
+        </div>
+
+        <div className="mt-14 grid items-center gap-10 md:grid-cols-2 md:gap-16">
           <div className="overflow-hidden border border-border">
             <img
               src={artist.imgUrl}
@@ -68,13 +73,6 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
           </div>
 
           <div>
-            <h1
-              id="artist-title"
-              className="font-display text-5xl uppercase leading-[0.91] tracking-[-0.055em] md:text-7xl"
-            >
-              {artist.name}
-            </h1>
-
             <ArtistInfo artist={artist} workHref="#work" />
           </div>
         </div>
