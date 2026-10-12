@@ -1,0 +1,44 @@
+{
+  "artists": [
+    {
+      "id": 1,
+      "slug": "taylor-goble",
+      "name": "Taylor Goble",
+      "specialties": ["Fine line", "Botanical", "Realism"],
+      "bio": "Taylor works in delicate fine line and botanical pieces, with a soft spot for realism. Every design is drawn to sit naturally with the body and age well over time.",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLdQzdpnfC6Ja9zoWGGopJVga7qcWPkxAYmGBYy-7VZg&s=10",
+      "instagram": "tdatattooist",
+      "isBooking": true
+    },
+    {
+      "id": 2,
+      "slug": "jeff-cusack",
+      "name": "Jeff Cusack",
+      "specialties": ["Traditional", "Neo traditional"],
+      "bio": "Jeff is rooted in bold lines and solid color. Jeff's traditional and neo traditional work is built to read clearly from across the room and hold up for decades.",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgPGOzKyFTHwsmbqW4JgLiLUMbMtCCLEWuesnRypcnEg&s=10",
+      "instagram": "jeff.cusack",
+      "isBooking": true
+    },
+    {
+      "id": 3,
+      "slug": "angel",
+      "name": "Angel",
+      "specialties": ["Blackwork", "Dark art"],
+      "bio": "Angel creates heavy blackwork and dark, surreal imagery. Expect strong contrast, unusual subjects, and pieces that feel like they came out of a dream.",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3_yaOP8dpWX_rrOdLKbgfSdo4JOzmgbdFJecmNMlPWg&s=10",
+      "instagram": "angeltattooslc",
+      "isBooking": false
+    },
+    {
+      "id": 4,
+      "slug": "chels-johnson",
+      "name": "Chels Johnson",
+      "specialties": ["Fine line"],
+      "bio": "Chels specializes in clean, minimal fine line work. These pieces are small in scale but precise, perfect for a first tattoo or a subtle addition to a collection.",
+      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUO8n0KzbBlUpmciFpDNrqPV4AYY10dDOhBT6nWPD67g&s=10",
+      "instagram": "chuy_caliart27",
+      "isBooking": true
+    }
+  ]
+}
