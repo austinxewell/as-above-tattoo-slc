@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
-import { FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { Link } from "react-router";
 import { SiteNavigation } from "./site-navigation";
 import { ThemeToggle } from "../theme-toggle";
@@ -34,7 +34,7 @@ export function SiteHeader() {
         {/* Desktop utility controls */}
         <div className="hidden shrink-0 items-center gap-2 lg:flex 2xl:gap-3">
           <a
-            href="https://www.instagram.com/"
+            href="https://www.instagram.com/asabovetattooslc/"
             target="_blank"
             rel="noreferrer"
             aria-label="Instagram"
@@ -43,25 +43,32 @@ export function SiteHeader() {
             <FaInstagram className="size-5" aria-hidden="true" />
           </a>
 
-          {/* Cart placeholder until shopping functionality is implemented */}
-          <button
-            type="button"
-            disabled
-            aria-label="Shopping cart coming soon"
-            title="Shopping cart coming soon"
-            className="inline-flex size-9 cursor-not-allowed items-center justify-center text-[#b8afa3]/50 2xl:size-10"
+          <a
+            href="https://www.facebook.com/AsAboveTattooSLC"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Facebook"
+            className="inline-flex size-9 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b] 2xl:size-10"
+          >
+            <FaFacebook className="size-5" aria-hidden="true" />
+          </a>
+
+          <Link
+            to="/shop/cart"
+            aria-label="Shopping cart"
+            className="inline-flex size-9 items-center justify-center text-[#b8afa3] 2xl:size-10"
           >
             <ShoppingCart className="size-5" aria-hidden="true" />
-          </button>
+          </Link>
 
           <ThemeToggle />
 
-          <a
-            href="#booking"
-            className="inline-flex shrink-0 items-center justify-center border border-[#c5a15b] px-3 py-3 text-xs font-semibold uppercase tracking-wider text-[#c5a15b] transition-colors hover:bg-[#c5a15b] hover:text-[#151515] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ddbd7b] 2xl:px-5 2xl:tracking-[0.2em]"
+          <Link
+            to="/booking"
+            className="inline-flex border border-[#c5a15b] px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a15b] transition-colors hover:bg-[#c5a15b] hover:text-[#151515] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ddbd7b]"
           >
             Book Now
-          </a>
+          </Link>
         </div>
 
         {/* Mobile and tablet navigation */}
@@ -99,17 +106,17 @@ export function SiteHeader() {
               <div className="px-4 pb-8">
                 <SiteNavigation orientation="vertical" onNavigate={() => setIsMenuOpen(false)} />
 
-                <a
-                  href="#booking"
+                <Link
+                  to="/booking"
                   onClick={() => setIsMenuOpen(false)}
                   className="mt-8 inline-flex border border-[#c5a15b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a15b] transition-colors hover:bg-[#c5a15b] hover:text-[#151515]"
                 >
                   Book Now
-                </a>
+                </Link>
 
                 <div className="mt-8 flex items-center gap-5 border-t border-[#45403a] pt-6">
                   <a
-                    href="https://www.instagram.com/"
+                    href="https://www.instagram.com/asabovetattooslc/"
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Instagram"
@@ -118,15 +125,24 @@ export function SiteHeader() {
                     <FaInstagram className="size-5" aria-hidden="true" />
                   </a>
 
-                  <button
-                    type="button"
-                    disabled
-                    aria-label="Shopping cart coming soon"
-                    title="Shopping cart coming soon"
-                    className="inline-flex size-10 cursor-not-allowed items-center justify-center text-[#b8afa3]/50"
+                  <a
+                    href="https://www.facebook.com/AsAboveTattooSLC"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Facebook"
+                    className="inline-flex size-9 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b] 2xl:size-10"
+                  >
+                    <FaFacebook className="size-5" aria-hidden="true" />
+                  </a>
+
+                  <Link
+                    to="/shop/cart"
+                    onClick={() => setIsMenuOpen(false)}
+                    aria-label="Shopping cart"
+                    className="inline-flex size-9 items-center justify-center text-[#b8afa3] 2xl:size-10"
                   >
                     <ShoppingCart className="size-5" aria-hidden="true" />
-                  </button>
+                  </Link>
                 </div>
 
                 <div className="mt-6 border-t border-[#45403a] pt-6">

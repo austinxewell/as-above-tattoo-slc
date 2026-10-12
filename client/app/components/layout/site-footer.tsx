@@ -1,4 +1,6 @@
 import { Link } from "react-router";
+import { FaFacebook, FaInstagram } from "react-icons/fa";
+import { ShoppingCart } from "lucide-react";
 
 const footerLinks = [
   { label: "Home", to: "/" },
@@ -28,6 +30,36 @@ export function SiteFooter() {
               Art that stays with you. Explore the artists, discover the work, and start planning
               your next tattoo.
             </p>
+
+            <div className="flex gap-2">
+              <a
+                href="https://www.instagram.com/asabovetattooslc/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+                className="inline-flex size-9 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b] 2xl:size-10"
+              >
+                <FaInstagram className="size-5" aria-hidden="true" />
+              </a>
+
+              <a
+                href="https://www.facebook.com/AsAboveTattooSLC"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Facebook"
+                className="inline-flex size-9 items-center justify-center text-[#c5a15b] transition-colors hover:text-[#ddbd7b] 2xl:size-10"
+              >
+                <FaFacebook className="size-5" aria-hidden="true" />
+              </a>
+
+              <Link
+                to="/shop/cart"
+                aria-label="Shopping cart"
+                className="inline-flex size-9 items-center justify-center text-[#b8afa3] 2xl:size-10"
+              >
+                <ShoppingCart className="size-5" aria-hidden="true" />
+              </Link>
+            </div>
           </div>
 
           {/* Navigation */}
@@ -60,12 +92,12 @@ export function SiteFooter() {
               Have an idea in mind? Take the next step toward making it a reality.
             </p>
 
-            <a
-              href="#booking"
+            <Link
+              to="/booking"
               className="inline-flex border border-[#c5a15b] px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a15b] transition-colors hover:bg-[#c5a15b] hover:text-[#151515] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ddbd7b]"
             >
               Book Now
-            </a>
+            </Link>
           </div>
         </div>
 
