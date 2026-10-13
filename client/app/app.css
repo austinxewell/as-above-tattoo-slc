@@ -182,6 +182,21 @@
   --sidebar-ring: #ddbd7b;
 }
 
+/* Print: always use the light palette, whatever the screen theme. */
+@media print {
+  .dark {
+    color-scheme: light;
+    --background: #ffffff;
+    --surface: #ffffff;
+    --surface-raised: #f1e9dc;
+    --foreground: #201c1a;
+    --muted-foreground: #62574d;
+    --border: #cbbba7;
+    --accent: #956c31;
+    --destructive: #b42318;
+  }
+}
+
 /* Global document defaults. */
 html {
   min-height: 100%;

@@ -48,7 +48,7 @@ export function ArtistBooking({ name, slug, isBooking, booking }: ArtistBookingP
 
           {isBooking && (
             <Link
-              to={`/booking?artist=${slug}`}
+              to={`/booking?artist=${slug}#request`}
               className={cn(buttonVariants({ variant: "brand", size: "cta" }), "mt-10")}
             >
               Book with {firstName}
