@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { createYoga, createSchema } from "graphql-yoga";
+import { createYoga } from "graphql-yoga";
+import { schema } from "./graphql/schema.js";
 
 const app = express();
 
@@ -13,20 +14,7 @@ app.use(
   }),
 );
 
-const yoga = createYoga({
-  schema: createSchema({
-    typeDefs: /* GraphQL */ `
-      type Query {
-        health: String!
-      }
-    `,
-    resolvers: {
-      Query: {
-        health: () => "Tattoo shop API is running!",
-      },
-    },
-  }),
-});
+const yoga = createYoga({ schema });
 
 app.get("/health", (_req, res) => {
   res.json({
