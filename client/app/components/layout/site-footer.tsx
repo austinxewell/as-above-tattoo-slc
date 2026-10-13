@@ -81,6 +81,14 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  to={"/careers"}
+                  className="text-sm uppercase tracking-widest text-foreground/75 transition-colors hover:text-accent-hover"
+                >
+                  careers
+                </Link>
+              </li>
             </ul>
           </nav>
 
