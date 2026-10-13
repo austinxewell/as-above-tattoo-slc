@@ -40,7 +40,7 @@ export function ArtistInfo({
         {artist.isBooking ? (
           <>
             <Link
-              to={`/booking?artist=${artist.slug}`}
+              to={`/booking?artist=${artist.slug}#request`}
               className={cn(buttonVariants({ variant: "brand", size: "cta" }))}
             >
               Book with {artist.name.split(" ")[0]}

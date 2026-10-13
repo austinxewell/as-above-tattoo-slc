@@ -15,7 +15,7 @@ const footerLinks = [
 
 export function SiteFooter() {
   return (
-    <footer className="dark border-t border-border bg-background text-foreground">
+    <footer className="dark border-t border-border bg-background text-foreground print:hidden">
       <div className="mx-auto w-full max-w-screen-2xl px-6 py-12 lg:px-10 lg:py-16 xl:px-14 2xl:px-16">
         <div className="grid gap-10 md:grid-cols-2 md:items-start lg:grid-cols-3 lg:gap-16">
           {/* Shop branding */}
