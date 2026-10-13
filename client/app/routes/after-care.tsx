@@ -62,13 +62,13 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
         >
           <TabsList
             variant="line"
-            className="w-full justify-start gap-8 border-b border-border group-data-horizontal/tabs:h-auto"
+            className="w-full items-stretch justify-start gap-8 border-b border-border group-data-horizontal/tabs:h-auto"
           >
             {methods.map((method) => (
               <TabsTrigger
                 key={method.slug}
                 value={method.slug}
-                className="flex-none px-0 pb-4 text-[0.65rem] uppercase tracking-[0.2em] whitespace-normal after:bg-accent data-active:text-accent"
+                className="min-w-0 shrink justify-start h-auto items-start text-left px-0 pb-4 text-[0.65rem] uppercase tracking-[0.2em] whitespace-normal after:bg-accent data-active:text-accent"
               >
                 {method.name}
               </TabsTrigger>
