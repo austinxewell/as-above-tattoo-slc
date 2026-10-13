@@ -1,6 +1,7 @@
 import type { Route } from "./+types/booking";
 import { Link } from "react-router";
 import { ArrowDown } from "lucide-react";
+import { FaInstagram } from "react-icons/fa";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { PageHeader } from "~/components/shared/page-header";
@@ -26,6 +27,7 @@ export async function clientLoader() {
     slug: artist.slug,
     name: artist.name,
     isBooking: artist.isBooking,
+    instagram: artist.instagram,
   }));
 
   return { ...bookingData, artists };
@@ -56,7 +58,16 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   // TODO: send to the API, which emails the artist and saves it for the admin portal.
   await new Promise((resolve) => setTimeout(resolve, 800));
 
-  return { ok: true as const, name };
+  // ORIGINAL: restore once booking requests are emailed to artists.
+  // return { ok: true as const, name };
+
+  // TEMPORARY: tells the user which artist to message on Instagram instead.
+  const artist = artistsData.artists.find((candidate) => candidate.slug === formData.get("artist"));
+  return {
+    ok: true as const,
+    name,
+    artist: artist ? { name: artist.name, instagram: artist.instagram } : null,
+  };
 }
 
 export default function Booking({ loaderData, actionData }: Route.ComponentProps) {
@@ -121,12 +132,74 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
         >
           Your request
         </h2>
+
+        {/* TEMPORARY: remove once booking requests are emailed to artists. */}
+        <div className="mt-8 max-w-3xl border border-accent/40 bg-background p-6">
+          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">
+            Online requests coming soon
+          </p>
+          <p className="mt-3 leading-7">
+            Requests sent through this form aren't delivered yet. For now, message your artist
+            directly on Instagram:
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3">
+            {loaderData.artists.map((artist) => (
+              <li key={artist.slug}>
+                <a
+                  href={`https://www.instagram.com/${artist.instagram}/`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 border-b border-accent pb-0.5 text-sm transition-colors hover:text-accent"
+                >
+                  <FaInstagram className="size-4" aria-hidden="true" />
+                  {artist.name} · @{artist.instagram}
+                  {!artist.isBooking && (
+                    <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                      Books closed
+                    </span>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div className="mt-12 max-w-3xl">
           {actionData?.ok ? (
-            <p className="font-display text-2xl leading-snug md:text-3xl">
-              Thanks, {actionData.name}. Your request is on its way, and your artist will reach out
-              soon.
-            </p>
+            <>
+              {/* ORIGINAL: restore once booking requests are emailed to artists.
+              <p className="font-display text-2xl leading-snug md:text-3xl">
+                Thanks, {actionData.name}. Your request is on its way, and your artist will reach
+                out soon.
+              </p>
+              */}
+
+              {/* TEMPORARY: requests aren't delivered yet, so point them to Instagram. */}
+              <div>
+                <p className="font-display text-2xl leading-snug md:text-3xl">
+                  Thanks, {actionData.name}. Online requests aren't being delivered yet, so this one
+                  wasn't sent.
+                </p>
+                <p className="mt-4 leading-7 text-muted-foreground">
+                  {actionData.artist ? (
+                    <>
+                      Please message {actionData.artist.name} on Instagram at{" "}
+                      <a
+                        href={`https://www.instagram.com/${actionData.artist.instagram}/`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="border-b border-accent text-foreground"
+                      >
+                        @{actionData.artist.instagram}
+                      </a>{" "}
+                      with your idea.
+                    </>
+                  ) : (
+                    "Please message one of our artists on Instagram using the links above."
+                  )}
+                </p>
+              </div>
+            </>
           ) : (
             <BookingForm artists={loaderData.artists} />
           )}
