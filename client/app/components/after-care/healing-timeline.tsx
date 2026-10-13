@@ -11,7 +11,7 @@ export function HealingTimeline({ stages }: HealingTimelineProps) {
   return (
     <ol className="mt-12 ml-4 flex flex-col gap-14 border-l border-accent/30">
       {stages.map((stage, index) => (
-        <li key={stage.id} className="relative pl-10">
+        <li key={stage.id} className="relative pl-10 break-inside-avoid">
           <span
             className="absolute top-0 -left-4 flex size-8 items-center justify-center rounded-full border border-accent bg-background font-display text-sm text-accent"
             aria-hidden="true"

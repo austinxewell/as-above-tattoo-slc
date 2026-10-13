@@ -45,10 +45,10 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
         aria-labelledby="artist-title"
       >
         <img
-          src="/images/logos/circle-seal.webp"
+          src="/images/logos/artist-badge.svg"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute top-4 -right-10 -z-10 w-[28rem] opacity-[0.18] dark:opacity-[0.07]"
+          className="pointer-events-none absolute top-4 -right-10 -z-10 w-[26rem] rotate-12 opacity-[0.18] dark:opacity-[0.07]"
         />
 
         <Link

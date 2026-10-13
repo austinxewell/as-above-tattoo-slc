@@ -10,5 +10,6 @@ export default [
     route("pricing", "routes/pricing.tsx"),
     ...prefix("shop", [index("routes/shop/index.tsx"), route("cart", "routes/shop/cart.tsx")]),
     route("booking", "routes/booking.tsx"),
+    route("*", "routes/not-found.tsx"),
   ]),
 ] satisfies RouteConfig;

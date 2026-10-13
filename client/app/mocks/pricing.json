@@ -1,0 +1,80 @@
+{
+  "intro": "Every tattoo is drawn custom, so there's no fixed price list. Your price depends on the design, your artist, and how long it takes. Here's how it works.",
+  "shopMinimum": "$80",
+  "factors": [
+    {
+      "id": 1,
+      "title": "Size",
+      "description": "Larger pieces take more time to draw and tattoo. Size is the biggest single factor in your price."
+    },
+    {
+      "id": 2,
+      "title": "Detail",
+      "description": "Fine line work, shading, and intricate patterns take longer than bold, simple designs of the same size."
+    },
+    {
+      "id": 3,
+      "title": "Placement",
+      "description": "Some areas, like ribs, hands, and feet, are harder to tattoo and can take longer to get right."
+    },
+    {
+      "id": 4,
+      "title": "Color",
+      "description": "Color work usually takes more passes than black and grey, which adds time."
+    },
+    {
+      "id": 5,
+      "title": "Sessions",
+      "description": "Large pieces like sleeves and back pieces are done over several sessions and priced per session."
+    }
+  ],
+  "policies": [
+    {
+      "id": 1,
+      "title": "Deposits",
+      "description": "A non-refundable deposit is required to book. It goes toward the final cost of your tattoo."
+    },
+    {
+      "id": 2,
+      "title": "Cancellations",
+      "description": "Give at least 48 hours' notice to reschedule and keep your deposit. Late cancellations or no-shows forfeit the deposit."
+    },
+    {
+      "id": 3,
+      "title": "Touch-ups",
+      "description": "One free touch-up within 3 months, as long as you followed the after care instructions."
+    },
+    {
+      "id": 4,
+      "title": "Payment",
+      "description": "We accept cash and all major cards. Payment is due at the end of each session."
+    }
+  ],
+  "faqs": [
+    {
+      "id": 1,
+      "question": "Can I get a quote over Instagram?",
+      "answer": "We can give a rough estimate if you send your idea, size, and placement. Your final price is confirmed at your consultation."
+    },
+    {
+      "id": 2,
+      "question": "Is there a shop minimum?",
+      "answer": "Yes. Every tattoo has a shop minimum that covers setup, sterile supplies, and cleanup, no matter how small the design."
+    },
+    {
+      "id": 3,
+      "question": "Do I need to tip?",
+      "answer": "Tips are never required but always appreciated. Most clients tip between 15% and 20%."
+    },
+    {
+      "id": 4,
+      "question": "Do you charge for drawing the design?",
+      "answer": "No. Design time is included in the price of your tattoo."
+    },
+    {
+      "id": 5,
+      "question": "Can I bring a friend?",
+      "answer": "One guest is welcome during your session, as long as there's room in the studio."
+    }
+  ]
+}

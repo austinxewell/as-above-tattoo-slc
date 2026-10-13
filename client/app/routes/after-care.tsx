@@ -1,7 +1,7 @@
 import type { Route } from "./+types/after-care";
 import { useSearchParams } from "react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Check, X, TriangleAlert } from "lucide-react";
+import { Check, X, TriangleAlert, Printer } from "lucide-react";
 import { PageHeader } from "~/components/shared/page-header";
 import { HealingTimeline } from "~/components/after-care/healing-timeline";
 
@@ -53,6 +53,15 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
           {loaderData.disclaimer}
         </p>
 
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="mt-8 inline-flex items-center gap-3 border-b border-accent pb-1 text-[0.65rem] font-medium uppercase tracking-[0.17em] print:hidden"
+        >
+          <Printer className="size-4" strokeWidth={1.5} aria-hidden="true" />
+          Print these instructions
+        </button>
+
         <Tabs
           value={activeMethod.slug}
           onValueChange={(value) =>
@@ -62,13 +71,13 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
         >
           <TabsList
             variant="line"
-            className="w-full justify-start gap-8 border-b border-border group-data-horizontal/tabs:h-auto"
+            className="w-full items-stretch justify-start gap-8 border-b border-border group-data-horizontal/tabs:h-auto"
           >
             {methods.map((method) => (
               <TabsTrigger
                 key={method.slug}
                 value={method.slug}
-                className="flex-none px-0 pb-4 text-[0.65rem] uppercase tracking-[0.2em] whitespace-normal after:bg-accent data-active:text-accent"
+                className="min-w-0 shrink justify-start h-auto items-start text-left px-0 pb-4 text-[0.65rem] uppercase tracking-[0.2em] whitespace-normal after:bg-accent data-active:text-accent"
               >
                 {method.name}
               </TabsTrigger>
@@ -86,7 +95,7 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
       </section>
 
       <section
-        className="bg-surface px-6 py-24 md:px-[6.2vw] md:py-32"
+        className="bg-surface px-6 py-24 md:px-[6.2vw] md:py-32 break-inside-avoid print:py-8"
         aria-labelledby="dos-donts-title"
       >
         <h2
@@ -97,7 +106,7 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
         </h2>
 
         <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-16">
-          <div>
+          <div className="break-inside-avoid">
             <h3 className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">Do</h3>
             <ul className="mt-6 flex flex-col">
               {loaderData.dos.map((item) => (
@@ -112,7 +121,7 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
             </ul>
           </div>
 
-          <div>
+          <div className="break-inside-avoid">
             <h3 className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
               Don't
             </h3>
@@ -132,7 +141,7 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
       </section>
 
       <section className="px-6 py-24 md:px-[6.2vw] md:py-32" aria-labelledby="warning-signs-title">
-        <div className="border border-destructive/50 bg-destructive/5 p-8 md:p-12">
+        <div className="border border-destructive/50 bg-destructive/5 p-8 md:p-12 break-inside-avoid">
           <div className="flex items-center gap-3 text-destructive">
             <TriangleAlert className="size-5 shrink-0" aria-hidden="true" />
             <h2
