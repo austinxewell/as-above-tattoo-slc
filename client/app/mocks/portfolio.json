@@ -4,7 +4,7 @@
       "id": 1,
       "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk4g-xNjP230X5K3QzQH63j05aNgz3NRnNf_FliZzF1Q&s=10",
       "style": "Fine line",
-      "artist": { "id": 4, "name": "Chels Johnson", "slug": "chels-johnson" },
+      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chels-johnson" },
       "tags": ["geometric", "space", "forearm", "arm", "black and grey"]
     },
     {
@@ -15,25 +15,11 @@
       "tags": ["dark", "evil", "animal", "arm", "black and grey"]
     },
     {
-      "id": 3,
-      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYf7mXyVUNnt-2SVWfMMmOoBu7mKFzua9XLBk02PMMbQ&s=10",
-      "style": "Ornamental",
-      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
-      "tags": ["geometric", "fine line", "black"]
-    },
-    {
       "id": 4,
       "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgxR5SnKQO6t5xVqw7l6VK5XMJYlISPNPUnLvFFQHDiA&s=10",
       "style": "Neo traditional",
       "artist": { "id": 2, "name": "Jeff Cusack", "slug": "jeff-cusack" },
       "tags": ["face", "lady", "animal", "color"]
-    },
-    {
-      "id": 5,
-      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy5jJuCWk_iC4k_dElg13ScG7dCFhzU5L-W58VRHvFbw&s=10",
-      "style": "Realism",
-      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
-      "tags": ["animal", "portrait", "black and grey", "lion", "elephant"]
     },
     {
       "id": 6,
@@ -60,29 +46,111 @@
       "id": 9,
       "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa1a_5cKagy7d_ZBw4KNGFQ0kUSxxqEJGWj8jhyTgywg&s=10",
       "style": "Fine line",
-      "artist": { "id": 4, "name": "Chels Johnson", "slug": "chels-johnson" },
+      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chels-johnson" },
       "tags": ["hand", "small"]
-    },
-    {
-      "id": 10,
-      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4nql_kNPrKAoNCuFPO4CoIPYImulrlb9U5uI3LfiHPw&s=10",
-      "style": "Blackwork",
-      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
-      "tags": ["blackout", "cover up", "black", "arm"]
-    },
-    {
-      "id": 11,
-      "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuE5z6PyIk0MPE7gjoFiQt5c9ikpYNJdV_rRRq3Qikng&s=10",
-      "style": "Japanese",
-      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
-      "tags": ["hand", "color", "fish", "koi", "finger waves"]
     },
     {
       "id": 12,
       "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStNuC1B8HyARbs6PIEer8c2yYhgyMq-I3t4NZcFyULHg&s=10",
       "style": "New school",
-      "artist": { "id": 4, "name": "Chels Johnson", "slug": "chels-johnson" },
+      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chels-johnson" },
       "tags": ["simpsons", "color", "cartoon"]
+    },
+    {
+      "id": 13,
+      "imgUrl": "https://i.postimg.cc/7LQ40jFs/5EF2803F-8C68-48A7-98FC-16EE763A7F10.jpg",
+      "style": "Illistrative",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "black and grey", "realism", "angel", "face", "clouds", "back"]
+    },
+    {
+      "id": 14,
+      "imgUrl": "https://i.postimg.cc/q770tp5V/IMG-0271.avif",
+      "style": "Realism",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "black and grey", "flower", "leg"]
+    },
+    {
+      "id": 15,
+      "imgUrl": "https://i.postimg.cc/vHdsrrNK/IMG-0326.avif",
+      "style": "Illistrative",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "black and grey", "realism", "face", "clock", "leg"]
+    },
+    {
+      "id": 16,
+      "imgUrl": "https://i.postimg.cc/Mp5qKndq/IMG-0956.avif",
+      "style": "Surrealism",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "black and grey", "illistrative", "eye", "wings", "arm"]
+    },
+    {
+      "id": 17,
+      "imgUrl": "https://i.postimg.cc/LssRqm07/IMG-1269.avif",
+      "style": "Illistrative",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "black and grey", "color", "flowers", "leaf", "leaves", "arm"]
+    },
+    {
+      "id": 18,
+      "imgUrl": "https://i.postimg.cc/br1jXrsD/IMG-1758.avif",
+      "style": "Illistrative",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "black and grey", "skull", "ram", "flowers", "large", "large scale", "back"]
+    },
+    {
+      "id": 19,
+      "imgUrl": "https://i.postimg.cc/NFRwhF5k/IMG-1994.avif",
+      "style": "Blackwork",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "geometric", "hand", "fingers"]
+    },
+    {
+      "id": 20,
+      "imgUrl": "https://i.postimg.cc/Sxgbbwxx/IMG-7593.avif",
+      "style": "Illistrative",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": [
+        "black",
+        "black and grey",
+        "leg",
+        "large",
+        "large scale",
+        "flowers",
+        "animal",
+        "ram",
+        "skull"
+      ]
+    },
+    {
+      "id": 21,
+      "imgUrl": "https://i.postimg.cc/J4WLNN2x/IMG-7652.avif",
+      "style": "Surrealism",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "black and grey", "ankle", "dark", "evil", "eye"]
+    },
+    {
+      "id": 22,
+      "imgUrl": "https://i.postimg.cc/CK60k93G/IMG-7960-2.avif",
+      "style": "Geometric",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": ["black", "leg", "calf", "mandala"]
+    },
+    {
+      "id": 23,
+      "imgUrl": "https://i.postimg.cc/52bfVB5n/IMG-9988.avif",
+      "style": "Illistrative",
+      "artist": { "id": 1, "name": "Taylor Goble", "slug": "taylor-goble" },
+      "tags": [
+        "black",
+        "black and grey",
+        "realism",
+        "text",
+        "lettering",
+        "leg",
+        "large",
+        "large scale"
+      ]
     }
   ]
 }
