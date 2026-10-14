@@ -1,7 +1,15 @@
-import { about } from "../../data/about.js";
+import { AboutModel } from "../../models/about.js";
 
 export const aboutResolvers = {
   Query: {
-    about: () => about,
+    about: async () => {
+      const about = await AboutModel.findOne();
+
+      if (!about) {
+        throw new Error("About content hasn't been added yet. Run the seed script.");
+      }
+
+      return about;
+    },
   },
 };
