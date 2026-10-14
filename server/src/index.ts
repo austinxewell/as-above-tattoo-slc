@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
+import { connectToDatabase } from "./db/connect.js";
 import { createYoga } from "graphql-yoga";
 import { schema } from "./graphql/schema.js";
 
@@ -22,6 +23,8 @@ app.get("/health", (_req, res) => {
     message: "Tattoo shop API is running!",
   });
 });
+
+await connectToDatabase();
 
 app.use("/graphql", yoga);
 
