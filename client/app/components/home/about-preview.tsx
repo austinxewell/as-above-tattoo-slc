@@ -4,7 +4,7 @@ type AboutPreviewProps = {
   about: {
     heading: string;
     body: string;
-    values: { id: number; title: string; description: string }[];
+    values: { id: string; title: string; description: string }[];
   };
 };
 
