@@ -9,16 +9,23 @@ import { buttonVariants } from "~/components/ui/button";
 import { PageHeader } from "~/components/shared/page-header";
 import { BookingForm } from "~/components/booking/booking-form";
 
-// Mock Data:
-import bookingData from "~/mocks/booking.json";
-
-const BOOKING_ARTISTS_QUERY = /* GraphQL */ `
-  query BookingArtists {
+const BOOKING_QUERY = /* GraphQL */ `
+  query Booking {
     artists {
       slug
       name
       isBooking
       instagram
+    }
+    bookingContent {
+      intro
+      steps {
+        id
+        title
+        description
+      }
+      whyRequest
+      disclaimer
     }
   }
 `;
@@ -32,6 +39,19 @@ const BOOKING_ARTIST_QUERY = /* GraphQL */ `
   }
 `;
 
+type BookingContentStepsValue = {
+  id: string;
+  title: string;
+  description: string;
+};
+
+type BookingContent = {
+  intro: string;
+  steps: BookingContentStepsValue[];
+  whyRequest: string;
+  disclaimer: string;
+};
+
 export function meta() {
   return [
     { title: "Book a Tattoo | As Above Tattoo" },
@@ -44,11 +64,12 @@ export function meta() {
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const { artists } = await graphqlRequest<{
+  const { artists, bookingContent } = await graphqlRequest<{
     artists: Pick<Artist, "slug" | "name" | "isBooking" | "instagram">[];
-  }>(BOOKING_ARTISTS_QUERY, undefined, request.signal);
+    bookingContent: BookingContent;
+  }>(BOOKING_QUERY, undefined, request.signal);
 
-  return { ...bookingData, artists };
+  return { artists, bookingContent };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -108,7 +129,7 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
           eyebrow="Booking"
           title="Request a tattoo"
           titleId="booking-title"
-          description={loaderData.intro}
+          description={loaderData.bookingContent.intro}
         />
 
         <Link
@@ -120,7 +141,7 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
         </Link>
 
         <ol className="mt-16 grid gap-px border border-border bg-border md:grid-cols-3">
-          {loaderData.steps.map((step, index) => (
+          {loaderData.bookingContent.steps.map((step, index) => (
             <li key={step.id} className="bg-background p-8">
               <span className="font-display text-3xl text-accent">
                 {String(index + 1).padStart(2, "0")}
@@ -134,9 +155,11 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
         </ol>
 
         <div className="mt-12 max-w-2xl">
-          <p className="font-display text-xl leading-snug md:text-2xl">{loaderData.whyRequest}</p>
+          <p className="font-display text-xl leading-snug md:text-2xl">
+            {loaderData.bookingContent.whyRequest}
+          </p>
           <p className="mt-4 text-sm leading-6 text-muted-foreground/80 italic">
-            {loaderData.disclaimer}
+            {loaderData.bookingContent.disclaimer}
           </p>
         </div>
       </section>

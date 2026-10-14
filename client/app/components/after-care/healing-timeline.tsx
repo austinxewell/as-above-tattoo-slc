@@ -1,6 +1,6 @@
 type HealingTimelineProps = {
   stages: {
-    id: number;
+    id: string;
     timeframe: string;
     title: string;
     steps: string[];

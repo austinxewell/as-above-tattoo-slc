@@ -1,12 +1,58 @@
 import type { Route } from "./+types/after-care";
 import { useSearchParams } from "react-router";
+import { graphqlRequest } from "~/lib/graphql";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Check, X, TriangleAlert, Printer } from "lucide-react";
 import { PageHeader } from "~/components/shared/page-header";
 import { HealingTimeline } from "~/components/after-care/healing-timeline";
 
-// Mock Data:
-import afterCareData from "~/mocks/after-care.json";
+const AFTER_CARE_QUERY = /* GraphQL */ `
+  query AfterCare {
+    afterCare {
+      intro
+      disclaimer
+      methods {
+        id
+        slug
+        name
+        description
+        stages {
+          id
+          timeframe
+          title
+          steps
+        }
+      }
+      dos
+      donts
+      warningSigns
+    }
+  }
+`;
+
+type MethodStageValue = {
+  id: string;
+  timeframe: string;
+  title: string;
+  steps: string[];
+};
+
+type AfterCareMethodValue = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  stages: MethodStageValue[];
+};
+
+type AfterCareData = {
+  intro: string;
+  disclaimer: string;
+  methods: AfterCareMethodValue[];
+  dos: string[];
+  donts: string[];
+  warningSigns: string[];
+};
 
 export function meta() {
   return [
@@ -19,13 +65,17 @@ export function meta() {
   ] satisfies Route.MetaDescriptors;
 }
 
-export async function clientLoader() {
-  return afterCareData;
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  const { afterCare } = await graphqlRequest<{
+    afterCare: AfterCareData;
+  }>(AFTER_CARE_QUERY, undefined, request.signal);
+
+  return { afterCare };
 }
 
 export default function AfterCare({ loaderData }: Route.ComponentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { methods } = loaderData;
+  const { methods } = loaderData.afterCare;
   const activeMethod =
     methods.find((method) => method.slug === searchParams.get("method")) ?? methods[0];
 
@@ -46,11 +96,11 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
           eyebrow="Healing guide"
           title="After care"
           titleId="after-care-title"
-          description={loaderData.intro}
+          description={loaderData.afterCare.intro}
         />
 
         <p className="mt-6 max-w-md text-sm leading-6 text-muted-foreground/80 italic">
-          {loaderData.disclaimer}
+          {loaderData.afterCare.disclaimer}
         </p>
 
         <button
@@ -109,7 +159,7 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
           <div className="break-inside-avoid">
             <h3 className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">Do</h3>
             <ul className="mt-6 flex flex-col">
-              {loaderData.dos.map((item) => (
+              {loaderData.afterCare.dos.map((item) => (
                 <li
                   key={item}
                   className="flex gap-4 border-t border-border py-4 leading-7 last:border-b"
@@ -126,7 +176,7 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
               Don't
             </h3>
             <ul className="mt-6 flex flex-col">
-              {loaderData.donts.map((item) => (
+              {loaderData.afterCare.donts.map((item) => (
                 <li
                   key={item}
                   className="flex gap-4 border-t border-border py-4 leading-7 last:border-b"
@@ -157,7 +207,7 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
           </p>
 
           <ul className="mt-8 grid gap-x-12 gap-y-3 md:grid-cols-2">
-            {loaderData.warningSigns.map((sign) => (
+            {loaderData.afterCare.warningSigns.map((sign) => (
               <li key={sign} className="flex gap-3 leading-7">
                 <span className="text-destructive" aria-hidden="true">
                   &mdash;

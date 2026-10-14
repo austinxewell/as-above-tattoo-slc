@@ -1,0 +1,33 @@
+export type BookingContentValue = {
+  title: string;
+  description: string;
+};
+
+export type BookingContent = {
+  intro: string;
+  steps: BookingContentValue[];
+  whyRequest: string;
+  disclaimer: string;
+};
+
+export const bookingContent: BookingContent = {
+  intro: "Every tattoo is custom, so booking starts with a conversation, not a calendar.",
+  steps: [
+    {
+      title: "Send your request",
+      description: "Tell us about your idea, placement, and size, and choose an artist.",
+    },
+    {
+      title: "Your artist reviews it",
+      description: "They make sure it's a good fit and estimate how long it will take.",
+    },
+    {
+      title: "Schedule and deposit",
+      description: "Your artist contacts you to pick a date and take a deposit to hold your spot.",
+    },
+  ],
+  whyRequest:
+    "Custom work can take anywhere from one hour to several sessions. Reviewing your idea first lets your artist give you an accurate time and price, instead of guessing.",
+  disclaimer:
+    "Your artist may ask for more details or an in-person consultation before scheduling your appointment.",
+};
