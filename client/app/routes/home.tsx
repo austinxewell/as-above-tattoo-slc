@@ -7,9 +7,6 @@ import { AboutPreview } from "~/components/home/about-preview";
 import { ArtistsPreview } from "~/components/home/artists-preview";
 import { StudioProcess } from "~/components/home/studio-process";
 
-// Mock Data:
-import homeData from "~/mocks/home.json";
-
 const HOME_QUERY = /* GraphQL */ `
   query Home {
     about {
@@ -27,6 +24,16 @@ const HOME_QUERY = /* GraphQL */ `
       slug
       specialties
       imgUrl
+    }
+    pieces(featured: true, first: 50) {
+      items {
+        id
+        style
+        imgUrl
+        artist {
+          name
+        }
+      }
     }
   }
 `;
@@ -51,19 +58,20 @@ export function meta() {
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const { about, artists } = await graphqlRequest<{ about: About; artists: HomeArtist[] }>(
-    HOME_QUERY,
-    undefined,
-    request.signal,
-  );
-  return { about, artists };
+  const { about, artists, pieces } = await graphqlRequest<{
+    about: About;
+    artists: HomeArtist[];
+    pieces: { items: { id: string; style: string; imgUrl: string; artist: { name: string } }[] };
+  }>(HOME_QUERY, undefined, request.signal);
+
+  return { about, artists, portfolio: pieces.items };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <Hero />
-      <PortfolioPreview portfolio={homeData.portfolio} />
+      <PortfolioPreview portfolio={loaderData.portfolio} />
       <AboutPreview about={loaderData.about} />
       <ArtistsPreview artists={loaderData.artists} />
       <StudioProcess />
