@@ -4,7 +4,7 @@
       "id": 1,
       "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk4g-xNjP230X5K3QzQH63j05aNgz3NRnNf_FliZzF1Q&s=10",
       "style": "Fine line",
-      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chels-johnson" },
+      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chuy-mendoza" },
       "tags": ["geometric", "space", "forearm", "arm", "black and grey"]
     },
     {
@@ -46,14 +46,14 @@
       "id": 9,
       "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa1a_5cKagy7d_ZBw4KNGFQ0kUSxxqEJGWj8jhyTgywg&s=10",
       "style": "Fine line",
-      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chels-johnson" },
+      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chuy-mendoza" },
       "tags": ["hand", "small"]
     },
     {
       "id": 12,
       "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStNuC1B8HyARbs6PIEer8c2yYhgyMq-I3t4NZcFyULHg&s=10",
       "style": "New school",
-      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chels-johnson" },
+      "artist": { "id": 4, "name": "Chuy Mendoza", "slug": "chuy-mendoza" },
       "tags": ["simpsons", "color", "cartoon"]
     },
     {

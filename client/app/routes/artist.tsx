@@ -3,14 +3,11 @@ import type { Route } from "./+types/artist";
 import { Link } from "react-router";
 import { graphqlRequest } from "~/lib/graphql";
 import type { Artist } from "~/components/artists/artist-list";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { PortfolioGallery, type PortfolioPiece } from "~/components/portfolio/portfolio-gallery";
 import { PageHeader } from "~/components/shared/page-header";
 import { ArtistInfo } from "~/components/artists/artist-info";
 import { ArtistBooking } from "~/components/artists/artist-booking";
-import { PortfolioGallery } from "~/components/portfolio/portfolio-gallery";
-
-// Mock Data:
-import portfolioData from "~/mocks/portfolio.json";
 
 const ARTIST_QUERY = /* GraphQL */ `
   query Artist($slug: String!) {
@@ -31,6 +28,20 @@ const ARTIST_QUERY = /* GraphQL */ `
         availability
         notes
       }
+    }
+    pieces(artist: $slug) {
+      items {
+        id
+        imgUrl
+        style
+        tags
+        artist {
+          id
+          name
+          slug
+        }
+      }
+      nextCursor
     }
     artists {
       id
@@ -56,10 +67,11 @@ type ArtistPageData = {
       })
     | null;
   artists: Pick<Artist, "id" | "slug" | "name" | "specialties" | "imgUrl">[];
+  pieces: { items: PortfolioPiece[]; nextCursor: string | null };
 };
 
 export async function clientLoader({ params, request }: Route.ClientLoaderArgs) {
-  const { artist, artists } = await graphqlRequest<ArtistPageData>(
+  const { artist, artists, pieces } = await graphqlRequest<ArtistPageData>(
     ARTIST_QUERY,
     { slug: params.slug },
     request.signal,
@@ -69,10 +81,9 @@ export async function clientLoader({ params, request }: Route.ClientLoaderArgs) 
     throw data("Artist not found", { status: 404 });
   }
 
-  const pieces = portfolioData.pieces.filter((piece) => piece.artist.slug === artist.slug);
   const otherArtists = artists.filter((candidate) => candidate.slug !== artist.slug);
 
-  return { artist, pieces, otherArtists };
+  return { artist, pieces: pieces.items, hasMorePieces: pieces.nextCursor !== null, otherArtists };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -166,7 +177,19 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
         </h2>
 
         {loaderData.pieces.length > 0 ? (
-          <PortfolioGallery pieces={loaderData.pieces} />
+          <>
+            <PortfolioGallery pieces={loaderData.pieces} />
+
+            {loaderData.hasMorePieces && (
+              <Link
+                to={`/portfolio?artist=${artist.slug}`}
+                className="mt-14 inline-flex items-center gap-3 border-b border-accent pb-1 text-[0.65rem] font-medium uppercase tracking-[0.17em]"
+              >
+                View all work by {artist.name.split(" ")[0]}
+                <ArrowRight size={14} strokeWidth={1.5} />
+              </Link>
+            )}
+          </>
         ) : (
           <p className="mt-6 text-muted-foreground">New work from {artist.name} is coming soon.</p>
         )}

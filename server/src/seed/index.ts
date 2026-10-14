@@ -3,11 +3,13 @@ import mongoose from "mongoose";
 import { connectToDatabase } from "../db/connect.js";
 import { seedAbout } from "./about.js";
 import { seedArtists } from "./artists.js";
+import { seedPieces } from "./pieces.js";
 
 // Order matters: seed anything another collection references first.
 const seeders = {
   about: seedAbout,
   artists: seedArtists,
+  pieces: seedPieces,
 };
 
 const isLocal = /127\.0\.0\.1|localhost/.test(process.env.MONGO_URL ?? "");

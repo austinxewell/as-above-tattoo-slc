@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { X } from "lucide-react";
+import { FadeInImage } from "~/components/shared/fade-in-image";
 
 export type PortfolioPiece = {
-  id: number;
+  id: string;
   imgUrl: string;
   style: string;
-  artist: { id: number; name: string; slug: string };
+  artist: { id: string; name: string; slug: string };
   tags: string[];
 };
 
@@ -33,12 +34,10 @@ export function PortfolioGallery({ pieces }: PortfolioGalleryProps) {
                 aria-label={`Enlarge ${piece.style} tattoo by ${piece.artist.name}`}
                 className="group block h-full w-full cursor-zoom-in focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
               >
-                <img
+                <FadeInImage
                   src={piece.imgUrl}
                   alt={`${piece.style} tattoo by ${piece.artist.name}`}
-                  loading="lazy"
-                  className="h-full w-full object-contain saturate-[0.65] contrast-[1.08]transition duration-700 ease-out group-hover:scale-105 group-hover:saturate-100 group-focus-visible:saturate-100
-"
+                  className="h-full w-full object-contain saturate-[0.65] contrast-[1.08] group-hover:scale-105 group-hover:saturate-100 group-focus-visible:saturate-100"
                 />
               </button>
 
