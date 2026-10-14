@@ -1,6 +1,6 @@
 {
   "intro": "Every tattoo is drawn custom, so there's no fixed price list. Your price depends on the design, your artist, and how long it takes. Here's how it works.",
-  "shopMinimum": "$80",
+  "shopMinimum": "$100",
   "factors": [
     {
       "id": 1,
@@ -20,7 +20,7 @@
     {
       "id": 4,
       "title": "Color",
-      "description": "Color work usually takes more passes than black and grey, which adds time."
+      "description": "Color work usually takes more time to saturate the color than black and grey."
     },
     {
       "id": 5,
@@ -74,7 +74,7 @@
     {
       "id": 5,
       "question": "Can I bring a friend?",
-      "answer": "One guest is welcome during your session, as long as there's room in the studio."
+      "answer": "One guest 18 or older is welcome during your session, as long as there's room in the studio."
     }
   ]
 }
