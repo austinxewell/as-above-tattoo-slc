@@ -136,7 +136,7 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
           to="#request"
           className={cn(buttonVariants({ variant: "brand", size: "cta" }), "mt-10")}
         >
-          Start your request
+          Start your booking request
           <ArrowDown className="size-4" strokeWidth={1.5} />
         </Link>
 
