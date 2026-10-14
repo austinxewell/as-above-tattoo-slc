@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { graphqlRequest } from "~/lib/graphql";
+import type { Artist } from "~/components/artists/artist-list";
 import { Hero } from "~/components/home/hero";
 import { PortfolioPreview } from "~/components/home/portfolio-preview";
 import { AboutPreview } from "~/components/home/about-preview";
@@ -9,8 +10,8 @@ import { StudioProcess } from "~/components/home/studio-process";
 // Mock Data:
 import homeData from "~/mocks/home.json";
 
-const ABOUT_QUERY = /* GraphQL */ `
-  query About {
+const HOME_QUERY = /* GraphQL */ `
+  query Home {
     about {
       heading
       body
@@ -20,6 +21,13 @@ const ABOUT_QUERY = /* GraphQL */ `
         description
       }
     }
+    artists {
+      id
+      name
+      slug
+      specialties
+      imgUrl
+    }
   }
 `;
 
@@ -28,6 +36,8 @@ type About = {
   body: string;
   values: { id: string; title: string; description: string }[];
 };
+
+type HomeArtist = Pick<Artist, "id" | "name" | "slug" | "specialties" | "imgUrl">;
 
 export function meta() {
   return [
@@ -41,8 +51,12 @@ export function meta() {
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const { about } = await graphqlRequest<{ about: About }>(ABOUT_QUERY, undefined, request.signal);
-  return { about };
+  const { about, artists } = await graphqlRequest<{ about: About; artists: HomeArtist[] }>(
+    HOME_QUERY,
+    undefined,
+    request.signal,
+  );
+  return { about, artists };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
@@ -51,7 +65,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <Hero />
       <PortfolioPreview portfolio={homeData.portfolio} />
       <AboutPreview about={loaderData.about} />
-      <ArtistsPreview artists={homeData.artists} />
+      <ArtistsPreview artists={loaderData.artists} />
       <StudioProcess />
     </>
   );
