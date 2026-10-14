@@ -1,28 +1,89 @@
 import { data } from "react-router";
 import type { Route } from "./+types/artist";
 import { Link } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { graphqlRequest } from "~/lib/graphql";
+import type { Artist } from "~/components/artists/artist-list";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { PortfolioGallery, type PortfolioPiece } from "~/components/portfolio/portfolio-gallery";
 import { PageHeader } from "~/components/shared/page-header";
 import { ArtistInfo } from "~/components/artists/artist-info";
 import { ArtistBooking } from "~/components/artists/artist-booking";
-import { PortfolioGallery } from "~/components/portfolio/portfolio-gallery";
 
-// Moke Data:
-import artistsData from "~/mocks/artists.json";
-import portfolioData from "~/mocks/portfolio.json";
+const ARTIST_QUERY = /* GraphQL */ `
+  query Artist($slug: String!) {
+    artist(slug: $slug) {
+      id
+      slug
+      name
+      specialties
+      bio
+      imgUrl
+      instagram
+      isBooking
+      statement
+      booking {
+        minimum
+        rate
+        deposit
+        availability
+        notes
+      }
+    }
+    pieces(artist: $slug) {
+      items {
+        id
+        imgUrl
+        style
+        tags
+        artist {
+          id
+          name
+          slug
+        }
+      }
+      nextCursor
+    }
+    artists {
+      id
+      slug
+      name
+      specialties
+      imgUrl
+    }
+  }
+`;
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const artist = artistsData.artists.find((candidate) => candidate.slug === params.slug);
+type ArtistPageData = {
+  artist:
+    | (Artist & {
+        statement: string;
+        booking: {
+          minimum: string;
+          rate: string;
+          deposit: string;
+          availability: string;
+          notes: string[];
+        };
+      })
+    | null;
+  artists: Pick<Artist, "id" | "slug" | "name" | "specialties" | "imgUrl">[];
+  pieces: { items: PortfolioPiece[]; nextCursor: string | null };
+};
+
+export async function clientLoader({ params, request }: Route.ClientLoaderArgs) {
+  const { artist, artists, pieces } = await graphqlRequest<ArtistPageData>(
+    ARTIST_QUERY,
+    { slug: params.slug },
+    request.signal,
+  );
 
   if (!artist) {
     throw data("Artist not found", { status: 404 });
   }
 
-  const pieces = portfolioData.pieces.filter((piece) => piece.artist.slug === artist.slug);
+  const otherArtists = artists.filter((candidate) => candidate.slug !== artist.slug);
 
-  const otherArtists = artistsData.artists.filter((candidate) => candidate.slug !== artist.slug);
-
-  return { artist, pieces, otherArtists };
+  return { artist, pieces: pieces.items, hasMorePieces: pieces.nextCursor !== null, otherArtists };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -116,7 +177,19 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
         </h2>
 
         {loaderData.pieces.length > 0 ? (
-          <PortfolioGallery pieces={loaderData.pieces} />
+          <>
+            <PortfolioGallery pieces={loaderData.pieces} />
+
+            {loaderData.hasMorePieces && (
+              <Link
+                to={`/portfolio?artist=${artist.slug}`}
+                className="mt-14 inline-flex items-center gap-3 border-b border-accent pb-1 text-[0.65rem] font-medium uppercase tracking-[0.17em]"
+              >
+                View all work by {artist.name.split(" ")[0]}
+                <ArrowRight size={14} strokeWidth={1.5} />
+              </Link>
+            )}
+          </>
         ) : (
           <p className="mt-6 text-muted-foreground">New work from {artist.name} is coming soon.</p>
         )}

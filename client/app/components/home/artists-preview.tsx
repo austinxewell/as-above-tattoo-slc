@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 
 type ArtistsPreviewProps = {
-  artists: { id: number; name: string; slug: string; specialty: string; imgUrl: string }[];
+  artists: { id: string; name: string; slug: string; specialties: string[]; imgUrl: string }[];
 };
 
 export function ArtistsPreview({ artists }: ArtistsPreviewProps) {
@@ -34,7 +34,7 @@ export function ArtistsPreview({ artists }: ArtistsPreviewProps) {
               </div>
               <h3 className="mt-5 font-display text-2xl">{artist.name}</h3>
               <p className="mt-1 text-[0.65rem] uppercase tracking-[0.17em] text-muted-foreground">
-                {artist.specialty}
+                {artist.specialties.join(" · ")}
               </p>
             </Link>
           </li>

@@ -2,13 +2,13 @@ import { Link } from "react-router";
 import { ArtistInfo } from "./artist-info";
 
 export type Artist = {
-  id: number;
+  id: string;
   slug: string;
   name: string;
   specialties: string[];
   bio: string;
   imgUrl: string;
-  instagram: string;
+  instagram: string | null;
   isBooking: boolean;
 };
 

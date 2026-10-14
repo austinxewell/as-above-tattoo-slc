@@ -2,14 +2,55 @@ import type { Route } from "./+types/booking";
 import { Link } from "react-router";
 import { ArrowDown } from "lucide-react";
 import { FaInstagram } from "react-icons/fa";
-import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
+import { graphqlRequest } from "~/lib/graphql";
+import type { Artist } from "~/components/artists/artist-list";
+import { buttonVariants } from "~/components/ui/button";
 import { PageHeader } from "~/components/shared/page-header";
 import { BookingForm } from "~/components/booking/booking-form";
 
-// Mock Data:
-import bookingData from "~/mocks/booking.json";
-import artistsData from "~/mocks/artists.json";
+const BOOKING_QUERY = /* GraphQL */ `
+  query Booking {
+    artists {
+      slug
+      name
+      isBooking
+      instagram
+    }
+    bookingContent {
+      intro
+      steps {
+        id
+        title
+        description
+      }
+      whyRequest
+      disclaimer
+    }
+  }
+`;
+
+const BOOKING_ARTIST_QUERY = /* GraphQL */ `
+  query BookingArtist($slug: String!) {
+    artist(slug: $slug) {
+      name
+      instagram
+    }
+  }
+`;
+
+type BookingContentStepsValue = {
+  id: string;
+  title: string;
+  description: string;
+};
+
+type BookingContent = {
+  intro: string;
+  steps: BookingContentStepsValue[];
+  whyRequest: string;
+  disclaimer: string;
+};
 
 export function meta() {
   return [
@@ -22,15 +63,13 @@ export function meta() {
   ] satisfies Route.MetaDescriptors;
 }
 
-export async function clientLoader() {
-  const artists = artistsData.artists.map((artist) => ({
-    slug: artist.slug,
-    name: artist.name,
-    isBooking: artist.isBooking,
-    instagram: artist.instagram,
-  }));
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  const { artists, bookingContent } = await graphqlRequest<{
+    artists: Pick<Artist, "slug" | "name" | "isBooking" | "instagram">[];
+    bookingContent: BookingContent;
+  }>(BOOKING_QUERY, undefined, request.signal);
 
-  return { ...bookingData, artists };
+  return { artists, bookingContent };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -60,13 +99,15 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
   // ORIGINAL: restore once booking requests are emailed to artists.
   // return { ok: true as const, name };
-
   // TEMPORARY: tells the user which artist to message on Instagram instead.
-  const artist = artistsData.artists.find((candidate) => candidate.slug === formData.get("artist"));
+  const { artist } = await graphqlRequest<{
+    artist: Pick<Artist, "name" | "instagram"> | null;
+  }>(BOOKING_ARTIST_QUERY, { slug: String(formData.get("artist") ?? "") }, request.signal);
+
   return {
     ok: true as const,
     name,
-    artist: artist ? { name: artist.name, instagram: artist.instagram } : null,
+    artist: artist?.instagram ? { name: artist.name, instagram: artist.instagram } : null,
   };
 }
 
@@ -88,7 +129,7 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
           eyebrow="Booking"
           title="Request a tattoo"
           titleId="booking-title"
-          description={loaderData.intro}
+          description={loaderData.bookingContent.intro}
         />
 
         <Link
@@ -100,7 +141,7 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
         </Link>
 
         <ol className="mt-16 grid gap-px border border-border bg-border md:grid-cols-3">
-          {loaderData.steps.map((step, index) => (
+          {loaderData.bookingContent.steps.map((step, index) => (
             <li key={step.id} className="bg-background p-8">
               <span className="font-display text-3xl text-accent">
                 {String(index + 1).padStart(2, "0")}
@@ -114,9 +155,11 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
         </ol>
 
         <div className="mt-12 max-w-2xl">
-          <p className="font-display text-xl leading-snug md:text-2xl">{loaderData.whyRequest}</p>
+          <p className="font-display text-xl leading-snug md:text-2xl">
+            {loaderData.bookingContent.whyRequest}
+          </p>
           <p className="mt-4 text-sm leading-6 text-muted-foreground/80 italic">
-            {loaderData.disclaimer}
+            {loaderData.bookingContent.disclaimer}
           </p>
         </div>
       </section>
@@ -143,24 +186,26 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
             directly on Instagram:
           </p>
           <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3">
-            {loaderData.artists.map((artist) => (
-              <li key={artist.slug}>
-                <a
-                  href={`https://www.instagram.com/${artist.instagram}/`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 border-b border-accent pb-0.5 text-sm transition-colors hover:text-accent"
-                >
-                  <FaInstagram className="size-4" aria-hidden="true" />
-                  {artist.name} · @{artist.instagram}
-                  {!artist.isBooking && (
-                    <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                      Books closed
-                    </span>
-                  )}
-                </a>
-              </li>
-            ))}
+            {loaderData.artists
+              .filter((artist) => artist.instagram)
+              .map((artist) => (
+                <li key={artist.slug}>
+                  <a
+                    href={`https://www.instagram.com/${artist.instagram}/`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 border-b border-accent pb-0.5 text-sm transition-colors hover:text-accent"
+                  >
+                    <FaInstagram className="size-4" aria-hidden="true" />
+                    {artist.name} · @{artist.instagram}
+                    {!artist.isBooking && (
+                      <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                        Books closed
+                      </span>
+                    )}
+                  </a>
+                </li>
+              ))}
           </ul>
         </div>
 

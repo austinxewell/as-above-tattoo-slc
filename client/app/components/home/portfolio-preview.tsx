@@ -1,9 +1,10 @@
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "./section-heading";
+import { FadeInImage } from "../shared/fade-in-image";
 
 type PortfolioPreviewProps = {
-  portfolio: { id: number; style: string; artist: string; imgUrl: string }[];
+  portfolio: { id: string; style: string; imgUrl: string; artist: { name: string } }[];
 };
 
 export function PortfolioPreview({ portfolio }: PortfolioPreviewProps) {
@@ -19,7 +20,7 @@ export function PortfolioPreview({ portfolio }: PortfolioPreviewProps) {
           index="02"
           eyebrow="Selected work"
           title="The portfolio"
-          description="A look at recent pieces from the studio. Every tattoo is drawn custom for the person wearing it."
+          description="Featured pieces from across the studio's styles. Every tattoo is drawn custom for the person wearing it."
         />
 
         <Link
@@ -35,17 +36,16 @@ export function PortfolioPreview({ portfolio }: PortfolioPreviewProps) {
         {portfolio.map((piece) => (
           <li key={piece.id}>
             <figure>
-              <div className="overflow-hidden border border-border">
-                <img
+              <div className="relative overflow-hidden border border-border">
+                <FadeInImage
                   src={piece.imgUrl}
-                  alt={`${piece.style} tattoo by ${piece.artist}`}
-                  loading="lazy"
+                  alt={`${piece.style} tattoo by ${piece.artist.name}`}
                   className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08]"
                 />
               </div>
               <figcaption className="mt-3 flex justify-between gap-2 text-[0.65rem] uppercase tracking-[0.15em]">
                 <span>{piece.style}</span>
-                <span className="text-muted-foreground">{piece.artist}</span>
+                <span className="text-muted-foreground">{piece.artist.name}</span>
               </figcaption>
             </figure>
           </li>

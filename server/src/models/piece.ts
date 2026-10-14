@@ -1,0 +1,15 @@
+import { Schema, model, type InferSchemaType } from "mongoose";
+
+const pieceSchema = new Schema(
+  {
+    imgUrl: { type: String, required: true, trim: true },
+    style: { type: String, required: true, trim: true },
+    artist: { type: Schema.Types.ObjectId, ref: "Artist", required: true, index: true },
+    tags: { type: [String], default: [] },
+    isFeatured: { type: Boolean, default: false, index: true },
+  },
+  { timestamps: true },
+);
+
+export type Piece = InferSchemaType<typeof pieceSchema>;
+export const PieceModel = model("Piece", pieceSchema);

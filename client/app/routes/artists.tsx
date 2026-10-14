@@ -1,9 +1,23 @@
 import type { Route } from "./+types/artists";
+import { graphqlRequest } from "~/lib/graphql";
+import type { Artist } from "~/components/artists/artist-list";
 import { PageHeader } from "~/components/shared/page-header";
 import { ArtistList } from "~/components/artists/artist-list";
 
-// Mock Data:
-import artistsData from "~/mocks/artists.json";
+const ARTISTS_QUERY = /* GraphQL */ `
+  query Artists {
+    artists {
+      id
+      slug
+      name
+      specialties
+      bio
+      imgUrl
+      instagram
+      isBooking
+    }
+  }
+`;
 
 export function meta() {
   return [
@@ -12,8 +26,13 @@ export function meta() {
   ] satisfies Route.MetaDescriptors;
 }
 
-export async function clientLoader() {
-  return { artists: artistsData.artists };
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  const { artists } = await graphqlRequest<{ artists: Artist[] }>(
+    ARTISTS_QUERY,
+    undefined,
+    request.signal,
+  );
+  return { artists };
 }
 
 export default function Artists({ loaderData }: Route.ComponentProps) {
