@@ -1,11 +1,27 @@
 import type { Route } from "./+types/pricing";
 import { Link } from "react-router";
 import { Plus } from "lucide-react";
+import { graphqlRequest } from "~/lib/graphql";
+import type { Artist } from "~/components/artists/artist-list";
 import { PageHeader } from "~/components/shared/page-header";
 
 // Mock Data:
 import pricingData from "~/mocks/pricing.json";
-import artistsData from "~/mocks/artists.json";
+
+const PRICING_ARTISTS_QUERY = /* GraphQL */ `
+  query PricingArtists {
+    artists {
+      slug
+      name
+      isBooking
+      booking {
+        minimum
+        rate
+        deposit
+      }
+    }
+  }
+`;
 
 export function meta() {
   return [
@@ -18,8 +34,18 @@ export function meta() {
   ] satisfies Route.MetaDescriptors;
 }
 
-export async function clientLoader() {
-  const artistRates = artistsData.artists.map((artist) => ({
+type PricingArtist = Pick<Artist, "slug" | "name" | "isBooking"> & {
+  booking: { minimum: string; rate: string; deposit: string };
+};
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  const { artists } = await graphqlRequest<{ artists: PricingArtist[] }>(
+    PRICING_ARTISTS_QUERY,
+    undefined,
+    request.signal,
+  );
+
+  const artistRates = artists.map((artist) => ({
     slug: artist.slug,
     name: artist.name,
     isBooking: artist.isBooking,

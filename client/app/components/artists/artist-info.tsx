@@ -61,14 +61,16 @@ export function ArtistInfo({
           </Link>
         )}
 
-        <a
-          href={`https://www.instagram.com/${artist.instagram}/`}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-accent"
-        >
-          <FaInstagram className="size-4" aria-hidden="true" />@{artist.instagram}
-        </a>
+        {artist.instagram && (
+          <a
+            href={`https://www.instagram.com/${artist.instagram}/`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-accent"
+          >
+            <FaInstagram className="size-4" aria-hidden="true" />@{artist.instagram}
+          </a>
+        )}
       </div>
     </>
   );
