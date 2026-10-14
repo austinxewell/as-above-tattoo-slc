@@ -5,11 +5,8 @@ import { graphqlRequest } from "~/lib/graphql";
 import type { Artist } from "~/components/artists/artist-list";
 import { PageHeader } from "~/components/shared/page-header";
 
-// Mock Data:
-import pricingData from "~/mocks/pricing.json";
-
-const PRICING_ARTISTS_QUERY = /* GraphQL */ `
-  query PricingArtists {
+const PRICING_QUERY = /* GraphQL */ `
+  query Pricing {
     artists {
       slug
       name
@@ -20,8 +17,51 @@ const PRICING_ARTISTS_QUERY = /* GraphQL */ `
         deposit
       }
     }
+    pricing {
+      intro
+      shopMinimum
+      factors {
+        id
+        title
+        description
+      }
+      policies {
+        id
+        title
+        description
+      }
+      faqs {
+        id
+        question
+        answer
+      }
+    }
   }
 `;
+
+type PricingArtist = Pick<Artist, "slug" | "name" | "isBooking"> & {
+  booking: { minimum: string; rate: string; deposit: string };
+};
+
+type PricingFactorAndPolicyValue = {
+  id: string;
+  title: string;
+  description: string;
+};
+
+type PricingFaqValue = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+type PricingData = {
+  intro: string;
+  shopMinimum: string;
+  factors: PricingFactorAndPolicyValue[];
+  policies: PricingFactorAndPolicyValue[];
+  faqs: PricingFaqValue[];
+};
 
 export function meta() {
   return [
@@ -34,16 +74,11 @@ export function meta() {
   ] satisfies Route.MetaDescriptors;
 }
 
-type PricingArtist = Pick<Artist, "slug" | "name" | "isBooking"> & {
-  booking: { minimum: string; rate: string; deposit: string };
-};
-
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const { artists } = await graphqlRequest<{ artists: PricingArtist[] }>(
-    PRICING_ARTISTS_QUERY,
-    undefined,
-    request.signal,
-  );
+  const { artists, pricing } = await graphqlRequest<{
+    artists: PricingArtist[];
+    pricing: PricingData;
+  }>(PRICING_QUERY, undefined, request.signal);
 
   const artistRates = artists.map((artist) => ({
     slug: artist.slug,
@@ -54,7 +89,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     deposit: artist.booking.deposit,
   }));
 
-  return { ...pricingData, artistRates };
+  return { pricing, artistRates };
 }
 
 export default function Pricing({ loaderData }: Route.ComponentProps) {
@@ -75,14 +110,14 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
           eyebrow="Pricing"
           title="What it costs"
           titleId="pricing-title"
-          description={loaderData.intro}
+          description={loaderData.pricing.intro}
         />
 
         <p className="mt-8 inline-flex items-baseline gap-3 border border-accent/40 px-5 py-3">
           <span className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">
             Shop minimum
           </span>
-          <span className="font-display text-2xl">{loaderData.shopMinimum}</span>
+          <span className="font-display text-2xl">{loaderData.pricing.shopMinimum}</span>
         </p>
       </section>
 
@@ -104,7 +139,7 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
           </div>
 
           <dl>
-            {loaderData.factors.map((factor, index) => (
+            {loaderData.pricing.factors.map((factor, index) => (
               <div
                 key={factor.id}
                 className="grid gap-2 border-t border-border py-7 last:border-b sm:grid-cols-[12rem_1fr] sm:gap-8"
@@ -190,7 +225,7 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
         </h2>
 
         <ul className="mt-14 grid gap-5 sm:grid-cols-2">
-          {loaderData.policies.map((policy) => (
+          {loaderData.pricing.policies.map((policy) => (
             <li key={policy.id} className="border border-border bg-background p-8">
               <h3 className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">
                 {policy.title}
@@ -210,7 +245,7 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
         </h2>
 
         <div className="mt-12 max-w-3xl">
-          {loaderData.faqs.map((faq) => (
+          {loaderData.pricing.faqs.map((faq) => (
             <details key={faq.id} className="group border-t border-border last:border-b">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 font-display text-xl md:text-2xl [&::-webkit-details-marker]:hidden">
                 {faq.question}
