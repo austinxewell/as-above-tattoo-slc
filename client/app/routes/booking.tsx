@@ -1,13 +1,14 @@
 import type { Route } from "./+types/booking";
-import { Link } from "react-router";
+import { Link, type ShouldRevalidateFunctionArgs } from "react-router";
 import { ArrowDown } from "lucide-react";
-import { FaInstagram } from "react-icons/fa";
 import { cn } from "~/lib/utils";
 import { graphqlRequest } from "~/lib/graphql";
 import type { Artist } from "~/components/artists/artist-list";
 import { buttonVariants } from "~/components/ui/button";
 import { PageHeader } from "~/components/shared/page-header";
 import { BookingForm } from "~/components/booking/booking-form";
+import { BookingSuccess } from "~/components/booking/booking-success";
+import { InstagramNotice } from "~/components/booking/instagram-notice";
 
 const BOOKING_QUERY = /* GraphQL */ `
   query Booking {
@@ -27,15 +28,13 @@ const BOOKING_QUERY = /* GraphQL */ `
       whyRequest
       disclaimer
     }
+    bookingRequestsEnabled
   }
 `;
 
-const BOOKING_ARTIST_QUERY = /* GraphQL */ `
-  query BookingArtist($slug: String!) {
-    artist(slug: $slug) {
-      name
-      instagram
-    }
+const REQUEST_BOOKING_MUTATION = /* GraphQL */ `
+  mutation RequestBooking($input: BookingRequestInput!) {
+    requestBooking(input: $input)
   }
 `;
 
@@ -64,17 +63,41 @@ export function meta() {
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const { artists, bookingContent } = await graphqlRequest<{
+  const { artists, bookingContent, bookingRequestsEnabled } = await graphqlRequest<{
     artists: Pick<Artist, "slug" | "name" | "isBooking" | "instagram">[];
     bookingContent: BookingContent;
+    bookingRequestsEnabled: boolean;
   }>(BOOKING_QUERY, undefined, request.signal);
 
-  return { artists, bookingContent };
+  return { artists, bookingContent, bookingRequestsEnabled };
+}
+
+export function shouldRevalidate({
+  formMethod,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  if (formMethod === "POST") return false;
+  return defaultShouldRevalidate;
+}
+
+function toFormError(error: unknown) {
+  if (error instanceof TypeError) {
+    return "We couldn't reach our booking system. Check your connection and try again in a moment.";
+  }
+
+  if (
+    error instanceof Error &&
+    error.message !== "Unexpected error." &&
+    !error.message.startsWith("API request failed")
+  ) {
+    return error.message;
+  }
+
+  return "Something went wrong on our end. Please try again in a moment.";
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
-  console.log("Booking request:", Object.fromEntries(formData));
 
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
@@ -94,21 +117,33 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     return { ok: false as const, errors };
   }
 
-  // TODO: send to the API, which emails the artist and saves it for the admin portal.
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  const optional = (field: string) => String(formData.get(field) ?? "").trim() || null;
+  const artist = String(formData.get("artist") ?? "");
 
-  // ORIGINAL: restore once booking requests are emailed to artists.
-  // return { ok: true as const, name };
-  // TEMPORARY: tells the user which artist to message on Instagram instead.
-  const { artist } = await graphqlRequest<{
-    artist: Pick<Artist, "name" | "instagram"> | null;
-  }>(BOOKING_ARTIST_QUERY, { slug: String(formData.get("artist") ?? "") }, request.signal);
+  try {
+    await graphqlRequest(
+      REQUEST_BOOKING_MUTATION,
+      {
+        input: {
+          artist: artist === "any" ? null : artist,
+          name,
+          email,
+          phone: optional("phone"),
+          placement,
+          size,
+          budget: optional("budget"),
+          idea,
+          availability: optional("availability"),
+          website: optional("website"),
+        },
+      },
+      request.signal,
+    );
+  } catch (error) {
+    return { ok: false as const, errors: { form: toFormError(error) } };
+  }
 
-  return {
-    ok: true as const,
-    name,
-    artist: artist?.instagram ? { name: artist.name, instagram: artist.instagram } : null,
-  };
+  return { ok: true as const, name };
 }
 
 export default function Booking({ loaderData, actionData }: Route.ComponentProps) {
@@ -136,7 +171,7 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
           to="#request"
           className={cn(buttonVariants({ variant: "brand", size: "cta" }), "mt-10")}
         >
-          Start your request
+          Start your booking request
           <ArrowDown className="size-4" strokeWidth={1.5} />
         </Link>
 
@@ -176,75 +211,11 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
           Your request
         </h2>
 
-        {/* TEMPORARY: remove once booking requests are emailed to artists. */}
-        <div className="mt-8 max-w-3xl border border-accent/40 bg-background p-6">
-          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">
-            Online requests coming soon
-          </p>
-          <p className="mt-3 leading-7">
-            Requests sent through this form aren't delivered yet. For now, message your artist
-            directly on Instagram:
-          </p>
-          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3">
-            {loaderData.artists
-              .filter((artist) => artist.instagram)
-              .map((artist) => (
-                <li key={artist.slug}>
-                  <a
-                    href={`https://www.instagram.com/${artist.instagram}/`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 border-b border-accent pb-0.5 text-sm transition-colors hover:text-accent"
-                  >
-                    <FaInstagram className="size-4" aria-hidden="true" />
-                    {artist.name} · @{artist.instagram}
-                    {!artist.isBooking && (
-                      <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                        Books closed
-                      </span>
-                    )}
-                  </a>
-                </li>
-              ))}
-          </ul>
-        </div>
-
         <div className="mt-12 max-w-3xl">
-          {actionData?.ok ? (
-            <>
-              {/* ORIGINAL: restore once booking requests are emailed to artists.
-              <p className="font-display text-2xl leading-snug md:text-3xl">
-                Thanks, {actionData.name}. Your request is on its way, and your artist will reach
-                out soon.
-              </p>
-              */}
-
-              {/* TEMPORARY: requests aren't delivered yet, so point them to Instagram. */}
-              <div>
-                <p className="font-display text-2xl leading-snug md:text-3xl">
-                  Thanks, {actionData.name}. Online requests aren't being delivered yet, so this one
-                  wasn't sent.
-                </p>
-                <p className="mt-4 leading-7 text-muted-foreground">
-                  {actionData.artist ? (
-                    <>
-                      Please message {actionData.artist.name} on Instagram at{" "}
-                      <a
-                        href={`https://www.instagram.com/${actionData.artist.instagram}/`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="border-b border-accent text-foreground"
-                      >
-                        @{actionData.artist.instagram}
-                      </a>{" "}
-                      with your idea.
-                    </>
-                  ) : (
-                    "Please message one of our artists on Instagram using the links above."
-                  )}
-                </p>
-              </div>
-            </>
+          {!loaderData.bookingRequestsEnabled ? (
+            <InstagramNotice artists={loaderData.artists} />
+          ) : actionData?.ok ? (
+            <BookingSuccess name={actionData.name} />
           ) : (
             <BookingForm artists={loaderData.artists} />
           )}
