@@ -20,6 +20,10 @@ type BookingRequestInput = {
   website?: string | null;
 };
 
+export function bookingRequestsEnabled() {
+  return process.env.BOOKING_REQUESTS_ENABLED === "true";
+}
+
 async function findRecipients(artistId?: Types.ObjectId) {
   if (artistId) {
     const artistUser = await UserModel.findOne({ artist: artistId }, { email: 1 });
@@ -30,12 +34,19 @@ async function findRecipients(artistId?: Types.ObjectId) {
 }
 
 export const bookingResolvers = {
+  Query: {
+    bookingRequestsEnabled: () => bookingRequestsEnabled(),
+  },
   Mutation: {
     requestBooking: async (
       _parent: unknown,
       { input }: { input: BookingRequestInput },
       context: { req: Request },
     ) => {
+      if (!bookingRequestsEnabled()) {
+        throw new GraphQLError("Online booking requests aren't open yet.");
+      }
+
       if (isRateLimited(context.req.ip ?? "unknown")) {
         throw new GraphQLError(
           "You've sent a few requests recently. Please wait a bit and try again.",

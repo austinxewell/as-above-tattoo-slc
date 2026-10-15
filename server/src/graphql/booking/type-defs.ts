@@ -22,4 +22,8 @@ export const bookingTypeDefs = /* GraphQL */ `
   extend type Mutation {
     requestBooking(input: BookingRequestInput!): ID!
   }
+
+  extend type Query {
+    bookingRequestsEnabled: Boolean!
+  }
 `;

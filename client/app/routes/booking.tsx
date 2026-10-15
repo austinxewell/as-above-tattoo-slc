@@ -8,6 +8,7 @@ import { buttonVariants } from "~/components/ui/button";
 import { PageHeader } from "~/components/shared/page-header";
 import { BookingForm } from "~/components/booking/booking-form";
 import { BookingSuccess } from "~/components/booking/booking-success";
+import { InstagramNotice } from "~/components/booking/instagram-notice";
 
 const BOOKING_QUERY = /* GraphQL */ `
   query Booking {
@@ -27,6 +28,7 @@ const BOOKING_QUERY = /* GraphQL */ `
       whyRequest
       disclaimer
     }
+    bookingRequestsEnabled
   }
 `;
 
@@ -61,12 +63,13 @@ export function meta() {
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const { artists, bookingContent } = await graphqlRequest<{
+  const { artists, bookingContent, bookingRequestsEnabled } = await graphqlRequest<{
     artists: Pick<Artist, "slug" | "name" | "isBooking" | "instagram">[];
     bookingContent: BookingContent;
+    bookingRequestsEnabled: boolean;
   }>(BOOKING_QUERY, undefined, request.signal);
 
-  return { artists, bookingContent };
+  return { artists, bookingContent, bookingRequestsEnabled };
 }
 
 export function shouldRevalidate({
@@ -209,7 +212,9 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
         </h2>
 
         <div className="mt-12 max-w-3xl">
-          {actionData?.ok ? (
+          {!loaderData.bookingRequestsEnabled ? (
+            <InstagramNotice artists={loaderData.artists} />
+          ) : actionData?.ok ? (
             <BookingSuccess name={actionData.name} />
           ) : (
             <BookingForm artists={loaderData.artists} />
