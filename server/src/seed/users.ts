@@ -1,7 +1,9 @@
+import * as argon2 from "argon2";
 import { ArtistModel } from "../models/artist.js";
 import { UserModel } from "../models/user.js";
 import { users } from "./data/users.js";
-import * as argon2 from "argon2";
+import { readFile } from "node:fs/promises";
+import type { SeedUser } from "./data/users.js";
 
 export async function seedUsers() {
   const artists = await ArtistModel.find({}, { slug: 1 });
@@ -10,7 +12,10 @@ export async function seedUsers() {
   const seedPassword = process.env.SEED_USER_PASSWORD;
   const passwordHash = seedPassword ? await argon2.hash(seedPassword) : undefined;
 
-  for (const { artistSlug, ...user } of users) {
+  const usersFile = process.env.SEED_USERS_FILE;
+  const seedUsers: SeedUser[] = usersFile ? JSON.parse(await readFile(usersFile, "utf8")) : users;
+
+  for (const { artistSlug, ...user } of seedUsers) {
     const artist = artistSlug ? artistIds.get(artistSlug) : undefined;
 
     if (artistSlug && !artist) {
