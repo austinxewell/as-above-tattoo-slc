@@ -6,3 +6,9 @@
 
 [build.environment]
   NODE_VERSION = "24"
+
+[[redirects]]
+from = "/graphql"
+to = "https://as-above-tattoo-slc-production.up.railway.app/graphql"
+status = 200
+force = true

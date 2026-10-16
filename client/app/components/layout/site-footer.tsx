@@ -130,6 +130,13 @@ export function SiteFooter() {
                 AuEwellify
               </Link>
             </p>
+
+            <Link
+              to="/login"
+              className="w-fit text-muted-foreground/60 transition-colors hover:text-accent"
+            >
+              Staff Portal
+            </Link>
           </div>
 
           <p className="uppercase tracking-[0.15em]">Made for the art. Built to last.</p>
