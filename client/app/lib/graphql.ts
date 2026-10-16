@@ -10,7 +10,7 @@ export async function graphqlRequest<TData>(
 ): Promise<TData> {
   const response = await fetch(import.meta.env.VITE_API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "x-graphql-yoga-csrf": "1" },
     body: JSON.stringify({ query, variables }),
     signal,
   });
