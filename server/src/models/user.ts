@@ -6,6 +6,7 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true, trim: true, lowercase: true },
     role: { type: String, required: true, enum: ["admin", "artist"] },
     artist: { type: Schema.Types.ObjectId, ref: "Artist", unique: true, sparse: true },
+    passwordHash: { type: String, select: false },
   },
   { timestamps: true },
 );

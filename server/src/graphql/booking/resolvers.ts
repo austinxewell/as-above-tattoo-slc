@@ -1,11 +1,12 @@
 import { GraphQLError } from "graphql";
 import { Types } from "mongoose";
-import type { Request } from "express";
-import { isRateLimited } from "./rate-limit.js";
+import { createRateLimiter } from "../../security/rate-limit.js";
 import { ArtistModel } from "../../models/artist.js";
 import { BookingModel, type Booking } from "../../models/booking.js";
 import { UserModel } from "../../models/user.js";
 import { sendEmail } from "../../email/send-email.js";
+import { requireUser } from "../../auth/guards.js";
+import type { GraphQLContext } from "../context.js";
 
 type BookingRequestInput = {
   artist?: string | null;
@@ -19,6 +20,8 @@ type BookingRequestInput = {
   availability?: string | null;
   website?: string | null;
 };
+
+const isRateLimited = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
 
 export function bookingRequestsEnabled() {
   return process.env.BOOKING_REQUESTS_ENABLED === "true";
@@ -36,12 +39,20 @@ async function findRecipients(artistId?: Types.ObjectId) {
 export const bookingResolvers = {
   Query: {
     bookingRequestsEnabled: () => bookingRequestsEnabled(),
+    bookings: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
+      const user = requireUser(context);
+
+      const filter =
+        user.role === "admin" ? {} : { $or: [{ artist: user.artist }, { artist: null }] };
+
+      return BookingModel.find(filter).sort({ createdAt: -1 });
+    },
   },
   Mutation: {
     requestBooking: async (
       _parent: unknown,
       { input }: { input: BookingRequestInput },
-      context: { req: Request },
+      context: GraphQLContext,
     ) => {
       if (!bookingRequestsEnabled()) {
         throw new GraphQLError("Online booking requests aren't open yet.");
@@ -101,5 +112,10 @@ export const bookingResolvers = {
 
       return booking.id;
     },
+  },
+  BookingRequest: {
+    artist: (booking: { artist?: unknown }) =>
+      booking.artist ? ArtistModel.findById(booking.artist) : null,
+    createdAt: (booking: { createdAt: Date }) => booking.createdAt.toISOString(),
   },
 };
