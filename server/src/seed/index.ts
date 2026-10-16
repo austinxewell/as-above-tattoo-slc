@@ -8,11 +8,13 @@ import { seedPieces } from "./pieces.js";
 import { seedBookingContent } from "./booking-content.js";
 import { seedPricing } from "./pricing.js";
 import { seedAfterCare } from "./after-care.js";
+import { seedUsers } from "./users.js";
 
 // Order matters: seed anything another collection references first.
 const seeders = {
   about: seedAbout,
   artists: seedArtists,
+  users: seedUsers,
   pieces: seedPieces,
   bookingContent: seedBookingContent,
   pricing: seedPricing,

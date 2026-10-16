@@ -1,6 +1,6 @@
 import { Form, useSearchParams, useNavigation, useActionData } from "react-router";
 import type { clientAction } from "~/routes/booking";
-import { ArrowRight, LoaderCircle } from "lucide-react";
+import { ArrowRight, LoaderCircle, TriangleAlert } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -192,9 +192,13 @@ export function BookingForm({ artists }: BookingFormProps) {
           rows={6}
           placeholder="Describe what you'd like, the style, and anything that's important to you."
           aria-invalid={errors?.idea ? true : undefined}
-          aria-describedby={errors?.idea ? "idea-error" : undefined}
+          aria-describedby={errors?.idea ? "idea-hint idea-error" : "idea-hint"}
           className={fieldClasses}
         />
+        <p id="idea-hint" className="mt-2 text-sm text-muted-foreground">
+          Have reference images? Mention them here and your artist will ask for them when they reach
+          out.
+        </p>
         {errors?.idea && (
           <p id="idea-error" className="mt-2 text-sm text-destructive">
             {errors.idea}
@@ -202,6 +206,7 @@ export function BookingForm({ artists }: BookingFormProps) {
         )}
       </div>
 
+      {/* ORIGINAL: restore once reference images can be uploaded and stored.
       <div className="md:col-span-2">
         <label htmlFor="references" className={labelClasses}>
           Reference images{" "}
@@ -216,6 +221,7 @@ export function BookingForm({ artists }: BookingFormProps) {
           className={`${fieldClasses} file:mr-4 file:border-0 file:bg-transparent file:text-[0.65rem] file:uppercase file:tracking-[0.2em] file:text-accent`}
         />
       </div>
+            */}
 
       <div className="md:col-span-2">
         <label htmlFor="availability" className={labelClasses}>
@@ -231,7 +237,31 @@ export function BookingForm({ artists }: BookingFormProps) {
         />
       </div>
 
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label htmlFor="website">Website</label>
+        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div className="md:col-span-2">
+        {errors?.form && (
+          <div
+            role="alert"
+            className="mb-8 flex gap-4 border border-destructive/40 bg-destructive/10 p-5"
+          >
+            <TriangleAlert
+              className="mt-0.5 size-5 shrink-0 text-destructive"
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
+            <div>
+              <p className="text-[0.65rem] uppercase tracking-[0.2em] text-destructive">
+                Request not sent
+              </p>
+              <p className="mt-2 leading-7">{errors.form}</p>
+            </div>
+          </div>
+        )}
+
         <Button type="submit" variant="brand" size="cta" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
