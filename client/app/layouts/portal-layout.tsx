@@ -1,12 +1,11 @@
-import { Form, NavLink, Outlet, redirect } from "react-router";
+import { useState } from "react";
+import { Outlet, redirect } from "react-router";
 import type { Route } from "./+types/portal-layout";
-import {
-  canUseAdmin,
-  canUseArtist,
-  currentUserContext,
-  fetchCurrentUser,
-} from "~/lib/current-user";
-import { cn } from "~/lib/utils";
+import { currentUserContext, fetchCurrentUser } from "~/lib/current-user";
+import { PortalSidebar } from "~/components/portal/portal-sidebar";
+import { Sheet, SheetContent, SheetTitle } from "~/components/ui/sheet";
+import { PortalBrand } from "~/components/portal/portal-brand";
+import { MenuTrigger } from "~/components/shared/menu-trigger";
 
 export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
   async ({ request, context }) => {
@@ -24,46 +23,33 @@ export async function clientLoader({ context }: Route.ClientLoaderArgs) {
   return { me: context.get(currentUserContext) };
 }
 
-const toggleClasses = ({ isActive }: { isActive: boolean }) =>
-  cn(
-    "px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.2em] transition-colors",
-    isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-accent",
-  );
-
 export default function PortalLayout({ loaderData }: Route.ComponentProps) {
   const { me } = loaderData;
-  const canSwitch = canUseAdmin(me) && canUseArtist(me);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
-      <header className="flex items-center justify-between border-b border-border px-6 py-4">
-        <p className="font-display text-xl">As Above · Portal</p>
+    <div className="min-h-screen bg-background text-foreground md:flex">
+      <aside className="dark sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-background text-foreground md:block">
+        <PortalSidebar user={me} />
+      </aside>
 
-        {canSwitch && (
-          <nav aria-label="Dashboard" className="flex border border-border">
-            <NavLink to="/portal/admin" className={toggleClasses}>
-              Admin
-            </NavLink>
-            <NavLink to="/portal/artist" className={toggleClasses}>
-              Artist
-            </NavLink>
-          </nav>
-        )}
+      <header className="dark flex items-center justify-between border-b border-border bg-background px-6 py-4 text-foreground md:hidden">
+        <PortalBrand />
 
-        <div className="flex items-center gap-6">
-          <p className="text-sm text-muted-foreground">{me.name}</p>
-          <Form method="post" action="/logout">
-            <button
-              type="submit"
-              className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-accent"
-            >
-              Log out
-            </button>
-          </Form>
-        </div>
+        <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+          <MenuTrigger label="Open portal menu" />
+
+          <SheetContent
+            side="right"
+            className="dark w-72 border-border bg-background p-0 text-foreground"
+          >
+            <SheetTitle className="sr-only">Portal menu</SheetTitle>
+            <PortalSidebar user={me} onNavigate={() => setIsMenuOpen(false)} />
+          </SheetContent>
+        </Sheet>
       </header>
 
-      <main className="px-6 py-10">
+      <main className="min-w-0 flex-1 px-6 py-10 md:px-10">
         <Outlet />
       </main>
     </div>
