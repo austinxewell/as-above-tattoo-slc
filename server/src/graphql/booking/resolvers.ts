@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import { Types } from "mongoose";
+import { isValidObjectId, Types } from "mongoose";
 import { createRateLimiter } from "../../security/rate-limit.js";
 import { ArtistModel } from "../../models/artist.js";
 import { BookingModel, type Booking } from "../../models/booking.js";
@@ -39,13 +39,32 @@ async function findRecipients(artistId?: Types.ObjectId) {
 export const bookingResolvers = {
   Query: {
     bookingRequestsEnabled: () => bookingRequestsEnabled(),
-    bookings: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
+    bookings: (_parent: unknown, { mine }: { mine?: boolean | null }, context: GraphQLContext) => {
       const user = requireUser(context);
+      const onlyMine = mine === true || user.role !== "admin";
 
-      const filter =
-        user.role === "admin" ? {} : { $or: [{ artist: user.artist }, { artist: null }] };
+      if (onlyMine && !user.artist) {
+        return [];
+      }
+
+      const filter = onlyMine ? { $or: [{ artist: user.artist }, { artist: null }] } : {};
 
       return BookingModel.find(filter).sort({ createdAt: -1 });
+    },
+    booking: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
+      const user = requireUser(context);
+
+      if (!isValidObjectId(id)) return null;
+
+      const booking = await BookingModel.findById(id);
+      if (!booking) return null;
+
+      if (user.role === "admin") return booking;
+
+      const isOpenToAll = !booking.artist;
+      const isTheirs = Boolean(user.artist && booking.artist?.equals(user.artist));
+
+      return isOpenToAll || isTheirs ? booking : null;
     },
   },
   Mutation: {
@@ -111,6 +130,54 @@ export const bookingResolvers = {
       }
 
       return booking.id;
+    },
+    updateBookingStatus: async (
+      _parent: unknown,
+      {
+        ids,
+        status,
+        assignTo,
+      }: { ids: string[]; status: Booking["status"]; assignTo?: string | null },
+      context: GraphQLContext,
+    ) => {
+      const user = requireUser(context);
+
+      if (ids.length > 100) {
+        throw new GraphQLError("You can update up to 100 requests at a time.");
+      }
+
+      if (user.role !== "admin" && !user.artist) {
+        return 0;
+      }
+
+      const access =
+        user.role === "admin" ? {} : { $or: [{ artist: user.artist }, { artist: null }] };
+      const filter = { _id: { $in: ids.filter((id) => isValidObjectId(id)) }, ...access };
+
+      if (status === "scheduled") {
+        let assignee: Types.ObjectId | null | undefined =
+          user.role === "artist" ? user.artist : null;
+
+        if (user.role === "admin" && assignTo) {
+          const artist = await ArtistModel.findOne({ slug: assignTo });
+
+          if (!artist) throw new GraphQLError("That artist doesn't exist.");
+          assignee = artist._id;
+        }
+
+        const unassigned = { ...filter, artist: null };
+
+        if (!assignee && (await BookingModel.exists(unassigned))) {
+          throw new GraphQLError("Choose which artist the No preference requests are assigned to.");
+        }
+
+        if (assignee) {
+          await BookingModel.updateMany(unassigned, { artist: assignee });
+        }
+      }
+
+      const result = await BookingModel.updateMany(filter, { status });
+      return result.matchedCount;
     },
   },
   BookingRequest: {
