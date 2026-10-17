@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import type { Request, Response } from "express";
@@ -9,6 +8,7 @@ import { connectToDatabase } from "./db/connect.js";
 import { createYoga } from "graphql-yoga";
 import { schema } from "./graphql/schema.js";
 import type { GraphQLContext } from "./graphql/context.js";
+import { getClientIp } from "./security/netlify-proxy.js";
 
 const app = express();
 
@@ -16,20 +16,17 @@ app.set("trust proxy", 1);
 
 const PORT = Number(process.env.PORT) || 4000;
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-  }),
-);
-
 app.use(cookieParser());
 
 const yoga = createYoga<
   { req: Request; res: Response },
-  { currentUser: GraphQLContext["currentUser"] }
+  Pick<GraphQLContext, "currentUser" | "clientIp">
 >({
   schema,
-  context: async ({ req }) => ({ currentUser: await getCurrentUser(req) }),
+  context: async ({ req }) => {
+    const [currentUser, clientIp] = await Promise.all([getCurrentUser(req), getClientIp(req)]);
+    return { currentUser, clientIp };
+  },
   plugins: [useCSRFPrevention({ requestHeaders: ["x-graphql-yoga-csrf"] })],
 });
 

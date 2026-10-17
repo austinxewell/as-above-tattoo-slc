@@ -5,4 +5,5 @@ export type GraphQLContext = {
   req: Request;
   res: Response;
   currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
+  clientIp: string;
 };

@@ -41,7 +41,7 @@ export const authResolvers = {
       { email, password }: { email: string; password: string },
       context: GraphQLContext,
     ) => {
-      if (isLoginRateLimited(context.req.ip ?? "unknown")) {
+      if (isLoginRateLimited(context.clientIp)) {
         throw new GraphQLError("Too many login attempts. Please wait a few minutes and try again.");
       }
 
@@ -74,7 +74,7 @@ export const authResolvers = {
       { email }: { email: string },
       context: GraphQLContext,
     ) => {
-      if (isResetRateLimited(context.req.ip ?? "unknown")) {
+      if (isResetRateLimited(context.clientIp)) {
         throw new GraphQLError("Too many reset requests. Please wait a few minutes and try again.");
       }
 
