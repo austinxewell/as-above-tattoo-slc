@@ -9,6 +9,7 @@ import { createYoga } from "graphql-yoga";
 import { schema } from "./graphql/schema.js";
 import type { GraphQLContext } from "./graphql/context.js";
 import { getClientIp } from "./security/netlify-proxy.js";
+import { requireNetlifyProxy } from "./security/netlify-proxy.js";
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.get("/health", (_req, res) => {
 
 await connectToDatabase();
 
+app.use("/graphql", requireNetlifyProxy);
 app.use("/graphql", (req, res) => yoga(req, res, { req, res }));
 
 app.listen(PORT, () => {
