@@ -4,9 +4,11 @@ import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { Link } from "react-router";
 import { SiteNavigation } from "./site-navigation";
 import { ThemeToggle } from "../theme-toggle";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "~/components/ui/sheet";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
+import { MenuTrigger } from "../shared/menu-trigger";
+import { AppearanceSection } from "../shared/appearance-section";
 
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -79,14 +81,7 @@ export function SiteHeader() {
         {/* Mobile and tablet navigation */}
         <div className="lg:hidden">
           <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <SheetTrigger
-              aria-label="Open navigation menu"
-              className="inline-flex size-10 items-center justify-center rounded-md border border-border bg-transparent text-foreground transition-colors hover:bg-surface-raised hover:text-accent-hover"
-            >
-              <span className="text-xl" aria-hidden="true">
-                ☰
-              </span>
-            </SheetTrigger>
+            <MenuTrigger label="Open navigation menu" />
 
             <SheetContent
               side="right"
@@ -154,10 +149,7 @@ export function SiteHeader() {
                 </div>
 
                 <div className="mt-6 border-t border-border pt-6">
-                  <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                    Appearance
-                  </p>
-                  <ThemeToggle showLabel />
+                  <AppearanceSection />
                 </div>
               </div>
             </SheetContent>

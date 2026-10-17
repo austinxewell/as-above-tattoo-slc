@@ -75,7 +75,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
   const isSubmitting = navigation.state === "submitting";
 
   return (
-    <AuthShell title="Staff login">
+    <AuthShell title="Welcome back">
       <Form method="post" className="grid gap-6">
         {actionData?.error && (
           <div

@@ -21,10 +21,22 @@ export default [
     ...prefix("portal", [
       index("routes/portal/index.tsx"),
       layout("layouts/portal-admin-layout.tsx", [
-        ...prefix("admin", [index("routes/portal/admin/index.tsx")]),
+        ...prefix("admin", [
+          index("routes/portal/admin/index.tsx"),
+          route("bookings", "routes/portal/admin/bookings.tsx"),
+          route("artists", "routes/portal/admin/artists.tsx"),
+          route("portfolio", "routes/portal/admin/portfolio.tsx"),
+          route("site-content", "routes/portal/admin/site-content.tsx"),
+          route("staff", "routes/portal/admin/staff.tsx"),
+        ]),
       ]),
       layout("layouts/portal-artist-layout.tsx", [
-        ...prefix("artist", [index("routes/portal/artist/index.tsx")]),
+        ...prefix("artist", [
+          index("routes/portal/artist/index.tsx"),
+          route("requests", "routes/portal/artist/requests.tsx"),
+          route("profile", "routes/portal/artist/profile.tsx"),
+          route("portfolio", "routes/portal/artist/portfolio.tsx"),
+        ]),
       ]),
     ]),
   ]),
