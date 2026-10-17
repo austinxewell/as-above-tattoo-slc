@@ -58,7 +58,7 @@ export const bookingResolvers = {
         throw new GraphQLError("Online booking requests aren't open yet.");
       }
 
-      if (isRateLimited(context.req.ip ?? "unknown")) {
+      if (isRateLimited(context.clientIp)) {
         throw new GraphQLError(
           "You've sent a few requests recently. Please wait a bit and try again.",
         );
