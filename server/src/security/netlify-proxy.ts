@@ -1,7 +1,7 @@
-import type { Request } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { jwtVerify } from "jose";
 
-async function isSignedByNetlify(req: Request, secret: string) {
+export async function isSignedByNetlify(req: Request, secret: string) {
   const signature = req.get("x-nf-sign");
   if (!signature) return false;
 
@@ -20,14 +20,19 @@ export async function getClientIp(req: Request) {
   const secret = process.env.NETLIFY_SIGNATURE_SECRET;
 
   if (secret && (await isSignedByNetlify(req, secret))) {
-    console.log("[netlify-proxy] signed request", {
-      nfClientIp: req.get("x-nf-client-connection-ip"),
-      forwardedFor: req.get("x-forwarded-for"),
-      reqIp: req.ip,
-    });
-
     return req.get("x-nf-client-connection-ip") ?? req.ip ?? "unknown";
   }
 
   return req.ip ?? "unknown";
+}
+
+export async function requireNetlifyProxy(req: Request, res: Response, next: NextFunction) {
+  const secret = process.env.NETLIFY_SIGNATURE_SECRET;
+
+  if (!secret || (await isSignedByNetlify(req, secret))) {
+    next();
+    return;
+  }
+
+  res.status(403).json({ errors: [{ message: "Requests must go through the website." }] });
 }
