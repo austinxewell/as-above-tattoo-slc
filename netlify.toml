@@ -12,6 +12,7 @@ from = "/graphql"
 to = "https://as-above-tattoo-slc-production.up.railway.app/graphql"
 status = 200
 force = true
+signed = "API_SIGNATURE_TOKEN"
 
 [[redirects]]
   from = "/*"
