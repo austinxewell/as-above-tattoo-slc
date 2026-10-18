@@ -2,10 +2,25 @@ import { Link } from "react-router";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
-export function NotFound() {
+type NotFoundProps = {
+  homeTo?: string;
+  homeLabel?: string;
+  secondaryLink?: { to: string; label: string } | null;
+  className?: string;
+};
+
+export function NotFound({
+  homeTo = "/",
+  homeLabel = "Back to home",
+  secondaryLink = { to: "/portfolio", label: "Browse the portfolio" },
+  className,
+}: NotFoundProps) {
   return (
     <section
-      className="flex min-h-[60svh] flex-col gap-14 px-6 py-24 md:flex-row md:items-center md:justify-between md:px-[6.2vw]"
+      className={cn(
+        "flex min-h-[60svh] flex-col gap-14 px-6 py-24 md:flex-row md:items-center md:justify-between md:px-[6.2vw]",
+        className,
+      )}
       aria-labelledby="not-found-title"
     >
       <div className="flex flex-col">
@@ -20,15 +35,17 @@ export function NotFound() {
           The cards didn't reveal this one. The page may have moved, or the link might be wrong.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-6">
-          <Link to="/" className={cn(buttonVariants({ variant: "brand", size: "cta" }))}>
-            Back to home
+          <Link to={homeTo} className={cn(buttonVariants({ variant: "brand", size: "cta" }))}>
+            {homeLabel}
           </Link>
-          <Link
-            to="/portfolio"
-            className="border-b border-accent pb-1 text-[0.65rem] font-medium uppercase tracking-[0.17em]"
-          >
-            Browse the portfolio
-          </Link>
+          {secondaryLink && (
+            <Link
+              to={secondaryLink.to}
+              className="border-b border-accent pb-1 text-[0.65rem] font-medium uppercase tracking-[0.17em]"
+            >
+              {secondaryLink.label}
+            </Link>
+          )}
         </div>
       </div>
 

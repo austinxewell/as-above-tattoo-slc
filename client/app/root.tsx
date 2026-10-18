@@ -9,6 +9,8 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { BrandLoader } from "./components/shared/brand-loader";
+import { NotFound } from "./components/shared/not-found";
+import { ErrorState } from "./components/shared/error-state";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -55,26 +57,15 @@ export function HydrateFallback() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404 ? "The requested page could not be found." : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
+  const isNotFound = isRouteErrorResponse(error) && error.status === 404;
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
+    <main className="dark min-h-screen bg-background text-foreground">
+      {isNotFound ? <NotFound /> : <ErrorState homeTo="/" homeLabel="Back to website" />}
+
+      {import.meta.env.DEV && error instanceof Error && (
+        <pre className="mx-6 mb-12 overflow-x-auto border border-border p-4 text-xs text-muted-foreground md:mx-[6.2vw]">
+          {error.stack}
         </pre>
       )}
     </main>

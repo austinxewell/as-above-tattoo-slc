@@ -17,6 +17,7 @@ const bookingSchema = new Schema(
       default: "new",
       index: true,
     },
+    archivedAt: { type: Date, default: null, index: true },
   },
   { timestamps: true },
 );
