@@ -38,7 +38,7 @@ export function StatusForm({
   showAssignmentNote,
 }: StatusFormProps) {
   const navigation = useNavigation();
-  const isSaving = navigation.state === "submitting";
+  const isSaving = navigation.state === "submitting" && navigation.formData?.has("status") === true;
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus | undefined>(currentStatus);
   const needsArtist = Boolean(assignableArtists) && selectedStatus === "scheduled";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router";
-import { sizeLabels, statusLabels, type Booking, type StatusUpdateResult } from "~/lib/bookings";
+import { Form, Link, useLocation, useNavigation } from "react-router";
+import { sizeLabels, statusLabels, type Booking, type BookingActionResult } from "~/lib/bookings";
 import { Check } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
@@ -13,8 +13,25 @@ type BookingListProps = {
   basePath: string;
   assignableArtists?: { slug: string; name: string }[];
   assignToSelf?: string;
-  result?: StatusUpdateResult;
+  isArchived?: boolean;
+  result?: BookingActionResult;
 };
+
+function describeResult({ intent, count, updatedTo }: BookingActionResult, requested: number) {
+  const noun = count === 1 ? "request" : "requests";
+
+  if (intent === "status" && updatedTo) {
+    return `${count} ${noun} updated to ${statusLabels[updatedTo]}.`;
+  }
+
+  const verb = intent === "archive" ? "archived" : "unarchived";
+
+  if (count < requested) {
+    return `${count} of ${requested} ${verb}. You can only ${intent} requests assigned to you.`;
+  }
+
+  return `${count} ${noun} ${verb}.`;
+}
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -28,6 +45,7 @@ export function BookingList({
   basePath,
   assignableArtists,
   assignToSelf,
+  isArchived = false,
   result,
 }: BookingListProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -36,17 +54,18 @@ export function BookingList({
 
   const [handledResult, setHandledResult] = useState(result);
 
-  const [lastUpdate, setLastUpdate] = useState<{ count: number; status: Booking["status"] } | null>(
-    null,
-  );
+  const [lastMessage, setLastMessage] = useState<string | null>(null);
+
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
 
   if (result !== handledResult) {
     setHandledResult(result);
 
-    if (result?.updatedTo) {
+    if (result && !result.error) {
       setSelected(new Set());
       setIsStatusOpen(false);
-      setLastUpdate({ count: result.count, status: result.updatedTo });
+      setLastMessage(describeResult(result, selected.size));
     }
   }
 
@@ -94,11 +113,16 @@ export function BookingList({
           </span>
         </label>
 
-        {selected.size === 0 && lastUpdate && (
+        {selected.size === 0 && lastMessage && (
           <p role="status" className="flex items-center gap-2 text-sm text-success">
             <Check className="size-4" strokeWidth={2} aria-hidden="true" />
-            {lastUpdate.count} {lastUpdate.count === 1 ? "request" : "requests"} updated to{" "}
-            {statusLabels[lastUpdate.status]}.
+            {lastMessage}
+          </p>
+        )}
+
+        {result?.intent !== "status" && result?.error && (
+          <p role="alert" className="text-sm text-destructive">
+            {result.error}
           </p>
         )}
 
@@ -107,6 +131,22 @@ export function BookingList({
             <Button type="button" variant="outline" size="sm" onClick={() => setIsStatusOpen(true)}>
               Update Status
             </Button>
+
+            <Form method="post">
+              {[...selected].map((id) => (
+                <input key={id} type="hidden" name="ids" value={id} />
+              ))}
+              <Button
+                type="submit"
+                name="intent"
+                value={isArchived ? "unarchive" : "archive"}
+                variant="outline"
+                size="sm"
+                disabled={isSubmitting}
+              >
+                {isArchived ? "Unarchive" : "Archive"}
+              </Button>
+            </Form>
           </div>
         )}
       </div>
@@ -121,7 +161,7 @@ export function BookingList({
             submitLabel={`Apply to ${selected.size}`}
             assignableArtists={anyUnassigned ? assignableArtists : undefined}
             assignToSelf={assignToSelf}
-            error={result?.error}
+            error={result?.intent === "status" ? result.error : null}
             showAssignmentNote={anyUnassigned && anyAssigned}
           />
         </DialogContent>

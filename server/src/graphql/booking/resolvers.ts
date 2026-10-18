@@ -36,10 +36,32 @@ async function findRecipients(artistId?: Types.ObjectId) {
   return UserModel.distinct("email");
 }
 
+async function setArchivedAt(ids: string[], archivedAt: Date | null, context: GraphQLContext) {
+  const user = requireUser(context);
+
+  if (ids.length > 100) {
+    throw new GraphQLError("You can update up to 100 requests at a time.");
+  }
+
+  if (user.role !== "admin" && !user.artist) {
+    return 0;
+  }
+
+  const access = user.role === "admin" ? {} : { artist: user.artist };
+  const filter = { _id: { $in: ids.filter((id) => isValidObjectId(id)) }, ...access };
+
+  const result = await BookingModel.updateMany(filter, { archivedAt });
+  return result.matchedCount;
+}
+
 export const bookingResolvers = {
   Query: {
     bookingRequestsEnabled: () => bookingRequestsEnabled(),
-    bookings: (_parent: unknown, { mine }: { mine?: boolean | null }, context: GraphQLContext) => {
+    bookings: (
+      _parent: unknown,
+      { mine, archived }: { mine?: boolean | null; archived?: boolean | null },
+      context: GraphQLContext,
+    ) => {
       const user = requireUser(context);
       const onlyMine = mine === true || user.role !== "admin";
 
@@ -47,9 +69,11 @@ export const bookingResolvers = {
         return [];
       }
 
-      const filter = onlyMine ? { $or: [{ artist: user.artist }, { artist: null }] } : {};
+      const access = onlyMine ? { $or: [{ artist: user.artist }, { artist: null }] } : {};
+      const archiveFilter =
+        archived === true ? { archivedAt: { $ne: null } } : { archivedAt: null };
 
-      return BookingModel.find(filter).sort({ createdAt: -1 });
+      return BookingModel.find({ ...access, ...archiveFilter }).sort({ createdAt: -1 });
     },
     booking: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
       const user = requireUser(context);
@@ -179,10 +203,16 @@ export const bookingResolvers = {
       const result = await BookingModel.updateMany(filter, { status });
       return result.matchedCount;
     },
+    archiveBookings: (_parent: unknown, { ids }: { ids: string[] }, context: GraphQLContext) =>
+      setArchivedAt(ids, new Date(), context),
+    unarchiveBookings: (_parent: unknown, { ids }: { ids: string[] }, context: GraphQLContext) =>
+      setArchivedAt(ids, null, context),
   },
   BookingRequest: {
     artist: (booking: { artist?: unknown }) =>
       booking.artist ? ArtistModel.findById(booking.artist) : null,
+    archivedAt: (booking: { archivedAt?: Date | null }) =>
+      booking.archivedAt?.toISOString() ?? null,
     createdAt: (booking: { createdAt: Date }) => booking.createdAt.toISOString(),
   },
 };

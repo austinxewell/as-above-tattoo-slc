@@ -77,6 +77,15 @@ export function BookingDetail({
           )}
           Received{" "}
           <time dateTime={booking.createdAt}>{dateFormat.format(new Date(booking.createdAt))}</time>
+          {booking.archivedAt && (
+            <>
+              {" "}
+              · Archived{" "}
+              <time dateTime={booking.archivedAt}>
+                {dateFormat.format(new Date(booking.archivedAt))}
+              </time>
+            </>
+          )}
         </p>
       </header>
 

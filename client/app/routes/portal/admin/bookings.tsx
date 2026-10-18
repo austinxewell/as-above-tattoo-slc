@@ -4,12 +4,13 @@ import {
   fetchAssignableArtists,
   fetchBookings,
   filterByStatus,
-  handleStatusUpdate,
+  handleBookingAction,
   filterByAssignment,
   assignmentOptions,
 } from "~/lib/bookings";
 import { BookingList } from "~/components/portal/booking-list";
 import { FilterTabs } from "~/components/portal/filter-tabs";
+import { ViewSwitch } from "~/components/portal/view-switch";
 
 export function meta() {
   return [{ title: "Bookings | Portal" }, { name: "robots", content: "noindex" }];
@@ -19,12 +20,15 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
   const status = url.searchParams.get("status");
   const assignment = url.searchParams.get("for");
+  const isArchived = url.searchParams.get("view") === "archived";
 
-  const [bookings, artists] = await Promise.all([
+  const [active, archived, artists] = await Promise.all([
     fetchBookings({ signal: request.signal }),
+    fetchBookings({ archived: true, signal: request.signal }),
     fetchAssignableArtists(request.signal),
   ]);
 
+  const bookings = isArchived ? archived : active;
   const forAssignment = filterByAssignment(bookings, assignment);
   const forStatus = filterByStatus(bookings, status);
 
@@ -37,18 +41,30 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     ]),
     filterKey: url.search,
     artists,
+    isArchived,
+    viewCounts: { active: active.length, archived: archived.length },
   };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
-  return handleStatusUpdate(request);
+  return handleBookingAction(request);
 }
 
 export default function AdminBookings({ loaderData, actionData }: Route.ComponentProps) {
   return (
     <section>
-      <h1 className="font-display text-3xl uppercase">Bookings</h1>
-      <p className="mt-3 max-w-xl text-muted-foreground">Every booking request, newest first.</p>
+      <div className="flex flex-wrap items-start justify-between gap-6">
+        <div>
+          <h1 className="font-display text-3xl uppercase">Bookings</h1>
+          <p className="mt-3 max-w-xl text-muted-foreground">
+            {loaderData.isArchived
+              ? "Archived booking requests, newest first."
+              : "Every booking request, newest first."}
+          </p>
+        </div>
+
+        <ViewSwitch counts={loaderData.viewCounts} />
+      </div>
 
       <div className="mt-10">
         <FilterTabs param="for" label="Filter by artist" options={loaderData.assignmentOptions} />
@@ -64,6 +80,7 @@ export default function AdminBookings({ loaderData, actionData }: Route.Componen
         showArtist
         basePath="/portal/admin/bookings"
         assignableArtists={loaderData.artists}
+        isArchived={loaderData.isArchived}
         result={actionData}
       />
     </section>

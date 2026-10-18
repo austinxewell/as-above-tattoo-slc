@@ -25,6 +25,7 @@ export const bookingTypeDefs = /* GraphQL */ `
     idea: String!
     availability: String
     status: BookingStatus!
+    archivedAt: String
     createdAt: String!
   }
 
@@ -44,12 +45,13 @@ export const bookingTypeDefs = /* GraphQL */ `
   extend type Mutation {
     requestBooking(input: BookingRequestInput!): ID!
     updateBookingStatus(ids: [ID!]!, status: BookingStatus!, assignTo: String): Int!
+    archiveBookings(ids: [ID!]!): Int!
+    unarchiveBookings(ids: [ID!]!): Int!
   }
 
   extend type Query {
     bookingRequestsEnabled: Boolean!
-    bookings: [BookingRequest!]!
-    bookings(mine: Boolean): [BookingRequest!]!
+    bookings(mine: Boolean, archived: Boolean): [BookingRequest!]!
     booking(id: ID!): BookingRequest
   }
 `;

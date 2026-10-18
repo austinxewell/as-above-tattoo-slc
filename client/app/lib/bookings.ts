@@ -15,12 +15,13 @@ export type Booking = {
   idea: string;
   availability: string | null;
   status: BookingStatus;
+  archivedAt: string | null;
   createdAt: string;
 };
 
 const BOOKINGS_QUERY = /* GraphQL */ `
-  query Bookings($mine: Boolean) {
-    bookings(mine: $mine) {
+  query Bookings($mine: Boolean, $archived: Boolean) {
+    bookings(mine: $mine, archived: $archived) {
       id
       artist {
         slug
@@ -35,6 +36,7 @@ const BOOKINGS_QUERY = /* GraphQL */ `
       idea
       availability
       status
+      archivedAt
       createdAt
     }
   }
@@ -42,11 +44,12 @@ const BOOKINGS_QUERY = /* GraphQL */ `
 
 export async function fetchBookings({
   mine = false,
+  archived = false,
   signal,
-}: { mine?: boolean; signal?: AbortSignal } = {}) {
+}: { mine?: boolean; archived?: boolean; signal?: AbortSignal } = {}) {
   const { bookings } = await graphqlRequest<{ bookings: Booking[] }>(
     BOOKINGS_QUERY,
-    { mine },
+    { mine, archived },
     signal,
   );
   return bookings;
@@ -69,6 +72,7 @@ const BOOKING_QUERY = /* GraphQL */ `
       idea
       availability
       status
+      archivedAt
       createdAt
     }
   }
@@ -159,29 +163,67 @@ export async function updateBookingStatus(
   return count;
 }
 
-export async function handleStatusUpdate(request: Request, id?: string) {
+const ARCHIVE_BOOKINGS_MUTATION = /* GraphQL */ `
+  mutation ArchiveBookings($ids: [ID!]!) {
+    count: archiveBookings(ids: $ids)
+  }
+`;
+
+const UNARCHIVE_BOOKINGS_MUTATION = /* GraphQL */ `
+  mutation UnarchiveBookings($ids: [ID!]!) {
+    count: unarchiveBookings(ids: $ids)
+  }
+`;
+
+export async function setBookingsArchived(ids: string[], archived: boolean, signal?: AbortSignal) {
+  const { count } = await graphqlRequest<{ count: number }>(
+    archived ? ARCHIVE_BOOKINGS_MUTATION : UNARCHIVE_BOOKINGS_MUTATION,
+    { ids },
+    signal,
+  );
+  return count;
+}
+
+export type BookingActionResult = {
+  intent: "status" | "archive" | "unarchive";
+  error: string | null;
+  count: number;
+  updatedTo: BookingStatus | null;
+};
+
+export async function handleBookingAction(
+  request: Request,
+  id?: string,
+): Promise<BookingActionResult> {
   const formData = await request.formData();
   const ids = id ? [id] : formData.getAll("ids").map(String);
-  const status = String(formData.get("status") ?? "");
-  const assignTo = String(formData.get("assignTo") ?? "") || null;
-
-  if (!isBookingStatus(status)) {
-    return { error: "Choose a status.", updatedTo: null, count: 0 };
-  }
+  const rawIntent = formData.get("intent");
+  const intent = rawIntent === "archive" || rawIntent === "unarchive" ? rawIntent : "status";
 
   try {
+    if (intent !== "status") {
+      const count = await setBookingsArchived(ids, intent === "archive", request.signal);
+      return { intent, error: null, count, updatedTo: null };
+    }
+
+    const status = String(formData.get("status") ?? "");
+    const assignTo = String(formData.get("assignTo") ?? "") || null;
+
+    if (!isBookingStatus(status)) {
+      return { intent, error: "Choose a status.", count: 0, updatedTo: null };
+    }
+
     const count = await updateBookingStatus({ ids, status, assignTo }, request.signal);
-    return { error: null, updatedTo: status, count };
+    return { intent, error: null, count, updatedTo: status };
   } catch (error) {
     return {
+      intent,
       error: error instanceof Error ? error.message : "Something went wrong. Please try again.",
-      updatedTo: null,
       count: 0,
+      updatedTo: null,
     };
   }
 }
-
-export type StatusUpdateResult = Awaited<ReturnType<typeof handleStatusUpdate>>;
 
 const ASSIGNABLE_ARTISTS_QUERY = /* GraphQL */ `
   query AssignableArtists {
