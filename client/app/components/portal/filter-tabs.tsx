@@ -15,6 +15,8 @@ export function FilterTabs({ param, label, options }: FilterTabsProps) {
 
   function linkFor(value: string) {
     const next = new URLSearchParams(searchParams);
+    next.delete("page");
+
     if (value === "all") next.delete(param);
     else next.set(param, value);
     const query = next.toString();

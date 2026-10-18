@@ -11,6 +11,8 @@ export function ViewSwitch({ counts }: ViewSwitchProps) {
 
   function linkFor(archived: boolean) {
     const next = new URLSearchParams(searchParams);
+    next.delete("page");
+
     if (archived) next.set("view", "archived");
     else next.delete("view");
     const query = next.toString();

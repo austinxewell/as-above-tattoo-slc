@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import { isValidObjectId, Types } from "mongoose";
+import { isValidObjectId, Types, type QueryFilter } from "mongoose";
 import { createRateLimiter } from "../../security/rate-limit.js";
 import { ArtistModel } from "../../models/artist.js";
 import { BookingModel, type Booking } from "../../models/booking.js";
@@ -22,6 +22,9 @@ type BookingRequestInput = {
 };
 
 const isRateLimited = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
+
+const DEFAULT_PAGE_SIZE = 25;
+const MAX_PAGE_SIZE = 100;
 
 export function bookingRequestsEnabled() {
   return process.env.BOOKING_REQUESTS_ENABLED === "true";
@@ -54,26 +57,145 @@ async function setArchivedAt(ids: string[], archivedAt: Date | null, context: Gr
   return result.matchedCount;
 }
 
+function escapeRegex(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+type BookingFilterArgs = {
+  mine?: boolean | null;
+  archived?: boolean | null;
+  status?: Booking["status"] | null;
+  assignment?: string | null;
+  search?: string | null;
+};
+
+async function buildBookingFilter(
+  user: ReturnType<typeof requireUser>,
+  { mine, archived, status, assignment, search }: BookingFilterArgs = {},
+): Promise<QueryFilter<Booking> | null> {
+  const onlyMine = mine === true || user.role !== "admin";
+
+  if (onlyMine && !user.artist) return null;
+
+  const conditions: QueryFilter<Booking>[] = [
+    archived === true ? { archivedAt: { $ne: null } } : { archivedAt: null },
+  ];
+
+  if (onlyMine) {
+    conditions.push({ $or: [{ artist: user.artist }, { artist: null }] });
+  }
+
+  if (status) {
+    conditions.push({ status });
+  }
+
+  if (assignment === "none") {
+    conditions.push({ artist: null });
+  } else if (assignment === "mine") {
+    if (!user.artist) return null;
+    conditions.push({ artist: user.artist });
+  } else if (assignment) {
+    const artist = await ArtistModel.findOne({ slug: assignment });
+    if (!artist) return null;
+    conditions.push({ artist: artist._id });
+  }
+
+  const term = search?.trim().slice(0, 100);
+
+  if (term) {
+    const pattern = new RegExp(escapeRegex(term), "i");
+    conditions.push({ $or: [{ name: pattern }, { email: pattern }] });
+  }
+
+  return { $and: conditions };
+}
+
 export const bookingResolvers = {
   Query: {
     bookingRequestsEnabled: () => bookingRequestsEnabled(),
-    bookings: (
+    bookingPage: async (
       _parent: unknown,
-      { mine, archived }: { mine?: boolean | null; archived?: boolean | null },
+      {
+        filter,
+        page,
+        pageSize,
+      }: { filter?: BookingFilterArgs | null; page?: number | null; pageSize?: number | null },
       context: GraphQLContext,
     ) => {
       const user = requireUser(context);
-      const onlyMine = mine === true || user.role !== "admin";
+      const size = Math.min(Math.max(pageSize ?? DEFAULT_PAGE_SIZE, 1), MAX_PAGE_SIZE);
+      const current = Math.max(page ?? 1, 1);
+      const query = await buildBookingFilter(user, filter ?? {});
 
-      if (onlyMine && !user.artist) {
-        return [];
+      if (!query) {
+        return { items: [], total: 0, page: current, pageSize: size };
       }
 
-      const access = onlyMine ? { $or: [{ artist: user.artist }, { artist: null }] } : {};
-      const archiveFilter =
-        archived === true ? { archivedAt: { $ne: null } } : { archivedAt: null };
+      const [items, total] = await Promise.all([
+        BookingModel.find(query)
+          .sort({ createdAt: -1, _id: -1 })
+          .skip((current - 1) * size)
+          .limit(size),
+        BookingModel.countDocuments(query),
+      ]);
 
-      return BookingModel.find({ ...access, ...archiveFilter }).sort({ createdAt: -1 });
+      return { items, total, page: current, pageSize: size };
+    },
+    bookingCounts: async (
+      _parent: unknown,
+      { filter }: { filter?: BookingFilterArgs | null },
+      context: GraphQLContext,
+    ) => {
+      const user = requireUser(context);
+      const args = filter ?? {};
+
+      const [activeQuery, archivedQuery, statusQuery, artistQuery] = await Promise.all([
+        buildBookingFilter(user, { ...args, archived: false }),
+        buildBookingFilter(user, { ...args, archived: true }),
+        buildBookingFilter(user, { ...args, status: null }),
+        buildBookingFilter(user, { ...args, assignment: null }),
+      ]);
+
+      const [active, archived, statusGroups, artistGroups] = await Promise.all([
+        activeQuery ? BookingModel.countDocuments(activeQuery) : 0,
+        archivedQuery ? BookingModel.countDocuments(archivedQuery) : 0,
+        statusQuery
+          ? BookingModel.aggregate<{ _id: Booking["status"]; count: number }>([
+              { $match: statusQuery },
+              { $group: { _id: "$status", count: { $sum: 1 } } },
+            ])
+          : [],
+        artistQuery
+          ? BookingModel.aggregate<{ _id: Types.ObjectId | null; count: number }>([
+              { $match: artistQuery },
+              { $group: { _id: "$artist", count: { $sum: 1 } } },
+            ])
+          : [],
+      ]);
+
+      const artistIds = artistGroups.flatMap((group) => (group._id ? [group._id] : []));
+      const artists = await ArtistModel.find({ _id: { $in: artistIds } });
+      const slugById = new Map(artists.map((artist) => [artist._id.toString(), artist.slug]));
+
+      const sum = (groups: { count: number }[]) =>
+        groups.reduce((total, group) => total + group.count, 0);
+
+      return {
+        active,
+        archived,
+        byStatus: statusGroups.map((group) => ({
+          status: group._id,
+          count: group.count,
+        })),
+        statusTotal: sum(statusGroups),
+        byArtist: artistGroups.flatMap((group): { slug: string | null; count: number }[] => {
+          if (!group._id) return [{ slug: null, count: group.count }];
+
+          const slug = slugById.get(group._id.toString());
+          return slug ? [{ slug, count: group.count }] : [];
+        }),
+        artistTotal: sum(artistGroups),
+      };
     },
     booking: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
       const user = requireUser(context);

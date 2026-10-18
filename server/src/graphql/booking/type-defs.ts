@@ -29,6 +29,32 @@ export const bookingTypeDefs = /* GraphQL */ `
     createdAt: String!
   }
 
+  type BookingPage {
+    items: [BookingRequest!]!
+    total: Int!
+    page: Int!
+    pageSize: Int!
+  }
+
+  type StatusCount {
+    status: BookingStatus!
+    count: Int!
+  }
+
+  type ArtistCount {
+    slug: String
+    count: Int!
+  }
+
+  type BookingCounts {
+    active: Int!
+    archived: Int!
+    byStatus: [StatusCount!]!
+    statusTotal: Int!
+    byArtist: [ArtistCount!]!
+    artistTotal: Int!
+  }
+
   input BookingRequestInput {
     artist: String
     name: String!
@@ -42,6 +68,14 @@ export const bookingTypeDefs = /* GraphQL */ `
     website: String
   }
 
+  input BookingFilter {
+    mine: Boolean
+    archived: Boolean
+    status: BookingStatus
+    assignment: String
+    search: String
+  }
+
   extend type Mutation {
     requestBooking(input: BookingRequestInput!): ID!
     updateBookingStatus(ids: [ID!]!, status: BookingStatus!, assignTo: String): Int!
@@ -52,7 +86,8 @@ export const bookingTypeDefs = /* GraphQL */ `
 
   extend type Query {
     bookingRequestsEnabled: Boolean!
-    bookings(mine: Boolean, archived: Boolean): [BookingRequest!]!
+    bookingPage(filter: BookingFilter, page: Int, pageSize: Int): BookingPage!
+    bookingCounts(filter: BookingFilter): BookingCounts!
     booking(id: ID!): BookingRequest
   }
 `;

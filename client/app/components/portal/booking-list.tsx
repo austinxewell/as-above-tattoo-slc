@@ -16,6 +16,7 @@ type BookingListProps = {
   assignToSelf?: string;
   isArchived?: boolean;
   canDelete?: boolean;
+  emptyMessage?: string;
   result?: BookingActionResult;
 };
 
@@ -53,6 +54,7 @@ export function BookingList({
   assignToSelf,
   isArchived = false,
   canDelete = false,
+  emptyMessage = "No booking requests to show.",
   result,
 }: BookingListProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -103,7 +105,7 @@ export function BookingList({
   if (bookings.length === 0) {
     return (
       <p className="mt-10 border border-border px-6 py-12 text-center text-muted-foreground">
-        No booking requests to show.
+        {emptyMessage}
       </p>
     );
   }
