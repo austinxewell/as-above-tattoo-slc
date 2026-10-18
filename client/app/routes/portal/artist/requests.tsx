@@ -1,16 +1,18 @@
+import { replace } from "react-router";
 import type { Route } from "./+types/requests";
 import {
-  statusOptions,
-  fetchBookings,
-  filterByStatus,
+  assignmentTabs,
+  fetchBookingList,
   handleBookingAction,
-  filterByAssignment,
-  assignmentOptions,
+  readBookingParams,
+  statusTabs,
 } from "~/lib/bookings";
+import { outOfRangePageUrl } from "~/lib/pagination";
 import { currentUserContext } from "~/lib/current-user";
 import { BookingList } from "~/components/portal/booking-list";
-import { FilterTabs } from "~/components/portal/filter-tabs";
+import { BookingFilters } from "~/components/portal/booking-filters";
 import { ViewSwitch } from "~/components/portal/view-switch";
+import { Pagination } from "~/components/shared/pagination";
 
 export function meta() {
   return [{ title: "My requests | Portal" }, { name: "robots", content: "noindex" }];
@@ -18,25 +20,20 @@ export function meta() {
 
 export async function clientLoader({ request, context }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
-  const status = url.searchParams.get("status");
-  const assignment = url.searchParams.get("for");
-  const isArchived = url.searchParams.get("view") === "archived";
+  const { filter, page } = readBookingParams(url);
   const mySlug = context.get(currentUserContext).artist?.slug;
 
-  const [active, archived] = await Promise.all([
-    fetchBookings({ mine: true, signal: request.signal }),
-    fetchBookings({ mine: true, archived: true, signal: request.signal }),
-  ]);
+  const list = await fetchBookingList({ ...filter, mine: true }, page, request.signal);
 
-  const bookings = isArchived ? archived : active;
-  const forAssignment = filterByAssignment(bookings, assignment, mySlug);
-  const forStatus = filterByStatus(bookings, status);
+  const lastPageUrl = outOfRangePageUrl(url, list.page);
+  if (lastPageUrl) throw replace(lastPageUrl);
 
   return {
-    bookings: filterByStatus(forAssignment, status),
-    statusOptions: statusOptions(forAssignment),
-    assignmentOptions: assignmentOptions(
-      forStatus,
+    bookings: list.page.items,
+    pagination: { total: list.page.total, page: list.page.page, pageSize: list.page.pageSize },
+    statusOptions: statusTabs(list.counts),
+    assignmentOptions: assignmentTabs(
+      list.counts,
       [
         { value: "mine", label: "Mine" },
         { value: "none", label: "No preference" },
@@ -45,8 +42,8 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
     ),
     filterKey: url.search,
     mySlug,
-    isArchived,
-    viewCounts: { active: active.length, archived: archived.length },
+    isArchived: filter.archived,
+    viewCounts: { active: list.counts.active, archived: list.counts.archived },
   };
 }
 
@@ -67,16 +64,17 @@ export default function ArtistRequests({ loaderData, actionData }: Route.Compone
           </p>
         </div>
 
-        <ViewSwitch counts={loaderData.viewCounts} />
+        <div className="hidden md:block">
+          <ViewSwitch counts={loaderData.viewCounts} />
+        </div>
       </div>
 
-      <div className="mt-10">
-        <FilterTabs param="for" label="Filter by artist" options={loaderData.assignmentOptions} />
-      </div>
-
-      <div className="mt-6">
-        <FilterTabs param="status" label="Filter by status" options={loaderData.statusOptions} />
-      </div>
+      <BookingFilters
+        assignmentOptions={loaderData.assignmentOptions}
+        statusOptions={loaderData.statusOptions}
+        viewCounts={loaderData.viewCounts}
+        total={loaderData.pagination.total}
+      />
 
       <BookingList
         key={loaderData.filterKey}
@@ -85,6 +83,12 @@ export default function ArtistRequests({ loaderData, actionData }: Route.Compone
         assignToSelf={loaderData.mySlug}
         isArchived={loaderData.isArchived}
         result={actionData}
+      />
+
+      <Pagination
+        {...loaderData.pagination}
+        label="Request pages"
+        className="sticky bottom-0 z-10 -mt-px border-t border-border bg-background pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
       />
     </section>
   );

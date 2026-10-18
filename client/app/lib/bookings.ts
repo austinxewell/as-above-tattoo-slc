@@ -19,63 +19,34 @@ export type Booking = {
   createdAt: string;
 };
 
-const BOOKINGS_QUERY = /* GraphQL */ `
-  query Bookings($mine: Boolean, $archived: Boolean) {
-    bookings(mine: $mine, archived: $archived) {
-      id
-      artist {
-        slug
-        name
-      }
+const BOOKING_FIELDS = /* GraphQL */ `
+  fragment BookingFields on BookingRequest {
+    id
+    artist {
+      slug
       name
-      email
-      phone
-      placement
-      size
-      budget
-      idea
-      availability
-      status
-      archivedAt
-      createdAt
     }
+    name
+    email
+    phone
+    placement
+    size
+    budget
+    idea
+    availability
+    status
+    archivedAt
+    createdAt
   }
 `;
-
-export async function fetchBookings({
-  mine = false,
-  archived = false,
-  signal,
-}: { mine?: boolean; archived?: boolean; signal?: AbortSignal } = {}) {
-  const { bookings } = await graphqlRequest<{ bookings: Booking[] }>(
-    BOOKINGS_QUERY,
-    { mine, archived },
-    signal,
-  );
-  return bookings;
-}
 
 const BOOKING_QUERY = /* GraphQL */ `
   query Booking($id: ID!) {
     booking(id: $id) {
-      id
-      artist {
-        slug
-        name
-      }
-      name
-      email
-      phone
-      placement
-      size
-      budget
-      idea
-      availability
-      status
-      archivedAt
-      createdAt
+      ...BookingFields
     }
   }
+  ${BOOKING_FIELDS}
 `;
 
 export async function fetchBooking(id: string, signal?: AbortSignal) {
@@ -107,41 +78,106 @@ export function isBookingStatus(value: string | null): value is BookingStatus {
   return bookingStatuses.includes(value as BookingStatus);
 }
 
-export function filterByStatus(bookings: Booking[], status: string | null) {
-  return isBookingStatus(status)
-    ? bookings.filter((booking) => booking.status === status)
-    : bookings;
+export type BookingFilter = {
+  mine?: boolean;
+  archived?: boolean;
+  status?: BookingStatus | null;
+  assignment?: string | null;
+  search?: string | null;
+};
+
+export type BookingCounts = {
+  active: number;
+  archived: number;
+  byStatus: { status: BookingStatus; count: number }[];
+  statusTotal: number;
+  byArtist: { slug: string | null; count: number }[];
+  artistTotal: number;
+};
+
+export type BookingPage = {
+  items: Booking[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+const BOOKING_LIST_QUERY = /* GraphQL */ `
+  query BookingList($filter: BookingFilter, $page: Int) {
+    page: bookingPage(filter: $filter, page: $page) {
+      total
+      page
+      pageSize
+      items {
+        ...BookingFields
+      }
+    }
+    counts: bookingCounts(filter: $filter) {
+      active
+      archived
+      statusTotal
+      artistTotal
+      byStatus {
+        status
+        count
+      }
+      byArtist {
+        slug
+        count
+      }
+    }
+  }
+  ${BOOKING_FIELDS}
+`;
+
+export async function fetchBookingList(filter: BookingFilter, page: number, signal?: AbortSignal) {
+  return graphqlRequest<{ page: BookingPage; counts: BookingCounts }>(
+    BOOKING_LIST_QUERY,
+    { filter, page },
+    signal,
+  );
 }
 
-export function statusOptions(bookings: Booking[]) {
+export function readBookingParams(url: URL) {
+  const status = url.searchParams.get("status");
+  const assignment = url.searchParams.get("for");
+  const page = Number(url.searchParams.get("page"));
+
+  return {
+    filter: {
+      archived: url.searchParams.get("view") === "archived",
+      status: isBookingStatus(status) ? status : null,
+      assignment: assignment && assignment !== "all" ? assignment : null,
+      search: url.searchParams.get("q"),
+    },
+    page: Number.isInteger(page) && page > 0 ? page : 1,
+  };
+}
+
+export function statusTabs(counts: BookingCounts) {
   return [
-    { value: "all", label: "All", count: bookings.length },
+    { value: "all", label: "All", count: counts.statusTotal },
     ...bookingStatuses.map((status) => ({
       value: status,
       label: statusLabels[status],
-      count: bookings.filter((booking) => booking.status === status).length,
+      count: counts.byStatus.find((group) => group.status === status)?.count ?? 0,
     })),
   ];
 }
 
-export function filterByAssignment(bookings: Booking[], value: string | null, mySlug?: string) {
-  if (!value || value === "all") return bookings;
-  if (value === "none") return bookings.filter((booking) => !booking.artist);
-  if (value === "mine") return bookings.filter((booking) => booking.artist?.slug === mySlug);
-  return bookings.filter((booking) => booking.artist?.slug === value);
-}
-
-export function assignmentOptions(
-  bookings: Booking[],
+export function assignmentTabs(
+  counts: BookingCounts,
   choices: { value: string; label: string }[],
   mySlug?: string,
 ) {
+  function countFor(value: string) {
+    const slug = value === "none" ? null : value === "mine" ? mySlug : value;
+    return counts.byArtist.find((group) => group.slug === slug)?.count ?? 0;
+  }
+
   return [
-    { value: "all", label: "Everyone", count: bookings.length },
-    ...choices.map((choice) => ({
-      ...choice,
-      count: filterByAssignment(bookings, choice.value, mySlug).length,
-    })),
+    { value: "all", label: "Everyone", count: counts.artistTotal },
+    ...choices.map((choice) => ({ ...choice, count: countFor(choice.value) })),
   ];
 }
 

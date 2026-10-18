@@ -1,16 +1,18 @@
 import type { Route } from "./+types/bookings";
+import { replace } from "react-router";
 import {
-  statusOptions,
+  assignmentTabs,
   fetchAssignableArtists,
-  fetchBookings,
-  filterByStatus,
+  fetchBookingList,
   handleBookingAction,
-  filterByAssignment,
-  assignmentOptions,
+  readBookingParams,
+  statusTabs,
 } from "~/lib/bookings";
+import { outOfRangePageUrl } from "~/lib/pagination";
 import { BookingList } from "~/components/portal/booking-list";
-import { FilterTabs } from "~/components/portal/filter-tabs";
+import { BookingFilters } from "~/components/portal/booking-filters";
 import { ViewSwitch } from "~/components/portal/view-switch";
+import { Pagination } from "~/components/shared/pagination";
 
 export function meta() {
   return [{ title: "Bookings | Portal" }, { name: "robots", content: "noindex" }];
@@ -18,31 +20,29 @@ export function meta() {
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
-  const status = url.searchParams.get("status");
-  const assignment = url.searchParams.get("for");
-  const isArchived = url.searchParams.get("view") === "archived";
+  const { filter, page } = readBookingParams(url);
 
-  const [active, archived, artists] = await Promise.all([
-    fetchBookings({ signal: request.signal }),
-    fetchBookings({ archived: true, signal: request.signal }),
+  const [list, artists] = await Promise.all([
+    fetchBookingList(filter, page, request.signal),
     fetchAssignableArtists(request.signal),
   ]);
 
-  const bookings = isArchived ? archived : active;
-  const forAssignment = filterByAssignment(bookings, assignment);
-  const forStatus = filterByStatus(bookings, status);
+  const lastPageUrl = outOfRangePageUrl(url, list.page);
+  if (lastPageUrl) throw replace(lastPageUrl);
 
   return {
-    bookings: filterByStatus(forAssignment, status),
-    statusOptions: statusOptions(forAssignment),
-    assignmentOptions: assignmentOptions(forStatus, [
+    bookings: list.page.items,
+    pagination: { total: list.page.total, page: list.page.page, pageSize: list.page.pageSize },
+    statusOptions: statusTabs(list.counts),
+    assignmentOptions: assignmentTabs(list.counts, [
       { value: "none", label: "No preference" },
       ...artists.map((artist) => ({ value: artist.slug, label: artist.name })),
     ]),
     filterKey: url.search,
+    search: filter.search,
     artists,
-    isArchived,
-    viewCounts: { active: active.length, archived: archived.length },
+    isArchived: filter.archived,
+    viewCounts: { active: list.counts.active, archived: list.counts.archived },
   };
 }
 
@@ -63,16 +63,17 @@ export default function AdminBookings({ loaderData, actionData }: Route.Componen
           </p>
         </div>
 
-        <ViewSwitch counts={loaderData.viewCounts} />
+        <div className="hidden md:block">
+          <ViewSwitch counts={loaderData.viewCounts} />
+        </div>
       </div>
 
-      <div className="mt-10">
-        <FilterTabs param="for" label="Filter by artist" options={loaderData.assignmentOptions} />
-      </div>
-
-      <div className="mt-6">
-        <FilterTabs param="status" label="Filter by status" options={loaderData.statusOptions} />
-      </div>
+      <BookingFilters
+        assignmentOptions={loaderData.assignmentOptions}
+        statusOptions={loaderData.statusOptions}
+        viewCounts={loaderData.viewCounts}
+        total={loaderData.pagination.total}
+      />
 
       <BookingList
         key={loaderData.filterKey ?? "all"}
@@ -82,7 +83,18 @@ export default function AdminBookings({ loaderData, actionData }: Route.Componen
         assignableArtists={loaderData.artists}
         isArchived={loaderData.isArchived}
         canDelete
+        emptyMessage={
+          loaderData.search
+            ? `No requests from clients matching "${loaderData.search}".`
+            : undefined
+        }
         result={actionData}
+      />
+
+      <Pagination
+        {...loaderData.pagination}
+        label="Booking pages"
+        className="sticky bottom-0 z-10 -mt-px border-t border-border bg-background pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
       />
     </section>
   );
