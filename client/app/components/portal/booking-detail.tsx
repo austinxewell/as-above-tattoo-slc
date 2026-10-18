@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { sizeLabels, type Booking } from "~/lib/bookings";
 import { StatusBadge } from "./status-badge";
@@ -54,10 +54,12 @@ export function BookingDetail({
     { label: "Availability", value: booking.availability ?? "Not given" },
   ];
 
+  const { search } = useLocation();
+
   return (
     <article>
       <Link
-        to={backTo}
+        to={`${backTo}${search}`}
         className="inline-flex items-center gap-3 text-sm font-medium uppercase tracking-widest text-foreground/80 transition-colors hover:text-accent-hover"
       >
         <ArrowLeft className="size-4" strokeWidth={1.5} aria-hidden="true" />
@@ -71,7 +73,7 @@ export function BookingDetail({
         </div>
         <p className="mt-3 text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
           {(showArtist || !booking.artist) && (
-            <>{booking.artist ? `For ${booking.artist.name}` : "No preference"} · </>
+            <>{booking.artist ? `For ${booking.artist.name}` : "No artist preference"} · </>
           )}
           Received{" "}
           <time dateTime={booking.createdAt}>{dateFormat.format(new Date(booking.createdAt))}</time>

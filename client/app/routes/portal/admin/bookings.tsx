@@ -1,28 +1,71 @@
 import type { Route } from "./+types/bookings";
-import { countByStatus, fetchBookings, filterByStatus } from "~/lib/bookings";
+import {
+  statusOptions,
+  fetchAssignableArtists,
+  fetchBookings,
+  filterByStatus,
+  handleStatusUpdate,
+  filterByAssignment,
+  assignmentOptions,
+} from "~/lib/bookings";
 import { BookingList } from "~/components/portal/booking-list";
-import { StatusFilter } from "~/components/portal/status-filter";
+import { FilterTabs } from "~/components/portal/filter-tabs";
 
 export function meta() {
   return [{ title: "Bookings | Portal" }, { name: "robots", content: "noindex" }];
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const status = new URL(request.url).searchParams.get("status");
-  const bookings = await fetchBookings({ signal: request.signal });
+  const url = new URL(request.url);
+  const status = url.searchParams.get("status");
+  const assignment = url.searchParams.get("for");
 
-  return { bookings: filterByStatus(bookings, status), counts: countByStatus(bookings) };
+  const [bookings, artists] = await Promise.all([
+    fetchBookings({ signal: request.signal }),
+    fetchAssignableArtists(request.signal),
+  ]);
+
+  const forAssignment = filterByAssignment(bookings, assignment);
+  const forStatus = filterByStatus(bookings, status);
+
+  return {
+    bookings: filterByStatus(forAssignment, status),
+    statusOptions: statusOptions(forAssignment),
+    assignmentOptions: assignmentOptions(forStatus, [
+      { value: "none", label: "No preference" },
+      ...artists.map((artist) => ({ value: artist.slug, label: artist.name })),
+    ]),
+    filterKey: url.search,
+    artists,
+  };
 }
 
-export default function AdminBookings({ loaderData }: Route.ComponentProps) {
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  return handleStatusUpdate(request);
+}
+
+export default function AdminBookings({ loaderData, actionData }: Route.ComponentProps) {
   return (
     <section>
       <h1 className="font-display text-3xl uppercase">Bookings</h1>
       <p className="mt-3 max-w-xl text-muted-foreground">Every booking request, newest first.</p>
 
-      <StatusFilter counts={loaderData.counts} />
+      <div className="mt-10">
+        <FilterTabs param="for" label="Filter by artist" options={loaderData.assignmentOptions} />
+      </div>
 
-      <BookingList bookings={loaderData.bookings} showArtist basePath="/portal/admin/bookings" />
+      <div className="mt-6">
+        <FilterTabs param="status" label="Filter by status" options={loaderData.statusOptions} />
+      </div>
+
+      <BookingList
+        key={loaderData.filterKey ?? "all"}
+        bookings={loaderData.bookings}
+        showArtist
+        basePath="/portal/admin/bookings"
+        assignableArtists={loaderData.artists}
+        result={actionData}
+      />
     </section>
   );
 }

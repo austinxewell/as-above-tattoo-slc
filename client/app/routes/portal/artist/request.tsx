@@ -16,7 +16,7 @@ export async function clientLoader({ params, request, context }: Route.ClientLoa
 }
 
 export async function clientAction({ params, request }: Route.ClientActionArgs) {
-  return handleStatusUpdate(params.id, request);
+  return handleStatusUpdate(request, params.id);
 }
 
 export default function ArtistRequest({ loaderData, actionData }: Route.ComponentProps) {

@@ -1,11 +1,19 @@
-import { sizeLabels, type Booking } from "~/lib/bookings";
+import { useState } from "react";
+import { Link, useLocation } from "react-router";
+import { sizeLabels, statusLabels, type Booking, type StatusUpdateResult } from "~/lib/bookings";
+import { Check } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
+import { Button } from "~/components/ui/button";
 import { StatusBadge } from "./status-badge";
-import { Link } from "react-router";
+import { StatusForm } from "./status-form";
 
 type BookingListProps = {
   bookings: Booking[];
   showArtist?: boolean;
   basePath: string;
+  assignableArtists?: { slug: string; name: string }[];
+  assignToSelf?: string;
+  result?: StatusUpdateResult;
 };
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
@@ -14,7 +22,55 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export function BookingList({ bookings, showArtist = false, basePath }: BookingListProps) {
+export function BookingList({
+  bookings,
+  showArtist = false,
+  basePath,
+  assignableArtists,
+  assignToSelf,
+  result,
+}: BookingListProps) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
+
+  const [handledResult, setHandledResult] = useState(result);
+
+  const [lastUpdate, setLastUpdate] = useState<{ count: number; status: Booking["status"] } | null>(
+    null,
+  );
+
+  if (result !== handledResult) {
+    setHandledResult(result);
+
+    if (result?.updatedTo) {
+      setSelected(new Set());
+      setIsStatusOpen(false);
+      setLastUpdate({ count: result.count, status: result.updatedTo });
+    }
+  }
+
+  const allSelected = bookings.length > 0 && selected.size === bookings.length;
+
+  const anyUnassigned = bookings.some((booking) => selected.has(booking.id) && !booking.artist);
+
+  const anyAssigned = bookings.some((booking) => selected.has(booking.id) && booking.artist);
+
+  const { search } = useLocation();
+
+  function toggle(id: string) {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelected(allSelected ? new Set() : new Set(bookings.map((booking) => booking.id)));
+  }
+
   if (bookings.length === 0) {
     return (
       <p className="mt-10 border border-border px-6 py-12 text-center text-muted-foreground">
@@ -24,44 +80,101 @@ export function BookingList({ bookings, showArtist = false, basePath }: BookingL
   }
 
   return (
-    <ul className="mt-10 divide-y divide-border border-y border-border">
-      {bookings.map((booking) => (
-        <li key={booking.id}>
-          <Link
-            to={`${basePath}/${booking.id}`}
-            className="grid gap-3 px-2 py-5 transition-colors hover:bg-surface-raised md:grid-cols-[1fr_auto] md:gap-8"
-          >
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="font-medium">{booking.name}</p>
+    <>
+      <div className="mt-10 flex min-h-10 flex-wrap items-center justify-between gap-4 px-2">
+        <label className="flex w-fit cursor-pointer items-center gap-4">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={toggleAll}
+            className="size-4 accent-accent"
+          />
+          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
+            {selected.size > 0 ? `${selected.size} selected` : "Select all"}
+          </span>
+        </label>
 
-                <StatusBadge status={booking.status} />
+        {selected.size === 0 && lastUpdate && (
+          <p role="status" className="flex items-center gap-2 text-sm text-success">
+            <Check className="size-4" strokeWidth={2} aria-hidden="true" />
+            {lastUpdate.count} {lastUpdate.count === 1 ? "request" : "requests"} updated to{" "}
+            {statusLabels[lastUpdate.status]}.
+          </p>
+        )}
 
-                {(showArtist || !booking.artist) && (
-                  <span className="text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
-                    {booking.artist ? `For ${booking.artist.name}` : "No artist preference"}
-                  </span>
-                )}
+        {selected.size > 0 && (
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setIsStatusOpen(true)}>
+              Update Status
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <Dialog open={isStatusOpen} onOpenChange={setIsStatusOpen}>
+        <DialogContent className="rounded-none border border-border bg-background">
+          <DialogTitle className="font-display text-2xl uppercase">
+            Update {selected.size} {selected.size === 1 ? "request" : "requests"}
+          </DialogTitle>
+          <StatusForm
+            ids={[...selected]}
+            submitLabel={`Apply to ${selected.size}`}
+            assignableArtists={anyUnassigned ? assignableArtists : undefined}
+            assignToSelf={assignToSelf}
+            error={result?.error}
+            showAssignmentNote={anyUnassigned && anyAssigned}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <ul className="mt-4 divide-y divide-border border-y border-border">
+        {bookings.map((booking) => (
+          <li key={booking.id} className="flex items-start">
+            <label className="flex shrink-0 cursor-pointer px-2 py-5">
+              <input
+                type="checkbox"
+                checked={selected.has(booking.id)}
+                onChange={() => toggle(booking.id)}
+                aria-label={`Select request from ${booking.name}`}
+                className="mt-1 size-4 accent-accent"
+              />
+            </label>
+            <Link
+              to={`${basePath}/${booking.id}${search}`}
+              className="grid min-w-0 flex-1 gap-3 py-5 px-2 transition-colors hover:bg-surface-raised md:grid-cols-[1fr_auto] md:gap-8"
+            >
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="font-medium">{booking.name}</p>
+
+                  <StatusBadge status={booking.status} />
+
+                  {(showArtist || !booking.artist) && (
+                    <span className="text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
+                      {booking.artist ? `For ${booking.artist.name}` : "No artist preference"}
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                  {booking.idea}
+                </p>
+
+                <p className="mt-2 text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
+                  {booking.placement} · {sizeLabels[booking.size]}
+                </p>
               </div>
 
-              <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
-                {booking.idea}
-              </p>
-
-              <p className="mt-2 text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
-                {booking.placement} · {sizeLabels[booking.size]}
-              </p>
-            </div>
-
-            <time
-              dateTime={booking.createdAt}
-              className="text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground md:text-right"
-            >
-              {dateFormat.format(new Date(booking.createdAt))}
-            </time>
-          </Link>
-        </li>
-      ))}
-    </ul>
+              <time
+                dateTime={booking.createdAt}
+                className="text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground md:text-right"
+              >
+                {dateFormat.format(new Date(booking.createdAt))}
+              </time>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

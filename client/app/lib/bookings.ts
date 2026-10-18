@@ -103,26 +103,42 @@ export function isBookingStatus(value: string | null): value is BookingStatus {
   return bookingStatuses.includes(value as BookingStatus);
 }
 
-export function countByStatus(bookings: Booking[]) {
-  const counts: Record<BookingStatus | "all", number> = {
-    all: bookings.length,
-    new: 0,
-    contacted: 0,
-    scheduled: 0,
-    declined: 0,
-  };
-
-  for (const booking of bookings) {
-    counts[booking.status] += 1;
-  }
-
-  return counts;
-}
-
 export function filterByStatus(bookings: Booking[], status: string | null) {
   return isBookingStatus(status)
     ? bookings.filter((booking) => booking.status === status)
     : bookings;
+}
+
+export function statusOptions(bookings: Booking[]) {
+  return [
+    { value: "all", label: "All", count: bookings.length },
+    ...bookingStatuses.map((status) => ({
+      value: status,
+      label: statusLabels[status],
+      count: bookings.filter((booking) => booking.status === status).length,
+    })),
+  ];
+}
+
+export function filterByAssignment(bookings: Booking[], value: string | null, mySlug?: string) {
+  if (!value || value === "all") return bookings;
+  if (value === "none") return bookings.filter((booking) => !booking.artist);
+  if (value === "mine") return bookings.filter((booking) => booking.artist?.slug === mySlug);
+  return bookings.filter((booking) => booking.artist?.slug === value);
+}
+
+export function assignmentOptions(
+  bookings: Booking[],
+  choices: { value: string; label: string }[],
+  mySlug?: string,
+) {
+  return [
+    { value: "all", label: "Everyone", count: bookings.length },
+    ...choices.map((choice) => ({
+      ...choice,
+      count: filterByAssignment(bookings, choice.value, mySlug).length,
+    })),
+  ];
 }
 
 const UPDATE_BOOKING_STATUS_MUTATION = /* GraphQL */ `
@@ -143,23 +159,44 @@ export async function updateBookingStatus(
   return count;
 }
 
-export async function handleStatusUpdate(id: string, request: Request) {
+export async function handleStatusUpdate(request: Request, id?: string) {
   const formData = await request.formData();
+  const ids = id ? [id] : formData.getAll("ids").map(String);
   const status = String(formData.get("status") ?? "");
   const assignTo = String(formData.get("assignTo") ?? "") || null;
 
   if (!isBookingStatus(status)) {
-    return { error: "Choose a status.", updatedTo: null };
+    return { error: "Choose a status.", updatedTo: null, count: 0 };
   }
 
   try {
-    await updateBookingStatus({ ids: [id], status, assignTo }, request.signal);
+    const count = await updateBookingStatus({ ids, status, assignTo }, request.signal);
+    return { error: null, updatedTo: status, count };
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Something went wrong. Please try again.",
       updatedTo: null,
+      count: 0,
     };
   }
+}
 
-  return { error: null, updatedTo: status };
+export type StatusUpdateResult = Awaited<ReturnType<typeof handleStatusUpdate>>;
+
+const ASSIGNABLE_ARTISTS_QUERY = /* GraphQL */ `
+  query AssignableArtists {
+    artists {
+      slug
+      name
+    }
+  }
+`;
+
+export async function fetchAssignableArtists(signal?: AbortSignal) {
+  const { artists } = await graphqlRequest<{ artists: { slug: string; name: string }[] }>(
+    ASSIGNABLE_ARTISTS_QUERY,
+    undefined,
+    signal,
+  );
+  return artists;
 }

@@ -1,37 +1,23 @@
 import type { Route } from "./+types/booking";
-import { fetchBooking, handleStatusUpdate } from "~/lib/bookings";
-import { graphqlRequest } from "~/lib/graphql";
+import { fetchBooking, handleStatusUpdate, fetchAssignableArtists } from "~/lib/bookings";
 import { BookingDetail } from "~/components/portal/booking-detail";
 import { StatusForm } from "~/components/portal/status-form";
-
-const ARTISTS_QUERY = /* GraphQL */ `
-  query AssignableArtists {
-    artists {
-      slug
-      name
-    }
-  }
-`;
 
 export function meta() {
   return [{ title: "Booking request | Portal" }, { name: "robots", content: "noindex" }];
 }
 
 export async function clientLoader({ params, request }: Route.ClientLoaderArgs) {
-  const [booking, { artists }] = await Promise.all([
+  const [booking, artists] = await Promise.all([
     fetchBooking(params.id, request.signal),
-    graphqlRequest<{ artists: { slug: string; name: string }[] }>(
-      ARTISTS_QUERY,
-      undefined,
-      request.signal,
-    ),
+    fetchAssignableArtists(request.signal),
   ]);
 
   return { booking, artists };
 }
 
 export async function clientAction({ params, request }: Route.ClientActionArgs) {
-  return handleStatusUpdate(params.id, request);
+  return handleStatusUpdate(request, params.id);
 }
 
 export default function AdminBooking({ loaderData, actionData }: Route.ComponentProps) {

@@ -12,11 +12,14 @@ import {
 import { bookingStatuses, isBookingStatus, statusLabels, type BookingStatus } from "~/lib/bookings";
 
 type StatusFormProps = {
-  currentStatus: BookingStatus;
+  currentStatus?: BookingStatus;
   error?: string | null;
   updatedTo?: BookingStatus | null;
   assignableArtists?: { slug: string; name: string }[];
   assignToSelf?: string;
+  ids?: string[];
+  submitLabel?: string;
+  showAssignmentNote?: boolean;
 };
 
 const statusItems = bookingStatuses.map((status) => ({
@@ -30,15 +33,22 @@ export function StatusForm({
   updatedTo,
   assignableArtists,
   assignToSelf,
+  ids,
+  submitLabel,
+  showAssignmentNote,
 }: StatusFormProps) {
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
-  const [selectedStatus, setSelectedStatus] = useState(currentStatus);
+  const [selectedStatus, setSelectedStatus] = useState<BookingStatus | undefined>(currentStatus);
   const needsArtist = Boolean(assignableArtists) && selectedStatus === "scheduled";
 
   return (
     <Form method="post" className="mt-8">
       {assignToSelf && <input type="hidden" name="assignTo" value={assignToSelf} />}
+
+      {ids?.map((id) => (
+        <input key={id} type="hidden" name="ids" value={id} />
+      ))}
 
       <label htmlFor="status" className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">
         Status
@@ -57,7 +67,7 @@ export function StatusForm({
             id="status"
             className="w-56 rounded-none border-border bg-background px-4 py-3 text-base data-[size=default]:h-auto dark:bg-background dark:hover:bg-background focus-visible:border-accent focus-visible:ring-0"
           >
-            <SelectValue />
+            <SelectValue placeholder="Choose a status" />
           </SelectTrigger>
           <SelectContent
             alignItemWithTrigger={false}
@@ -102,10 +112,17 @@ export function StatusForm({
               <LoaderCircle className="size-4 animate-spin" strokeWidth={1.5} aria-hidden="true" />
             </>
           ) : (
-            "Update status"
+            (submitLabel ?? "Update status")
           )}
         </Button>
       </div>
+
+      {needsArtist && showAssignmentNote && (
+        <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+          Requests that already have an artist keep their artist. The artist you choose only applies
+          to the "No preference" requests.
+        </p>
+      )}
 
       {updatedTo && !isSaving && (
         <p role="status" className="mt-3 flex items-center gap-2 text-sm text-success">
