@@ -51,6 +51,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
@@ -104,6 +105,7 @@
   --secondary-foreground: #201c1a;
   --muted: #e7dccb;
   --destructive: #b42318;
+  --success: #2f7a45;
   --input: #cbbba7;
   --ring: #956c31;
 
@@ -161,6 +163,7 @@
   --secondary-foreground: #f2ede4;
   --muted: #2d2a27;
   --destructive: #ef6a60;
+  --success: #6fcf8f;
   --input: #45403a;
   --ring: #ddbd7b;
 
@@ -194,6 +197,7 @@
     --border: #cbbba7;
     --accent: #956c31;
     --destructive: #b42318;
+    --success: #2f7a45;
   }
 }
 
