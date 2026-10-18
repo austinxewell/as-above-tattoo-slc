@@ -29,6 +29,7 @@ export default [
           route("portfolio", "routes/portal/admin/portfolio.tsx"),
           route("site-content", "routes/portal/admin/site-content.tsx"),
           route("staff", "routes/portal/admin/staff.tsx"),
+          route("*", "routes/portal/not-found.tsx", { id: "portal-admin-not-found" }),
         ]),
       ]),
       layout("layouts/portal-artist-layout.tsx", [
@@ -38,8 +39,10 @@ export default [
           route("requests/:id", "routes/portal/artist/request.tsx"),
           route("profile", "routes/portal/artist/profile.tsx"),
           route("portfolio", "routes/portal/artist/portfolio.tsx"),
+          route("*", "routes/portal/not-found.tsx", { id: "portal-artist-not-found" }),
         ]),
       ]),
+      route("*", "routes/portal/not-found.tsx", { id: "portal-not-found" }),
     ]),
   ]),
 ] satisfies RouteConfig;
