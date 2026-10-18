@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { StatusBadge } from "./status-badge";
 import { StatusForm } from "./status-form";
+import { DeleteDialog } from "./delete-dialog";
 
 type BookingListProps = {
   bookings: Booking[];
@@ -14,6 +15,7 @@ type BookingListProps = {
   assignableArtists?: { slug: string; name: string }[];
   assignToSelf?: string;
   isArchived?: boolean;
+  canDelete?: boolean;
   result?: BookingActionResult;
 };
 
@@ -22,6 +24,10 @@ function describeResult({ intent, count, updatedTo }: BookingActionResult, reque
 
   if (intent === "status" && updatedTo) {
     return `${count} ${noun} updated to ${statusLabels[updatedTo]}.`;
+  }
+
+  if (intent === "delete") {
+    return `${count} ${noun} deleted.`;
   }
 
   const verb = intent === "archive" ? "archived" : "unarchived";
@@ -46,11 +52,14 @@ export function BookingList({
   assignableArtists,
   assignToSelf,
   isArchived = false,
+  canDelete = false,
   result,
 }: BookingListProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const [handledResult, setHandledResult] = useState(result);
 
@@ -65,6 +74,7 @@ export function BookingList({
     if (result && !result.error) {
       setSelected(new Set());
       setIsStatusOpen(false);
+      setIsDeleteOpen(false);
       setLastMessage(describeResult(result, selected.size));
     }
   }
@@ -120,7 +130,7 @@ export function BookingList({
           </p>
         )}
 
-        {result?.intent !== "status" && result?.error && (
+        {(result?.intent === "archive" || result?.intent === "unarchive") && result.error && (
           <p role="alert" className="text-sm text-destructive">
             {result.error}
           </p>
@@ -147,6 +157,16 @@ export function BookingList({
                 {isArchived ? "Unarchive" : "Archive"}
               </Button>
             </Form>
+            {canDelete && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => setIsDeleteOpen(true)}
+              >
+                Delete
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -166,6 +186,14 @@ export function BookingList({
           />
         </DialogContent>
       </Dialog>
+
+      <DeleteDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        count={selected.size}
+        ids={[...selected]}
+        error={result?.intent === "delete" ? result.error : null}
+      />
 
       <ul className="mt-4 divide-y divide-border border-y border-border">
         {bookings.map((booking) => (

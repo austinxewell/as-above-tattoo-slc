@@ -81,6 +81,7 @@ export default function AdminBookings({ loaderData, actionData }: Route.Componen
         basePath="/portal/admin/bookings"
         assignableArtists={loaderData.artists}
         isArchived={loaderData.isArchived}
+        canDelete
         result={actionData}
       />
     </section>

@@ -42,7 +42,11 @@ export default function ArtistRequest({ loaderData, actionData }: Route.Componen
           {loaderData.mySlug && loaderData.booking.artist?.slug === loaderData.mySlug && (
             <ArchiveForm
               archived={Boolean(loaderData.booking.archivedAt)}
-              result={actionData?.intent !== "status" ? actionData : undefined}
+              result={
+                actionData?.intent === "archive" || actionData?.intent === "unarchive"
+                  ? actionData
+                  : undefined
+              }
             />
           )}
         </>

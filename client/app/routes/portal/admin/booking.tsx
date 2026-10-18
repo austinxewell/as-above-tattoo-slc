@@ -1,8 +1,12 @@
+import { useState } from "react";
+import { redirect } from "react-router";
 import type { Route } from "./+types/booking";
 import { fetchBooking, handleBookingAction, fetchAssignableArtists } from "~/lib/bookings";
+import { Button } from "~/components/ui/button";
 import { BookingDetail } from "~/components/portal/booking-detail";
 import { StatusForm } from "~/components/portal/status-form";
 import { ArchiveForm } from "~/components/portal/archive-form";
+import { DeleteDialog } from "~/components/portal/delete-dialog";
 
 export function meta() {
   return [{ title: "Booking request | Portal" }, { name: "robots", content: "noindex" }];
@@ -18,10 +22,18 @@ export async function clientLoader({ params, request }: Route.ClientLoaderArgs) 
 }
 
 export async function clientAction({ params, request }: Route.ClientActionArgs) {
-  return handleBookingAction(request, params.id);
+  const result = await handleBookingAction(request, params.id);
+
+  if (result.intent === "delete" && !result.error) {
+    throw redirect(`/portal/admin/bookings${new URL(request.url).search}`);
+  }
+
+  return result;
 }
 
 export default function AdminBooking({ loaderData, actionData }: Route.ComponentProps) {
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
   if (!loaderData.booking) {
     return <p className="text-muted-foreground">This booking request doesn't exist.</p>;
   }
@@ -43,7 +55,26 @@ export default function AdminBooking({ loaderData, actionData }: Route.Component
           />
           <ArchiveForm
             archived={Boolean(loaderData.booking.archivedAt)}
-            result={actionData?.intent !== "status" ? actionData : undefined}
+            result={
+              actionData?.intent === "archive" || actionData?.intent === "unarchive"
+                ? actionData
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => setIsDeleteOpen(true)}
+            >
+              Delete
+            </Button>
+          </ArchiveForm>
+          <DeleteDialog
+            open={isDeleteOpen}
+            onOpenChange={setIsDeleteOpen}
+            count={1}
+            error={actionData?.intent === "delete" ? actionData.error : null}
           />
         </>
       }

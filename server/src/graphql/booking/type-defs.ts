@@ -47,6 +47,7 @@ export const bookingTypeDefs = /* GraphQL */ `
     updateBookingStatus(ids: [ID!]!, status: BookingStatus!, assignTo: String): Int!
     archiveBookings(ids: [ID!]!): Int!
     unarchiveBookings(ids: [ID!]!): Int!
+    deleteBookings(ids: [ID!]!): Int!
   }
 
   extend type Query {

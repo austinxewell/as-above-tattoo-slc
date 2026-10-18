@@ -184,8 +184,23 @@ export async function setBookingsArchived(ids: string[], archived: boolean, sign
   return count;
 }
 
+const DELETE_BOOKINGS_MUTATION = /* GraphQL */ `
+  mutation DeleteBookings($ids: [ID!]!) {
+    count: deleteBookings(ids: $ids)
+  }
+`;
+
+export async function deleteBookings(ids: string[], signal?: AbortSignal) {
+  const { count } = await graphqlRequest<{ count: number }>(
+    DELETE_BOOKINGS_MUTATION,
+    { ids },
+    signal,
+  );
+  return count;
+}
+
 export type BookingActionResult = {
-  intent: "status" | "archive" | "unarchive";
+  intent: "status" | "archive" | "unarchive" | "delete";
   error: string | null;
   count: number;
   updatedTo: BookingStatus | null;
@@ -198,10 +213,18 @@ export async function handleBookingAction(
   const formData = await request.formData();
   const ids = id ? [id] : formData.getAll("ids").map(String);
   const rawIntent = formData.get("intent");
-  const intent = rawIntent === "archive" || rawIntent === "unarchive" ? rawIntent : "status";
+  const intent =
+    rawIntent === "archive" || rawIntent === "unarchive" || rawIntent === "delete"
+      ? rawIntent
+      : "status";
 
   try {
-    if (intent !== "status") {
+    if (intent === "delete") {
+      const count = await deleteBookings(ids, request.signal);
+      return { intent, error: null, count, updatedTo: null };
+    }
+
+    if (intent === "archive" || intent === "unarchive") {
       const count = await setBookingsArchived(ids, intent === "archive", request.signal);
       return { intent, error: null, count, updatedTo: null };
     }

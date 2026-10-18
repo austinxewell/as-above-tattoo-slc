@@ -5,7 +5,7 @@ import { ArtistModel } from "../../models/artist.js";
 import { BookingModel, type Booking } from "../../models/booking.js";
 import { UserModel } from "../../models/user.js";
 import { sendEmail } from "../../email/send-email.js";
-import { requireUser } from "../../auth/guards.js";
+import { requireUser, requireRole } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
 
 type BookingRequestInput = {
@@ -207,6 +207,22 @@ export const bookingResolvers = {
       setArchivedAt(ids, new Date(), context),
     unarchiveBookings: (_parent: unknown, { ids }: { ids: string[] }, context: GraphQLContext) =>
       setArchivedAt(ids, null, context),
+    deleteBookings: async (
+      _parent: unknown,
+      { ids }: { ids: string[] },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, "admin");
+
+      if (ids.length > 100) {
+        throw new GraphQLError("You can delete up to 100 requests at a time.");
+      }
+
+      const result = await BookingModel.deleteMany({
+        _id: { $in: ids.filter((id) => isValidObjectId(id)) },
+      });
+      return result.deletedCount;
+    },
   },
   BookingRequest: {
     artist: (booking: { artist?: unknown }) =>
