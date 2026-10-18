@@ -112,7 +112,7 @@ export function BookingList({
 
   return (
     <>
-      <div className="mt-10 flex min-h-10 flex-wrap items-center justify-between gap-4 px-2">
+      <div className="sticky top-0 z-10 mt-10 flex min-h-10 flex-wrap items-center justify-between gap-4 border-b border-border bg-background px-2 py-3">
         <label className="flex w-fit cursor-pointer items-center gap-4">
           <input
             type="checkbox"
@@ -197,7 +197,7 @@ export function BookingList({
         error={result?.intent === "delete" ? result.error : null}
       />
 
-      <ul className="mt-4 divide-y divide-border border-y border-border">
+      <ul className="-mt-px divide-y divide-border border-y border-border">
         {bookings.map((booking) => (
           <li key={booking.id} className="flex items-start">
             <label className="flex shrink-0 cursor-pointer px-2 py-5">

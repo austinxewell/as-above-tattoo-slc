@@ -10,10 +10,9 @@ import {
 import { outOfRangePageUrl } from "~/lib/pagination";
 import { currentUserContext } from "~/lib/current-user";
 import { BookingList } from "~/components/portal/booking-list";
-import { FilterTabs } from "~/components/portal/filter-tabs";
+import { BookingFilters } from "~/components/portal/booking-filters";
 import { ViewSwitch } from "~/components/portal/view-switch";
 import { Pagination } from "~/components/shared/pagination";
-import { SearchField } from "~/components/shared/search-field";
 
 export function meta() {
   return [{ title: "My requests | Portal" }, { name: "robots", content: "noindex" }];
@@ -65,22 +64,17 @@ export default function ArtistRequests({ loaderData, actionData }: Route.Compone
           </p>
         </div>
 
-        <ViewSwitch counts={loaderData.viewCounts} />
+        <div className="hidden md:block">
+          <ViewSwitch counts={loaderData.viewCounts} />
+        </div>
       </div>
 
-      <SearchField
-        label="Search clients"
-        placeholder="Client name or email"
-        className="mt-8 max-w-md"
+      <BookingFilters
+        assignmentOptions={loaderData.assignmentOptions}
+        statusOptions={loaderData.statusOptions}
+        viewCounts={loaderData.viewCounts}
+        total={loaderData.pagination.total}
       />
-
-      <div className="mt-10">
-        <FilterTabs param="for" label="Filter by artist" options={loaderData.assignmentOptions} />
-      </div>
-
-      <div className="mt-6">
-        <FilterTabs param="status" label="Filter by status" options={loaderData.statusOptions} />
-      </div>
 
       <BookingList
         key={loaderData.filterKey}
