@@ -5,6 +5,7 @@ import {
   fetchSiteStatus,
   mockOldestNewRequestDays,
   mockShopStats,
+  type AdminDashboard as AdminDashboardData,
   type DashboardStat,
   type PublicLink,
 } from "~/lib/dashboard";
@@ -73,7 +74,7 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
       { label: "Artists Page", to: "/artists", badge: "/images/logos/artist-badge.svg" },
       { label: "Aftercare Page", to: "/after-care", badge: "/images/logos/after-care-badge.svg" },
     ] satisfies PublicLink[],
-  };
+  } satisfies AdminDashboardData;
 }
 
 export default function AdminDashboard({ loaderData }: Route.ComponentProps) {

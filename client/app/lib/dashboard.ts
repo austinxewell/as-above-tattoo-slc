@@ -35,21 +35,26 @@ export type PublicLink = {
 };
 
 export type AdminDashboard = {
+  firstName: string;
   attention: DashboardStat[];
   pipeline: PipelineStage[];
   recentRequests: Booking[];
+  shop: DashboardStat[];
   bookingRequestsEnabled: boolean;
   artists: ArtistBookingState[];
-  shop: DashboardStat[];
+  publicLinks: PublicLink[];
 };
 
 export type ArtistDashboard = {
+  firstName: string;
   attention: DashboardStat[];
   pipeline: PipelineStage[];
   recentRequests: Booking[];
-  isBooking: boolean;
-  profileTasks: ProfileTask[];
   shop: DashboardStat[];
+  bookingRequestsEnabled: boolean;
+  myBooks: ArtistBookingState | null;
+  profileTasks: ProfileTask[];
+  publicLinks: PublicLink[];
 };
 
 const SITE_STATUS_QUERY = /* GraphQL */ `
@@ -76,6 +81,13 @@ export const mockShopStats: DashboardStat[] = [
   { label: "Orders to fulfil", value: 2, hint: "Oldest placed 2 days ago", icon: Package },
   { label: "Sold this month", value: 14, icon: Receipt },
   { label: "Low stock", value: 3, hint: "Prints and aftercare", icon: TriangleAlert },
+];
+
+// MOCK: replace with the artist's own listings once the shop API exists.
+export const mockArtistShopStats: DashboardStat[] = [
+  { label: "Your orders to fulfil", value: 1, hint: "Placed yesterday", icon: Package },
+  { label: "Sold this month", value: 5, icon: Receipt },
+  { label: "Low stock", value: 1, hint: "One print is almost gone", icon: TriangleAlert },
 ];
 
 // MOCK: replace with real checks against the artist's profile and portfolio.
