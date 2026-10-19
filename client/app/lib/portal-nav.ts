@@ -17,7 +17,7 @@ export type PortalNavItem = {
 };
 
 export const adminNav: PortalNavItem[] = [
-  { label: "Overview", to: "/portal/admin", icon: LayoutDashboard, end: true },
+  { label: "Dashboard", to: "/portal/admin", icon: LayoutDashboard, end: true },
   { label: "Bookings", to: "/portal/admin/bookings", icon: CalendarCheck },
   { label: "Artists", to: "/portal/admin/artists", icon: Palette },
   { label: "Portfolio", to: "/portal/admin/portfolio", icon: Images },
@@ -26,7 +26,7 @@ export const adminNav: PortalNavItem[] = [
 ];
 
 export const artistNav: PortalNavItem[] = [
-  { label: "Overview", to: "/portal/artist", icon: LayoutDashboard, end: true },
+  { label: "Dashboard", to: "/portal/artist", icon: LayoutDashboard, end: true },
   { label: "My requests", to: "/portal/artist/requests", icon: CalendarCheck },
   { label: "My profile", to: "/portal/artist/profile", icon: UserRound },
   { label: "My portfolio", to: "/portal/artist/portfolio", icon: Images },
