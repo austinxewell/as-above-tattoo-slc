@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Outlet, redirect } from "react-router";
+import { isRouteErrorResponse, Outlet, redirect } from "react-router";
 import type { Route } from "./+types/portal-layout";
 import { currentUserContext, fetchCurrentUser } from "~/lib/current-user";
 import { PortalSidebar } from "~/components/portal/portal-sidebar";
 import { Sheet, SheetContent, SheetTitle } from "~/components/ui/sheet";
 import { PortalBrand } from "~/components/portal/portal-brand";
 import { MenuTrigger } from "~/components/shared/menu-trigger";
+import { ErrorState } from "~/components/shared/error-state";
+import { NotFound } from "~/components/shared/not-found";
 
 export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
   async ({ request, context }) => {
@@ -52,6 +54,20 @@ export default function PortalLayout({ loaderData }: Route.ComponentProps) {
       <main className="min-w-0 flex-1 px-6 py-10 md:px-10">
         <Outlet />
       </main>
+    </div>
+  );
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  const isNotFound = isRouteErrorResponse(error) && error.status === 404;
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {isNotFound ? (
+        <NotFound homeTo="/portal" homeLabel="Back to dashboard" secondaryLink={null} />
+      ) : (
+        <ErrorState homeTo="/" homeLabel="Back to website" />
+      )}
     </div>
   );
 }
