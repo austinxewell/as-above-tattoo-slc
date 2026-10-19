@@ -16,7 +16,10 @@ export function ProfileChecklist({ tasks }: { tasks: ProfileTask[] }) {
         done
       </p>
       <div aria-hidden="true" className="mt-2 h-1 bg-surface-raised">
-        <div className="h-full bg-accent" style={{ width: `${(doneCount / tasks.length) * 100}%` }} />
+        <div
+          className="h-full bg-accent"
+          style={{ width: `${(doneCount / tasks.length) * 100}%` }}
+        />
       </div>
 
       <ul className="mt-4 grid gap-2.5">
