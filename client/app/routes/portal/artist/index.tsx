@@ -79,7 +79,13 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
     profileTasks: mockProfileTasks,
     publicLinks: [
       ...(mySlug
-        ? [{ label: "Your artist page", to: `/artists/${mySlug}`, badge: "/images/logos/artist-badge.svg" }]
+        ? [
+            {
+              label: "Your artist page",
+              to: `/artists/${mySlug}`,
+              badge: "/images/logos/artist-badge.svg",
+            },
+          ]
         : []),
       { label: "Booking page", to: "/booking", badge: "/images/logos/booking-badge.svg" },
       { label: "Aftercare page", to: "/after-care", badge: "/images/logos/after-care-badge.svg" },
@@ -100,7 +106,10 @@ export default function ArtistDashboard({ loaderData }: Route.ComponentProps) {
             <PipelineBar stages={loaderData.pipeline} basePath={requestsPath} />
           </DashboardSection>
 
-          <DashboardSection title="Recent requests" action={{ label: "View all", to: requestsPath }}>
+          <DashboardSection
+            title="Recent requests"
+            action={{ label: "View all", to: requestsPath }}
+          >
             <RecentRequests bookings={loaderData.recentRequests} basePath={requestsPath} />
           </DashboardSection>
 

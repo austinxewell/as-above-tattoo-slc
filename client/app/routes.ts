@@ -26,6 +26,7 @@ export default [
           route("bookings", "routes/portal/admin/bookings.tsx"),
           route("bookings/:id", "routes/portal/admin/booking.tsx"),
           route("artists", "routes/portal/admin/artists.tsx"),
+          route("artists/:slug", "routes/portal/admin/artist.tsx"),
           route("portfolio", "routes/portal/admin/portfolio.tsx"),
           route("site-content", "routes/portal/admin/site-content.tsx"),
           route("staff", "routes/portal/admin/staff.tsx"),
