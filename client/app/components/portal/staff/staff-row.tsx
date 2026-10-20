@@ -16,7 +16,7 @@ const successMessages: Record<string, string> = {
   "add-profile": "Artist profile added. It's a draft until it's published.",
 };
 
-export function StaffRow({ member }: { member: StaffMember }) {
+export function StaffRow({ member, isSelf }: { member: StaffMember; isSelf: boolean }) {
   const fetcher = useFetcher<StaffActionResult>();
   const busyIntent = fetcher.state !== "idle" ? fetcher.formData?.get("intent") : null;
   const result = fetcher.state === "idle" ? fetcher.data : undefined;
@@ -101,6 +101,18 @@ export function StaffRow({ member }: { member: StaffMember }) {
                   aria-hidden="true"
                 />
               )}
+            </Button>
+          )}
+
+          {!isSelf && (
+            <Button
+              render={<Link to={`/portal/admin/staff/${member.id}/remove`} />}
+              nativeButton={false}
+              variant="ghost"
+              size="sm"
+              className="rounded-none text-muted-foreground hover:text-destructive"
+            >
+              Remove
             </Button>
           )}
         </fetcher.Form>

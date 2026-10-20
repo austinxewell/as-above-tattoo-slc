@@ -1,4 +1,5 @@
 import { graphqlRequest, GraphQLRequestError } from "~/lib/graphql";
+import { BOOKING_FIELDS, type Booking } from "~/lib/bookings";
 
 export type StaffRole = "admin" | "artist";
 
@@ -38,6 +39,53 @@ export async function fetchStaff(signal?: AbortSignal) {
   return users;
 }
 
+const HANDOFF_QUERY = /* GraphQL */ `
+  query Handoff($slug: String!, $filter: BookingFilter!) {
+    open: bookingPage(filter: $filter, pageSize: 100) {
+      total
+      items {
+        ...BookingFields
+      }
+    }
+    counts: bookingCounts(filter: $filter) {
+      archived
+    }
+    artist(slug: $slug) {
+      pieceCount
+    }
+    artists {
+      slug
+      name
+    }
+  }
+  ${BOOKING_FIELDS}
+`;
+
+export type Handoff = {
+  openRequests: Booking[];
+  openTotal: number;
+  archivedCount: number;
+  pieceCount: number;
+  reassignTo: { slug: string; name: string }[];
+};
+
+export async function fetchHandoff(slug: string, signal?: AbortSignal): Promise<Handoff> {
+  const result = await graphqlRequest<{
+    open: { total: number; items: Booking[] };
+    counts: { archived: number };
+    artist: { pieceCount: number } | null;
+    artists: { slug: string; name: string }[];
+  }>(HANDOFF_QUERY, { slug, filter: { assignment: slug } }, signal);
+
+  return {
+    openRequests: result.open.items,
+    openTotal: result.open.total,
+    archivedCount: result.counts.archived,
+    pieceCount: result.artist?.pieceCount ?? 0,
+    reassignTo: result.artists.filter((artist) => artist.slug !== slug),
+  };
+}
+
 const SEND_INVITE_MUTATION = /* GraphQL */ `
   mutation SendInvite($userId: ID!) {
     sendInvite(userId: $userId)
@@ -60,6 +108,26 @@ const CREATE_USER_MUTATION = /* GraphQL */ `
   }
 `;
 
+const REMOVE_USER_MUTATION = /* GraphQL */ `
+  mutation RemoveUser($userId: ID!) {
+    removeUser(userId: $userId)
+  }
+`;
+
+const REMOVE_ARTIST_PROFILE_MUTATION = /* GraphQL */ `
+  mutation RemoveArtistProfile($slug: String!) {
+    removeArtistProfile(slug: $slug)
+  }
+`;
+
+export async function removeUser(userId: string, signal?: AbortSignal) {
+  await graphqlRequest(REMOVE_USER_MUTATION, { userId }, signal);
+}
+
+export async function removeArtistProfile(slug: string, signal?: AbortSignal) {
+  await graphqlRequest(REMOVE_ARTIST_PROFILE_MUTATION, { slug }, signal);
+}
+
 export type StaffActionResult = {
   intent: string;
   ok: boolean;
@@ -81,7 +149,7 @@ export async function handleStaffAction(request: Request): Promise<StaffActionRe
             name: String(formData.get("name") ?? ""),
             email: String(formData.get("email") ?? ""),
             role: formData.get("role") === "admin" ? "admin" : "artist",
-            withArtistProfile: formData.get("withArtistProfile") === "on,",
+            withArtistProfile: formData.get("withArtistProfile") === "on",
           },
         },
         request.signal,

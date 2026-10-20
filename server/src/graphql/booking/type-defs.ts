@@ -99,6 +99,7 @@ export const bookingTypeDefs = /* GraphQL */ `
     unarchiveBookings(ids: [ID!]!): Int!
     deleteBookings(ids: [ID!]!): Int!
     addBookingNote(id: ID!, text: String!): BookingActivity!
+    assignBookings(ids: [ID!]!, artist: String): Int!
   }
 
   extend type Query {

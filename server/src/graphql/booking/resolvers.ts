@@ -49,7 +49,7 @@ const statusLabels: Record<Booking["status"], string> = {
   declined: "Declined",
 };
 
-function activityEvent(user: ReturnType<typeof requireUser>, text: string) {
+export function activityEvent(user: ReturnType<typeof requireUser>, text: string) {
   return {
     type: "event" as const,
     text,
@@ -430,6 +430,46 @@ export const bookingResolvers = {
       await booking.save();
 
       return booking.activity.at(-1);
+    },
+    assignBookings: async (
+      _parent: unknown,
+      { ids, artist: slug }: { ids: string[]; artist?: string | null },
+      context: GraphQLContext,
+    ) => {
+      const user = requireRole(context, "admin");
+
+      if (ids.length > 100) {
+        throw new GraphQLError("You can update up to 100 requests at a time.");
+      }
+
+      const filter = { _id: { $in: ids.filter((id) => isValidObjectId(id)) } };
+      const target = slug ? await ArtistModel.findOne({ slug }) : null;
+
+      if (slug && !target) {
+        throw new GraphQLError("That artist doesn't exist.");
+      }
+
+      if (!target && (await BookingModel.exists({ ...filter, status: "scheduled" }))) {
+        throw new GraphQLError(
+          "Scheduled requests need an artist. Choose an artist for them, or archive them.",
+        );
+      }
+
+      await BookingModel.updateMany(
+        target ? { ...filter, artist: { $ne: target._id } } : { ...filter, $nor: [noPreference] },
+        {
+          $set: { artist: target?._id ?? null },
+          $unset: { formerArtistName: 1 },
+          $push: {
+            activity: activityEvent(
+              user,
+              target ? `Reassigned to ${target.name}` : "Moved to No preference",
+            ),
+          },
+        },
+      );
+
+      return BookingModel.countDocuments(filter);
     },
   },
   BookingRequest: {
