@@ -1,9 +1,9 @@
 import type { Route } from "./+types/request";
 import { fetchBooking, handleBookingAction } from "~/lib/bookings";
 import { currentUserContext } from "~/lib/current-user";
-import { BookingDetail } from "~/components/portal/booking-detail";
-import { StatusForm } from "~/components/portal/status-form";
-import { ArchiveForm } from "~/components/portal/archive-form";
+import { BookingDetail } from "~/components/portal/bookings/booking-detail";
+import { StatusForm } from "~/components/portal/bookings/status-form";
+import { ArchiveForm } from "~/components/portal/bookings/archive-form";
 
 export function meta() {
   return [{ title: "My request | Portal" }, { name: "robots", content: "noindex" }];

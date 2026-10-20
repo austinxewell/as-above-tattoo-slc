@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router";
 import { ArrowLeft } from "lucide-react";
-import { sizeLabels, type Booking } from "~/lib/bookings";
+import { artistLabel, sizeLabels, type BookingWithActivity } from "~/lib/bookings";
+import { ActivityRail } from "./activity-rail";
 import { StatusBadge } from "./status-badge";
 
 type BookingDetailProps = {
-  booking: Booking;
+  booking: BookingWithActivity;
   backTo: string;
   backLabel: string;
   showArtist?: boolean;
@@ -57,53 +58,57 @@ export function BookingDetail({
   const { search } = useLocation();
 
   return (
-    <article>
-      <Link
-        to={`${backTo}${search}`}
-        className="inline-flex items-center gap-3 text-sm font-medium uppercase tracking-widest text-foreground/80 transition-colors hover:text-accent-hover"
-      >
-        <ArrowLeft className="size-4" strokeWidth={1.5} aria-hidden="true" />
-        {backLabel}
-      </Link>
+    <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start">
+      <article className="min-w-0">
+        <Link
+          to={`${backTo}${search}`}
+          className="inline-flex items-center gap-3 text-sm font-medium uppercase tracking-widest text-foreground/80 transition-colors hover:text-accent-hover"
+        >
+          <ArrowLeft className="size-4" strokeWidth={1.5} aria-hidden="true" />
+          {backLabel}
+        </Link>
 
-      <header className="mt-8">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-3xl uppercase">{booking.name}</h1>
-          <StatusBadge status={booking.status} />
-        </div>
-        <p className="mt-3 text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
-          {(showArtist || !booking.artist) && (
-            <>{booking.artist ? `For ${booking.artist.name}` : "No artist preference"} · </>
-          )}
-          Received{" "}
-          <time dateTime={booking.createdAt}>{dateFormat.format(new Date(booking.createdAt))}</time>
-          {booking.archivedAt && (
-            <>
-              {" "}
-              · Archived{" "}
-              <time dateTime={booking.archivedAt}>
-                {dateFormat.format(new Date(booking.archivedAt))}
-              </time>
-            </>
-          )}
-        </p>
-      </header>
-
-      {actions}
-
-      <dl className="mt-10 grid gap-x-10 gap-y-6 border-y border-border py-8 sm:grid-cols-2">
-        {details.map(({ label, value }) => (
-          <div key={label} className="min-w-0">
-            <dt className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">{label}</dt>
-            <dd className="mt-2 break-words">{value}</dd>
+        <header className="mt-8">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="font-display text-3xl uppercase">{booking.name}</h1>
+            <StatusBadge status={booking.status} />
           </div>
-        ))}
-      </dl>
+          <p className="mt-3 text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
+            {(showArtist || !booking.artist) && <>{artistLabel(booking)} · </>}
+            Received{" "}
+            <time dateTime={booking.createdAt}>
+              {dateFormat.format(new Date(booking.createdAt))}
+            </time>
+            {booking.archivedAt && (
+              <>
+                {" "}
+                · Archived{" "}
+                <time dateTime={booking.archivedAt}>
+                  {dateFormat.format(new Date(booking.archivedAt))}
+                </time>
+              </>
+            )}
+          </p>
+        </header>
 
-      <section className="mt-8 max-w-2xl">
-        <h2 className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">Their idea</h2>
-        <p className="mt-3 whitespace-pre-line leading-7">{booking.idea}</p>
-      </section>
-    </article>
+        {actions}
+
+        <dl className="mt-10 grid gap-x-10 gap-y-6 border-y border-border py-8 sm:grid-cols-2">
+          {details.map(({ label, value }) => (
+            <div key={label} className="min-w-0">
+              <dt className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">{label}</dt>
+              <dd className="mt-2 break-words">{value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <section className="mt-8 max-w-2xl">
+          <h2 className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">Their idea</h2>
+          <p className="mt-3 whitespace-pre-line leading-7">{booking.idea}</p>
+        </section>
+      </article>
+
+      <ActivityRail booking={booking} />
+    </div>
   );
 }

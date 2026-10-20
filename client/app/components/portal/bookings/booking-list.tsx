@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Form, Link, useLocation, useNavigation } from "react-router";
-import { sizeLabels, statusLabels, type Booking, type BookingActionResult } from "~/lib/bookings";
+import {
+  sizeLabels,
+  statusLabels,
+  artistLabel,
+  type Booking,
+  type BookingActionResult,
+} from "~/lib/bookings";
 import { Check } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
@@ -221,7 +227,7 @@ export function BookingList({
 
                   {(showArtist || !booking.artist) && (
                     <span className="text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">
-                      {booking.artist ? `For ${booking.artist.name}` : "No artist preference"}
+                      {artistLabel(booking)}
                     </span>
                   )}
                 </div>
