@@ -1,5 +1,7 @@
 import { GraphQLError } from "graphql";
+import type { Types } from "mongoose";
 import { ArtistModel } from "../../models/artist.js";
+import { PieceModel } from "../../models/piece.js";
 import { requireUser } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
 import { cleanArtistInput, type ArtistUpdateInput } from "./validate.js";
@@ -51,5 +53,9 @@ export const artistResolvers = {
       await artist.save();
       return artist;
     },
+  },
+  Artist: {
+    pieceCount: (artist: { _id: Types.ObjectId }) =>
+      PieceModel.countDocuments({ artist: artist._id }),
   },
 };

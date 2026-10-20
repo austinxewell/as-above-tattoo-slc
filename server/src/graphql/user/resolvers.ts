@@ -2,9 +2,12 @@ import { GraphQLError } from "graphql";
 import { isValidObjectId } from "mongoose";
 import { ArtistModel, slugify } from "../../models/artist.js";
 import { UserModel } from "../../models/user.js";
+import { SessionModel } from "../../models/session.js";
+import { PasswordResetModel } from "../../models/password-reset.js";
 import { requireRole } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
 import { emailInvite } from "../../auth/invite.js";
+import { retireArtist } from "./retire-artist.js";
 
 type CreateUserInput = {
   name: string;
@@ -125,6 +128,57 @@ export const userResolvers = {
       }
 
       await emailInvite(user, admin.name);
+      return true;
+    },
+    removeArtistProfile: async (
+      _parent: unknown,
+      { slug }: { slug: string },
+      context: GraphQLContext,
+    ) => {
+      const admin = requireRole(context, "admin");
+      const artist = await ArtistModel.findOne({ slug });
+
+      if (!artist) {
+        throw new GraphQLError("That artist doesn't exist.", { extensions: { code: "NOT_FOUND" } });
+      }
+
+      const owner = await UserModel.findOne({ artist: artist._id });
+
+      if (owner?.role === "artist") {
+        throw new GraphQLError(
+          `${owner.name} only has artist access, so remove the person instead of just the profile.`,
+        );
+      }
+
+      await retireArtist(artist._id, admin);
+      return true;
+    },
+    removeUser: async (
+      _parent: unknown,
+      { userId }: { userId: string },
+      context: GraphQLContext,
+    ) => {
+      const admin = requireRole(context, "admin");
+      const user = isValidObjectId(userId) ? await UserModel.findById(userId) : null;
+
+      if (!user) {
+        throw new GraphQLError("That person doesn't exist.", { extensions: { code: "NOT_FOUND" } });
+      }
+
+      if (user._id.equals(admin._id)) {
+        throw new GraphQLError("You can't remove yourself. Ask another admin to do it.");
+      }
+
+      if (user.artist) {
+        await retireArtist(user.artist, admin);
+      }
+
+      await Promise.all([
+        SessionModel.deleteMany({ user: user._id }),
+        PasswordResetModel.deleteMany({ user: user._id }),
+      ]);
+      await user.deleteOne();
+
       return true;
     },
   },

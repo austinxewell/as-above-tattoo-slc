@@ -23,5 +23,7 @@ export const userTypeDefs = /* GraphQL */ `
     createUser(input: CreateUserInput!): StaffUser!
     addArtistProfile(userId: ID!): StaffUser!
     sendInvite(userId: ID!): Boolean!
+    removeArtistProfile(slug: String!): Boolean!
+    removeUser(userId: ID!): Boolean!
   }
 `;

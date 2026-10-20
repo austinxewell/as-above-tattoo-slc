@@ -19,6 +19,7 @@ export const artistTypeDefs = /* GraphQL */ `
     isBooking: Boolean!
     isPublished: Boolean!
     booking: ArtistBooking!
+    pieceCount: Int!
   }
 
   input ArtistBookingInput {

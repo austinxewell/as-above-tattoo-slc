@@ -30,6 +30,7 @@ export default [
           route("portfolio", "routes/portal/admin/portfolio.tsx"),
           route("site-content", "routes/portal/admin/site-content.tsx"),
           route("staff", "routes/portal/admin/staff.tsx"),
+          route("staff/:id/remove", "routes/portal/admin/staff-remove.tsx"),
           route("*", "routes/portal/not-found.tsx", { id: "portal-admin-not-found" }),
         ]),
       ]),

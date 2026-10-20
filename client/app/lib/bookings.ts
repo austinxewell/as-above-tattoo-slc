@@ -30,7 +30,7 @@ export type BookingActivity = {
 
 export type BookingWithActivity = Booking & { activity: BookingActivity[] };
 
-const BOOKING_FIELDS = /* GraphQL */ `
+export const BOOKING_FIELDS = /* GraphQL */ `
   fragment BookingFields on BookingRequest {
     id
     artist {
@@ -264,6 +264,21 @@ export async function deleteBookings(ids: string[], signal?: AbortSignal) {
   return count;
 }
 
+const ASSIGN_BOOKINGS_MUTATION = /* GraphQL */ `
+  mutation AssignBookings($ids: [ID!]!, $artist: String) {
+    count: assignBookings(ids: $ids, artist: $artist)
+  }
+`;
+
+export async function assignBookings(ids: string[], artist: string | null, signal?: AbortSignal) {
+  const { count } = await graphqlRequest<{ count: number }>(
+    ASSIGN_BOOKINGS_MUTATION,
+    { ids, artist },
+    signal,
+  );
+  return count;
+}
+
 const ADD_BOOKING_NOTE_MUTATION = /* GraphQL */ `
   mutation AddBookingNote($id: ID!, $text: String!) {
     addBookingNote(id: $id, text: $text) {
@@ -276,7 +291,7 @@ export async function addBookingNote(id: string, text: string, signal?: AbortSig
   await graphqlRequest(ADD_BOOKING_NOTE_MUTATION, { id, text }, signal);
 }
 
-const bookingIntents = ["status", "archive", "unarchive", "delete", "note"] as const;
+const bookingIntents = ["status", "archive", "unarchive", "delete", "note", "assign"] as const;
 type BookingIntent = (typeof bookingIntents)[number];
 
 function isBookingIntent(value: unknown): value is BookingIntent {
@@ -312,6 +327,17 @@ export async function handleBookingAction(
 
       await addBookingNote(id, String(formData.get("text") ?? ""), request.signal);
       return { intent, error: null, count: 1, updatedTo: null };
+    }
+
+    if (intent === "assign") {
+      const artist = String(formData.get("artist") ?? "");
+
+      if (!artist) {
+        return { intent, error: "Choose who to reassign them to.", count: 0, updatedTo: null };
+      }
+
+      const count = await assignBookings(ids, artist === "none" ? null : artist, request.signal);
+      return { intent, error: null, count, updatedTo: null };
     }
 
     if (intent === "delete") {
