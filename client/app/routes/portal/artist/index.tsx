@@ -31,16 +31,17 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
   const me = context.get(currentUserContext);
   const mySlug = me.artist?.slug;
 
-  const [newRequests, active, site] = await Promise.all([
+  const [newRequests, open, active, site] = await Promise.all([
     fetchBookingList({ mine: true, status: "new" }, 1, request.signal),
+    fetchBookingList({ mine: true, statuses: ["new", "contacted"] }, 1, request.signal),
     fetchBookingList({ mine: true }, 1, request.signal),
     fetchSiteStatus(request.signal),
   ]);
 
-  const countFor = (slug: string | null | undefined) =>
-    newRequests.counts.byArtist.find((group) => group.slug === slug)?.count ?? 0;
-  const mineCount = mySlug ? countFor(mySlug) : 0;
-  const unclaimedCount = countFor(null);
+  const countIn = (list: typeof newRequests, slug: string | null | undefined) =>
+    list.counts.byArtist.find((group) => group.slug === slug)?.count ?? 0;
+  const mineCount = mySlug ? countIn(newRequests, mySlug) : 0;
+  const unclaimedCount = countIn(open, null);
   const oldestDays = mockOldestNewRequestDays(newRequests.page.total);
 
   return {
@@ -58,7 +59,7 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
         value: unclaimedCount,
         unit: "unclaimed",
         hint: unclaimedCount > 0 ? "Any artist can pick these up" : "Nothing to pick up",
-        to: unclaimedCount > 0 ? `${requestsPath}?status=new&for=none` : undefined,
+        to: unclaimedCount > 0 ? `${requestsPath}?for=none` : undefined,
       },
       {
         label: "Oldest unanswered",

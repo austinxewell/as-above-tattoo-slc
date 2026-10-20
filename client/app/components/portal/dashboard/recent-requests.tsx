@@ -1,6 +1,6 @@
 import { Link } from "react-router";
-import { sizeLabels, type Booking } from "~/lib/bookings";
-import { StatusBadge } from "~/components/portal/status-badge";
+import { artistLabel, sizeLabels, type Booking } from "~/lib/bookings";
+import { StatusBadge } from "~/components/portal/bookings/status-badge";
 
 const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
 
@@ -41,8 +41,7 @@ export function RecentRequests({ bookings, basePath, showArtist = false }: Recen
 
             <span className="col-span-2 truncate text-[0.62rem] uppercase tracking-[0.15em] text-muted-foreground">
               {booking.placement} · {sizeLabels[booking.size]}
-              {(showArtist || !booking.artist) &&
-                ` · ${booking.artist ? `For ${booking.artist.name}` : "No preference"}`}
+              {(showArtist || !booking.artist) && ` · ${artistLabel(booking, "No preference")}`}
             </span>
           </Link>
         </li>

@@ -9,9 +9,9 @@ import {
 } from "~/lib/bookings";
 import { outOfRangePageUrl } from "~/lib/pagination";
 import { currentUserContext } from "~/lib/current-user";
-import { BookingList } from "~/components/portal/booking-list";
-import { BookingFilters } from "~/components/portal/booking-filters";
-import { ViewSwitch } from "~/components/portal/view-switch";
+import { BookingList } from "~/components/portal/bookings/booking-list";
+import { BookingFilters } from "~/components/portal/bookings/booking-filters";
+import { ViewSwitch } from "~/components/portal/bookings/view-switch";
 import { Pagination } from "~/components/shared/pagination";
 
 export function meta() {

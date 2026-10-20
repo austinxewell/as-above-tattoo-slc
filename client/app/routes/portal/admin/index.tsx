@@ -25,13 +25,13 @@ export function meta() {
 
 export async function clientLoader({ request, context }: Route.ClientLoaderArgs) {
   const me = context.get(currentUserContext);
-  const [newRequests, active, site] = await Promise.all([
+  const [newRequests, open, active, site] = await Promise.all([
     fetchBookingList({ status: "new" }, 1, request.signal),
+    fetchBookingList({ statuses: ["new", "contacted"] }, 1, request.signal),
     fetchBookingList({}, 1, request.signal),
     fetchSiteStatus(request.signal),
   ]);
-  const waitingForArtist =
-    newRequests.counts.byArtist.find((group) => group.slug === null)?.count ?? 0;
+  const waitingForArtist = open.counts.byArtist.find((group) => group.slug === null)?.count ?? 0;
   const newCount = newRequests.page.total;
   const oldestDays = mockOldestNewRequestDays(newCount);
 
@@ -51,7 +51,7 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
         unit: "unclaimed",
         hint:
           waitingForArtist > 0 ? "No artist has picked these up" : "Every request has an artist",
-        to: waitingForArtist > 0 ? "/portal/admin/bookings?status=new&for=none" : undefined,
+        to: waitingForArtist > 0 ? "/portal/admin/bookings?for=none" : undefined,
       },
       {
         label: "Oldest unanswered",
