@@ -17,6 +17,7 @@ export type ArtistProfile = {
   imgUrl: string;
   instagram: string | null;
   isBooking: boolean;
+  isPublished: boolean;
   booking: ArtistBookingDetails;
 };
 
@@ -37,6 +38,7 @@ export const ARTIST_PROFILE_FIELDS = /* GraphQL */ `
     imgUrl
     instagram
     isBooking
+    isPublished
     booking {
       minimum
       rate
@@ -67,17 +69,18 @@ export async function fetchArtistProfile(slug: string, signal?: AbortSignal) {
 
 export type ArtistSummary = Pick<
   ArtistProfile,
-  "slug" | "name" | "imgUrl" | "specialties" | "isBooking"
+  "slug" | "name" | "imgUrl" | "specialties" | "isBooking" | "isPublished"
 >;
 
 const ARTIST_SUMMARIES_QUERY = /* GraphQL */ `
   query ArtistSummaries {
-    artists {
+    artists(includeUnpublished: true) {
       slug
       name
       imgUrl
       specialties
       isBooking
+      isPublished
     }
   }
 `;

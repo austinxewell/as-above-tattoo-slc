@@ -1,18 +1,26 @@
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { cn } from "~/lib/utils";
 import type { ArtistSummary } from "~/lib/artist-profile";
+import { ArtistPhoto } from "~/components/shared/artist-photo";
+import { StatusDot } from "~/components/portal/status-dot";
 
-export function ArtistCard({ artist }: { artist: ArtistSummary }) {
+export type ArtistLogin = "active" | "pending" | null;
+
+type ArtistCardProps = {
+  artist: ArtistSummary;
+  login: ArtistLogin;
+};
+
+export function ArtistCard({ artist, login }: ArtistCardProps) {
   return (
     <Link
       to={`/portal/admin/artists/${artist.slug}`}
       className="group grid grid-cols-[5rem_minmax(0,1fr)] gap-4 border border-border bg-surface p-4 transition-colors hover:border-accent"
     >
-      <img
+      <ArtistPhoto
         src={artist.imgUrl}
         alt=""
-        className="aspect-[4/5] w-full border border-border object-cover saturate-[0.65] contrast-[1.08]"
+        className="aspect-[4/5] w-full border border-border"
       />
 
       <div className="flex min-w-0 flex-col">
@@ -21,21 +29,23 @@ export function ArtistCard({ artist }: { artist: ArtistSummary }) {
           {artist.specialties.join(" · ") || "No specialties yet"}
         </p>
 
-        <span
-          className={cn(
-            "mt-3 inline-flex items-center gap-1.5 text-[0.6rem] uppercase tracking-[0.18em]",
-            artist.isBooking ? "text-success" : "text-muted-foreground",
-          )}
-        >
-          <span
-            aria-hidden="true"
-            className={cn(
-              "size-1.5 rounded-full border",
-              artist.isBooking ? "border-success bg-success" : "border-muted-foreground",
-            )}
-          />
-          {artist.isBooking ? "Books open" : "Books closed"}
-        </span>
+        <div className="mt-3 grid gap-1">
+          <StatusDot tone={artist.isPublished ? "success" : "muted"}>
+            {artist.isPublished ? "Published" : "Draft"}
+          </StatusDot>
+          <StatusDot tone={artist.isBooking ? "success" : "muted"}>
+            {artist.isBooking ? "Books open" : "Books closed"}
+          </StatusDot>
+          <StatusDot
+            tone={login === "active" ? "success" : login === "pending" ? "accent" : "muted"}
+          >
+            {login === "active"
+              ? "Login active"
+              : login === "pending"
+                ? "Invite pending"
+                : "No login"}
+          </StatusDot>
+        </div>
 
         <span className="mt-auto inline-flex items-center gap-1.5 pt-3 text-[0.6rem] uppercase tracking-[0.2em] text-accent">
           Edit profile

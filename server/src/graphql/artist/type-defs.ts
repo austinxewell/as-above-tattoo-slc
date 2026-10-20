@@ -17,6 +17,7 @@ export const artistTypeDefs = /* GraphQL */ `
     imgUrl: String!
     instagram: String
     isBooking: Boolean!
+    isPublished: Boolean!
     booking: ArtistBooking!
   }
 
@@ -44,7 +45,7 @@ export const artistTypeDefs = /* GraphQL */ `
   }
 
   extend type Query {
-    artists: [Artist!]!
+    artists(includeUnpublished: Boolean): [Artist!]!
     artist(slug: String!): Artist
   }
 `;

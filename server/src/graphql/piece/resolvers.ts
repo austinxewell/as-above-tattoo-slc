@@ -15,15 +15,25 @@ function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+async function publishedArtistIds() {
+  const artists = await ArtistModel.find({ isPublished: true }).select("_id");
+  return artists.map((artist) => artist._id);
+}
+
 export const pieceResolvers = {
   Query: {
     pieces: async (_parent: unknown, args: PiecesArgs) => {
       const filter: Record<string, unknown> = {};
 
       if (args.artist) {
-        const artist = await ArtistModel.findOne({ slug: args.artist }, { _id: 1 });
+        const artist = await ArtistModel.findOne(
+          { slug: args.artist, isPublished: true },
+          { _id: 1 },
+        );
         if (!artist) return { items: [], nextCursor: null };
         filter.artist = artist._id;
+      } else {
+        filter.artist = { $in: await publishedArtistIds() };
       }
 
       if (args.style) {
@@ -36,7 +46,10 @@ export const pieceResolvers = {
 
       if (args.search?.trim()) {
         const pattern = new RegExp(escapeRegex(args.search.trim()), "i");
-        const matchingArtists = await ArtistModel.find({ name: pattern }, { _id: 1 });
+        const matchingArtists = await ArtistModel.find(
+          { name: pattern, isPublished: true },
+          { _id: 1 },
+        );
 
         filter.$or = [
           { style: pattern },
@@ -66,7 +79,8 @@ export const pieceResolvers = {
       };
     },
     pieceStyles: async () => {
-      const styles = await PieceModel.distinct("style");
+      const publishedIds = await publishedArtistIds();
+      const styles = await PieceModel.distinct("style", { artist: { $in: publishedIds } });
       return styles.sort();
     },
   },
