@@ -11,6 +11,7 @@ import { EditableRow } from "./editable-row";
 import { TextEditForm } from "./text-edit-form";
 import { ListEditForm } from "./list-edit-form";
 import { BookingEditForm } from "./booking-edit-form";
+import { ArtistPhoto } from "~/components/shared/artist-photo";
 
 const quietClasses = "text-sm text-muted-foreground";
 
@@ -97,12 +98,16 @@ export function ArtistProfileEditor({
               }
             >
               <div className="flex items-center gap-4">
-                <img
+                <ArtistPhoto
                   src={artist.imgUrl}
                   alt=""
-                  className="size-14 shrink-0 border border-border object-cover"
+                  compact
+                  className="size-14 shrink-0 border border-border"
                 />
-                <p className={`min-w-0 break-all ${quietClasses}`}>{artist.imgUrl}</p>
+
+                <p className={`min-w-0 break-all ${quietClasses}`}>
+                  {artist.imgUrl || "No photo yet"}
+                </p>
               </div>
             </EditableRow>
 

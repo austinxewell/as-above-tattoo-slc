@@ -240,7 +240,7 @@ export const bookingResolvers = {
 
       if (artistSlug) {
         const found = await ArtistModel.findOne(
-          { slug: artistSlug },
+          { slug: artistSlug, isPublished: true },
           { _id: 1, name: 1, isBooking: 1 },
         );
         if (!found) throw new GraphQLError("That artist doesn't exist.");

@@ -18,9 +18,11 @@ const labelClasses = "text-[0.65rem] uppercase tracking-[0.2em] text-accent";
 const linkClasses =
   "mt-8 block text-center text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-accent";
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const isInvite = new URLSearchParams(location.search).get("invite") === "1";
+
   return [
-    { title: "Choose a new password | As Above Tattoo" },
+    { title: `${isInvite ? "Set your password" : "Choose a new password"} | As Above Tattoo` },
     { name: "robots", content: "noindex" },
     { name: "referrer", content: "no-referrer" },
   ];
@@ -58,14 +60,17 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export default function ResetPassword({ actionData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  const isInvite = searchParams.get("invite") === "1";
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
   if (actionData?.done) {
     return (
-      <AuthShell title="Password updated">
+      <AuthShell title={isInvite ? "Set your password" : "New password"}>
         <p role="status" className="text-center leading-7">
-          Your password has been changed, and you've been logged out on every device.
+          {isInvite
+            ? "Your password is set. Log in to get started."
+            : "Your password has been changed, and you've been logged out on every device."}
         </p>
         <Link to="/login" className={linkClasses}>
           Log in
@@ -86,13 +91,19 @@ export default function ResetPassword({ actionData }: Route.ComponentProps) {
   }
 
   return (
-    <AuthShell title="New password">
+    <AuthShell title={isInvite ? "Set your password" : "New password"}>
       <Form method="post" className="grid gap-6">
         <input type="hidden" name="token" value={token} />
 
         {actionData?.error && (
           <p role="alert" className="text-sm text-destructive">
             {actionData.error}
+          </p>
+        )}
+
+        {actionData?.error && isInvite && (
+          <p className="text-sm text-muted-foreground">
+            Invite links expire after 7 days. If yours has expired, ask the shop to send a new one.
           </p>
         )}
 

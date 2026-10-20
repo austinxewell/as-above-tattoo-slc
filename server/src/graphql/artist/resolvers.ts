@@ -6,8 +6,23 @@ import { cleanArtistInput, type ArtistUpdateInput } from "./validate.js";
 
 export const artistResolvers = {
   Query: {
-    artists: () => ArtistModel.find().sort({ createdAt: 1 }),
-    artist: (_parent: unknown, args: { slug: string }) => ArtistModel.findOne({ slug: args.slug }),
+    artists: (
+      _parent: unknown,
+      { includeUnpublished }: { includeUnpublished?: boolean | null },
+      context: GraphQLContext,
+    ) => {
+      const showAll = includeUnpublished === true && context.currentUser?.role === "admin";
+      return ArtistModel.find(showAll ? {} : { isPublished: true }).sort({ createdAt: 1 });
+    },
+    artist: async (_parent: unknown, { slug }: { slug: string }, context: GraphQLContext) => {
+      const artist = await ArtistModel.findOne({ slug });
+      if (!artist) return null;
+      if (artist.isPublished) return artist;
+
+      const user = context.currentUser;
+      const canSeeDraft = user?.role === "admin" || Boolean(user?.artist?.equals(artist._id));
+      return canSeeDraft ? artist : null;
+    },
   },
   Mutation: {
     updateArtist: async (
