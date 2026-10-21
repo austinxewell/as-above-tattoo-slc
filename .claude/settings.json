@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf /c/Users/austi/Sites/as-above-tattoo-slc/client/.tmp-check; ls -a /c/Users/austi/Sites/as-above-tattoo-slc/client | grep tmp || echo \"no temp dir\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\austi\\Sites\\as-above-tattoo-slc\\client\\.tmp-check"
+    ]
+  }
+}

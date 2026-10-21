@@ -2,14 +2,13 @@ import { useEffect, useId } from "react";
 import { useFetcher } from "react-router";
 import { LoaderCircle } from "lucide-react";
 import { cn } from "~/lib/utils";
-import type { ProfileActionResult, ProfileTextField } from "~/lib/artist-profile";
 import { Button } from "~/components/ui/button";
 
 export const controlClasses =
   "w-full border border-border bg-background px-3 py-2.5 text-base leading-7 outline-none transition-colors focus-visible:border-accent aria-invalid:border-destructive";
 
 type TextEditFormProps = {
-  field: ProfileTextField;
+  field: string;
   label: string;
   multiline?: boolean;
   inputType?: "text" | "url";
@@ -31,7 +30,7 @@ export function TextEditForm({
   onDraftChange,
   onClose,
 }: TextEditFormProps) {
-  const fetcher = useFetcher<ProfileActionResult>();
+  const fetcher = useFetcher<{ ok: boolean; error: string | null }>();
   const inputId = useId();
   const statusId = useId();
   const isSaving = fetcher.state !== "idle";
