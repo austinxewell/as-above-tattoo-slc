@@ -2,10 +2,10 @@ import type { Route } from "./+types/index";
 import { bookingStatuses, fetchBookingList } from "~/lib/bookings";
 import { currentUserContext } from "~/lib/current-user";
 import {
+  fetchProfileStatus,
   fetchSiteStatus,
   mockArtistShopStats,
   mockOldestNewRequestDays,
-  mockProfileTasks,
   type ArtistDashboard as ArtistDashboardData,
   type DashboardStat,
   type PublicLink,
@@ -31,11 +31,12 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
   const me = context.get(currentUserContext);
   const mySlug = me.artist?.slug;
 
-  const [newRequests, open, active, site] = await Promise.all([
+  const [newRequests, open, active, site, profile] = await Promise.all([
     fetchBookingList({ mine: true, status: "new" }, 1, request.signal),
     fetchBookingList({ mine: true, statuses: ["new", "contacted"] }, 1, request.signal),
     fetchBookingList({ mine: true }, 1, request.signal),
     fetchSiteStatus(request.signal),
+    mySlug ? fetchProfileStatus(mySlug, request.signal) : { isPublished: false, tasks: [] },
   ]);
 
   const countIn = (list: typeof newRequests, slug: string | null | undefined) =>
@@ -77,7 +78,7 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
     shop: mockArtistShopStats,
     bookingRequestsEnabled: site.bookingRequestsEnabled,
     myBooks: site.artists.find((artist) => artist.slug === mySlug) ?? null,
-    profileTasks: mockProfileTasks,
+    profile,
     publicLinks: [
       ...(mySlug
         ? [
@@ -130,7 +131,10 @@ export default function ArtistDashboard({ loaderData }: Route.ComponentProps) {
           )}
 
           <DashboardSection title="Your profile">
-            <ProfileChecklist tasks={loaderData.profileTasks} />
+            <ProfileChecklist
+              isPublished={loaderData.profile.isPublished}
+              tasks={loaderData.profile.tasks}
+            />
           </DashboardSection>
 
           <DashboardSection title="Website">

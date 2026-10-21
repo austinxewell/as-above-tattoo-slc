@@ -28,7 +28,22 @@ export default [
           route("artists", "routes/portal/admin/artists.tsx"),
           route("artists/:slug", "routes/portal/admin/artist.tsx"),
           route("portfolio", "routes/portal/admin/portfolio.tsx"),
-          route("site-content", "routes/portal/admin/site-content.tsx"),
+          route("site-content", "routes/portal/admin/site-content/layout.tsx", [
+            index("routes/portal/admin/site-content/index.tsx"),
+            route("settings", "routes/portal/admin/site-content/settings.tsx"),
+            route("about", "routes/portal/admin/site-content/coming-soon.tsx", {
+              id: "site-content-about",
+            }),
+            route("pricing", "routes/portal/admin/site-content/coming-soon.tsx", {
+              id: "site-content-pricing",
+            }),
+            route("booking", "routes/portal/admin/site-content/coming-soon.tsx", {
+              id: "site-content-booking",
+            }),
+            route("aftercare", "routes/portal/admin/site-content/coming-soon.tsx", {
+              id: "site-content-aftercare",
+            }),
+          ]),
           route("staff", "routes/portal/admin/staff.tsx"),
           route("staff/:id/remove", "routes/portal/admin/staff-remove.tsx"),
           route("*", "routes/portal/not-found.tsx", { id: "portal-admin-not-found" }),

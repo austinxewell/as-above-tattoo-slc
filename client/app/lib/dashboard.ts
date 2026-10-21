@@ -20,7 +20,13 @@ export type ArtistBookingState = {
 export type ProfileTask = {
   label: string;
   done: boolean;
+  detail: string | null;
   to: string;
+};
+
+export type ProfileStatus = {
+  isPublished: boolean;
+  tasks: ProfileTask[];
 };
 
 export type PipelineStage = {
@@ -53,7 +59,7 @@ export type ArtistDashboard = {
   shop: DashboardStat[];
   bookingRequestsEnabled: boolean;
   myBooks: ArtistBookingState | null;
-  profileTasks: ProfileTask[];
+  profile: ProfileStatus;
   publicLinks: PublicLink[];
 };
 
@@ -90,12 +96,37 @@ export const mockArtistShopStats: DashboardStat[] = [
   { label: "Low stock", value: 1, hint: "One print is almost gone", icon: TriangleAlert },
 ];
 
-// MOCK: replace with real checks against the artist's profile and portfolio.
-export const mockProfileTasks: ProfileTask[] = [
-  { label: "Add a profile photo", done: true, to: "/portal/artist/profile" },
-  { label: "Write your bio", done: true, to: "/portal/artist/profile" },
-  { label: "Add at least 6 portfolio pieces", done: false, to: "/portal/artist/portfolio" },
-];
+const PROFILE_STATUS_QUERY = /* GraphQL */ `
+  query ProfileStatus($slug: String!) {
+    artist(slug: $slug) {
+      isPublished
+      publishChecklist {
+        key
+        label
+        done
+        detail
+      }
+    }
+  }
+`;
+
+type ChecklistItem = { key: string; label: string; done: boolean; detail: string | null };
+
+export async function fetchProfileStatus(slug: string, signal?: AbortSignal) {
+  const { artist } = await graphqlRequest<{
+    artist: { isPublished: boolean; publishChecklist: ChecklistItem[] } | null;
+  }>(PROFILE_STATUS_QUERY, { slug }, signal);
+
+  return {
+    isPublished: artist?.isPublished ?? false,
+    tasks: (artist?.publishChecklist ?? []).map((item): ProfileTask => ({
+      label: item.label,
+      done: item.done,
+      detail: item.detail,
+      to: item.key === "pieces" ? "/portal/artist/portfolio" : "/portal/artist/profile",
+    })),
+  } satisfies ProfileStatus;
+}
 
 // MOCK: replace once the server can return the oldest new request.
 export function mockOldestNewRequestDays(newCount: number) {

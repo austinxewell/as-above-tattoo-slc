@@ -11,6 +11,7 @@ import { EditableRow } from "./editable-row";
 import { TextEditForm } from "./text-edit-form";
 import { ListEditForm } from "./list-edit-form";
 import { BookingEditForm } from "./booking-edit-form";
+import { PublishPanel } from "./publish-panel";
 import { ArtistPhoto } from "~/components/shared/artist-photo";
 
 const quietClasses = "text-sm text-muted-foreground";
@@ -21,9 +22,11 @@ type EditingState = { field: EditableField; draft: string } | null;
 export function ArtistProfileEditor({
   artist,
   eyebrow = "My Profile",
+  canUnpublish = false,
 }: {
   artist: ArtistProfile;
   eyebrow?: string;
+  canUnpublish?: boolean;
 }) {
   const [editing, setEditing] = useState<EditingState>(null);
   const previewArtist =
@@ -63,6 +66,12 @@ export function ArtistProfileEditor({
         </div>
         <BooksToggle isBooking={artist.isBooking} />
       </header>
+
+      <PublishPanel
+        isPublished={artist.isPublished}
+        checklist={artist.publishChecklist}
+        canUnpublish={canUnpublish}
+      />
 
       <div className="mt-8 grid gap-10 xl:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="grid min-w-0 content-start gap-10">

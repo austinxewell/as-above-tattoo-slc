@@ -8,6 +8,13 @@ export type ArtistBookingDetails = {
   notes: string[];
 };
 
+export type PublishChecklistItem = {
+  key: string;
+  label: string;
+  done: boolean;
+  detail: string | null;
+};
+
 export type ArtistProfile = {
   slug: string;
   name: string;
@@ -19,6 +26,7 @@ export type ArtistProfile = {
   isBooking: boolean;
   isPublished: boolean;
   booking: ArtistBookingDetails;
+  publishChecklist: PublishChecklistItem[];
 };
 
 export const profileTextFields = ["name", "bio", "statement", "instagram", "imgUrl"] as const;
@@ -46,6 +54,12 @@ export const ARTIST_PROFILE_FIELDS = /* GraphQL */ `
       availability
       notes
     }
+    publishChecklist {
+      key
+      label
+      done
+      detail
+    }
   }
 `;
 
@@ -69,7 +83,7 @@ export async function fetchArtistProfile(slug: string, signal?: AbortSignal) {
 
 export type ArtistSummary = Pick<
   ArtistProfile,
-  "slug" | "name" | "imgUrl" | "specialties" | "isBooking" | "isPublished"
+  "slug" | "name" | "imgUrl" | "specialties" | "isBooking" | "isPublished" | "publishChecklist"
 >;
 
 const ARTIST_SUMMARIES_QUERY = /* GraphQL */ `
@@ -81,6 +95,12 @@ const ARTIST_SUMMARIES_QUERY = /* GraphQL */ `
       specialties
       isBooking
       isPublished
+      publishChecklist {
+        key
+        label
+        done
+        detail
+      }
     }
   }
 `;
@@ -103,7 +123,9 @@ const UPDATE_ARTIST_MUTATION = /* GraphQL */ `
   ${ARTIST_PROFILE_FIELDS}
 `;
 
-export type ArtistProfileInput = Partial<Omit<ArtistProfile, "slug">>;
+export type ArtistProfileInput = Partial<
+  Omit<ArtistProfile, "slug" | "isPublished" | "publishChecklist">
+>;
 
 export async function updateArtistProfile(
   slug: string,
@@ -117,6 +139,22 @@ export async function updateArtistProfile(
   );
   return updateArtist;
 }
+
+const PUBLISH_ARTIST_MUTATION = /* GraphQL */ `
+  mutation PublishArtist($slug: String!) {
+    publishArtist(slug: $slug) {
+      slug
+    }
+  }
+`;
+
+const UNPUBLISH_ARTIST_MUTATION = /* GraphQL */ `
+  mutation UnpublishArtist($slug: String!) {
+    unpublishArtist(slug: $slug) {
+      slug
+    }
+  }
+`;
 
 export type ProfileActionResult = {
   intent: string;
@@ -133,6 +171,15 @@ export async function handleProfileAction(
   const intent = String(formData.get("intent") ?? "");
 
   try {
+    if (intent === "publish" || intent === "unpublish") {
+      await graphqlRequest(
+        intent === "publish" ? PUBLISH_ARTIST_MUTATION : UNPUBLISH_ARTIST_MUTATION,
+        { slug },
+        request.signal,
+      );
+      return { intent, ok: true, error: null, field: null };
+    }
+
     if (intent === "books") {
       await updateArtistProfile(
         slug,
@@ -184,4 +231,16 @@ export async function handleProfileAction(
       field: error instanceof GraphQLRequestError ? (error.field ?? null) : null,
     };
   }
+}
+
+const MOVE_ARTIST_MUTATION = /* GraphQL */ `
+  mutation MoveArtist($slug: String!, $direction: MoveDirection!) {
+    moveArtist(slug: $slug, direction: $direction) {
+      slug
+    }
+  }
+`;
+
+export async function moveArtist(slug: string, direction: "up" | "down", signal?: AbortSignal) {
+  await graphqlRequest(MOVE_ARTIST_MUTATION, { slug, direction }, signal);
 }

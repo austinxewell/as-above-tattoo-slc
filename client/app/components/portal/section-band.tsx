@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type RemovalStepProps = {
+type SectionBandProps = {
   id: string;
   step?: number;
   title: string;
@@ -8,7 +8,7 @@ type RemovalStepProps = {
   children: ReactNode;
 };
 
-export function RemovalStep({ id, step, title, hint, children }: RemovalStepProps) {
+export function SectionBand({ id, step, title, hint, children }: SectionBandProps) {
   return (
     <section
       aria-labelledby={id}

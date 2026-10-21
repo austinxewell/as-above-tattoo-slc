@@ -4,6 +4,7 @@ import { createRateLimiter } from "../../security/rate-limit.js";
 import { ArtistModel } from "../../models/artist.js";
 import { BookingModel, type Booking } from "../../models/booking.js";
 import { UserModel } from "../../models/user.js";
+import { getBookingRequestsEnabled } from "../../models/site-settings.js";
 import { sendEmail } from "../../email/send-email.js";
 import { requireUser, requireRole } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
@@ -57,10 +58,6 @@ export function activityEvent(user: ReturnType<typeof requireUser>, text: string
     authorName: user.name,
     createdAt: new Date(),
   };
-}
-
-export function bookingRequestsEnabled() {
-  return process.env.BOOKING_REQUESTS_ENABLED === "true";
 }
 
 async function findRecipients(artistId?: Types.ObjectId) {
@@ -159,7 +156,7 @@ async function buildBookingFilter(
 
 export const bookingResolvers = {
   Query: {
-    bookingRequestsEnabled: () => bookingRequestsEnabled(),
+    bookingRequestsEnabled: () => getBookingRequestsEnabled(),
     bookingPage: async (
       _parent: unknown,
       {
@@ -260,7 +257,7 @@ export const bookingResolvers = {
       { input }: { input: BookingRequestInput },
       context: GraphQLContext,
     ) => {
-      if (!bookingRequestsEnabled()) {
+      if (!(await getBookingRequestsEnabled())) {
         throw new GraphQLError("Online booking requests aren't open yet.");
       }
 
