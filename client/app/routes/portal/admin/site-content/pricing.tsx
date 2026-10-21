@@ -1,6 +1,4 @@
 import { useState, type ReactNode } from "react";
-import { Link } from "react-router";
-import { ArrowUpRight } from "lucide-react";
 import type { Route } from "./+types/pricing";
 import { fetchPricing, handlePricingAction } from "~/lib/pricing";
 import { ProofGroup } from "~/components/portal/artist-profile/proof-row";
@@ -11,6 +9,7 @@ import {
   type PairFieldSpec,
   type PairItem,
 } from "~/components/portal/site-content/pair-list-edit-form";
+import { PublicPageLink } from "~/components/portal/site-content/public-page-link";
 
 type TextField = "intro" | "shopMinimum";
 type ListField = "factors" | "policies" | "faqs";
@@ -119,16 +118,9 @@ export default function SiteContentPricing({ loaderData }: Route.ComponentProps)
 
   return (
     <div className="mt-8">
-      <Link
-        to="/pricing"
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.2em] text-accent underline-offset-4 hover:underline"
-      >
-        View pricing page
-        <ArrowUpRight className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
-        <span className="sr-only">(opens in a new tab)</span>
-      </Link>
+      <div className="flex justify-end">
+        <PublicPageLink to="/pricing" label="View pricing page" />
+      </div>
 
       <div className="mt-8 grid gap-10">
         <ProofGroup title="Overview">
