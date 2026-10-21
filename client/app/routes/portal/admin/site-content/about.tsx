@@ -4,7 +4,7 @@ import { fetchAbout, handleAboutAction } from "~/lib/about";
 import { ProofGroup } from "~/components/portal/artist-profile/proof-row";
 import { EditableRow } from "~/components/portal/artist-profile/editable-row";
 import { TextEditForm } from "~/components/portal/artist-profile/text-edit-form";
-import { ValuesEditForm } from "~/components/portal/site-content/values-edit-form";
+import { PairListEditForm } from "~/components/portal/site-content/pair-list-edit-form";
 import { AboutPreview } from "~/components/home/about-preview";
 
 type TextField = "heading" | "body";
@@ -72,7 +72,31 @@ export default function SiteContentAbout({ loaderData }: Route.ComponentProps) {
           label="Values"
           isEditing={editing?.field === "values"}
           onEdit={() => setEditing({ field: "values", draft: "" })}
-          editor={<ValuesEditForm initialValues={about.values} onClose={close} />}
+          editor={
+            <PairListEditForm
+              intent="values"
+              label="Values"
+              noun="Value"
+              max={8}
+              first={{
+                name: "title",
+                label: "Title",
+                placeholder: "Title, e.g. Cleanliness",
+                maxLength: 40,
+              }}
+              second={{
+                name: "description",
+                label: "Description",
+                placeholder: "A sentence or two about it",
+                maxLength: 300,
+              }}
+              initialItems={about.values.map((value) => ({
+                first: value.title,
+                second: value.description,
+              }))}
+              onClose={close}
+            />
+          }
         >
           {about.values.length > 0 ? (
             <dl className="grid gap-3">
