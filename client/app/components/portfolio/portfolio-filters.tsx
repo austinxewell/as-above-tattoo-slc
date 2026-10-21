@@ -1,4 +1,4 @@
-import { Form, Link, useSearchParams } from "react-router";
+import { Form, Link, useLocation, useSearchParams } from "react-router";
 import { useState } from "react";
 import { SlidersHorizontal, Search, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
@@ -7,13 +7,19 @@ import { Button } from "~/components/ui/button";
 type PortfolioFiltersProps = {
   artists: { slug: string; name: string }[];
   styles: string[];
+  searchPlaceholder?: string;
 };
 
 const chipClasses = "border px-4 py-2 text-[0.65rem] uppercase tracking-[0.15em] transition-colors";
 const activeClasses = "border-accent bg-accent text-accent-foreground";
 const inactiveClasses = "border-border hover:border-accent";
 
-export function PortfolioFilters({ artists, styles }: PortfolioFiltersProps) {
+export function PortfolioFilters({
+  artists,
+  styles,
+  searchPlaceholder = "Search by keyword, style or artist",
+}: PortfolioFiltersProps) {
+  const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") ?? "";
   const artistParam = searchParams.get("artist");
@@ -57,11 +63,12 @@ export function PortfolioFilters({ artists, styles }: PortfolioFiltersProps) {
 
   const chipGroups = (
     <>
-      {renderGroup(
-        "Filter by artist",
-        "artist",
-        artists.map((artist) => ({ value: artist.slug, label: artist.name })),
-      )}
+      {artists.length > 0 &&
+        renderGroup(
+          "Filter by artist",
+          "artist",
+          artists.map((artist) => ({ value: artist.slug, label: artist.name })),
+        )}
       {renderGroup(
         "Filter by style",
         "style",
@@ -90,7 +97,7 @@ export function PortfolioFilters({ artists, styles }: PortfolioFiltersProps) {
           type="search"
           name="q"
           defaultValue={query}
-          placeholder="Search by keyword, style or artist"
+          placeholder={searchPlaceholder}
           className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:appearance-none"
         />
         {query && (
@@ -137,7 +144,7 @@ export function PortfolioFilters({ artists, styles }: PortfolioFiltersProps) {
 
       {hasActiveFilters && (
         <Link
-          to="/portfolio"
+          to={pathname}
           preventScrollReset
           className="self-start border-b border-accent pb-1 text-[0.65rem] font-medium uppercase tracking-[0.17em]"
         >

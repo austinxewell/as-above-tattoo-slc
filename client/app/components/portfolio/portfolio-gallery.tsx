@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Dialog, DialogClose, DialogContent, DialogTitle } from "~/components/ui/dialog";
-import { X } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
+import { DialogCloseButton } from "~/components/shared/dialog-close-button";
 import { FadeInImage } from "~/components/shared/fade-in-image";
 
 export type PortfolioPiece = {
@@ -11,12 +11,20 @@ export type PortfolioPiece = {
   tags: string[];
 };
 
-type PortfolioGalleryProps = {
-  pieces: PortfolioPiece[];
+type PortfolioGalleryProps<T extends PortfolioPiece> = {
+  pieces: T[];
+  renderBadges?: (piece: T) => ReactNode;
+  renderActions?: (piece: T) => ReactNode;
+  onSelect?: (piece: T) => void;
 };
 
-export function PortfolioGallery({ pieces }: PortfolioGalleryProps) {
-  const [selectedPiece, setSelectedPiece] = useState<PortfolioPiece | null>(null);
+export function PortfolioGallery<T extends PortfolioPiece>({
+  pieces,
+  renderBadges,
+  renderActions,
+  onSelect,
+}: PortfolioGalleryProps<T>) {
+  const [selectedPiece, setSelectedPiece] = useState<T | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -28,11 +36,19 @@ export function PortfolioGallery({ pieces }: PortfolioGalleryProps) {
               <button
                 type="button"
                 onClick={() => {
+                  if (onSelect) {
+                    onSelect(piece);
+                    return;
+                  }
                   setSelectedPiece(piece);
                   setIsOpen(true);
                 }}
-                aria-label={`Enlarge ${piece.style} tattoo by ${piece.artist.name}`}
-                className="group block h-full w-full cursor-zoom-in focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+                aria-label={
+                  onSelect
+                    ? `Edit ${piece.style} piece by ${piece.artist.name}`
+                    : `Enlarge ${piece.style} tattoo by ${piece.artist.name}`
+                }
+                className={`group block h-full w-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ${onSelect ? "cursor-pointer" : "cursor-zoom-in"}`}
               >
                 <FadeInImage
                   src={piece.imgUrl}
@@ -40,6 +56,16 @@ export function PortfolioGallery({ pieces }: PortfolioGalleryProps) {
                   className="h-full w-full object-contain saturate-[0.65] contrast-[1.08] group-hover:scale-105 group-hover:saturate-100 group-focus-visible:saturate-100"
                 />
               </button>
+
+              {renderBadges && (
+                <div className="pointer-events-none absolute top-2 left-2 flex flex-wrap gap-1.5">
+                  {renderBadges(piece)}
+                </div>
+              )}
+
+              {renderActions && (
+                <div className="absolute top-2 right-2 flex gap-1.5">{renderActions(piece)}</div>
+              )}
 
               <figcaption className="absolute inset-x-0 bottom-0 flex justify-between gap-2 bg-gradient-to-t from-black/80 to-transparent px-3 pt-8 pb-3 text-[0.6rem] uppercase tracking-[0.15em] text-[#f2ede4] md:text-[0.65rem] pointer-events-none">
                 <span>{piece.style}</span>
@@ -67,12 +93,7 @@ export function PortfolioGallery({ pieces }: PortfolioGalleryProps) {
                 className="max-h-[80vh] w-full sm:w-auto object-contain"
               />
 
-              <DialogClose
-                aria-label="Close"
-                className="absolute top-5 right-5 inline-flex size-9 items-center justify-center border border-border bg-background/85 text-foreground backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
-              >
-                <X className="size-4" aria-hidden="true" />
-              </DialogClose>
+              <DialogCloseButton />
 
               <p className="flex justify-between gap-4 text-[0.65rem] uppercase tracking-[0.15em]">
                 <span>{selectedPiece.style}</span>

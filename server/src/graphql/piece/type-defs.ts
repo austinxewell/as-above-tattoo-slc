@@ -13,6 +13,12 @@ export const pieceTypeDefs = /* GraphQL */ `
     nextCursor: String
   }
 
+  input PieceInput {
+    imgUrl: String!
+    style: String!
+    tags: [String!]!
+  }
+
   extend type Query {
     pieces(
       artist: String
@@ -23,5 +29,22 @@ export const pieceTypeDefs = /* GraphQL */ `
       featured: Boolean
     ): PiecePage!
     pieceStyles: [String!]!
+    portfolioPieces(
+      mine: Boolean
+      artist: String
+      style: String
+      search: String
+      first: Int = 12
+      after: String
+    ): PiecePage!
+    portfolioStyles(mine: Boolean, shopWide: Boolean): [String!]!
+    portfolioStyles(shopWide: Boolean): [String!]!
+  }
+
+  extend type Mutation {
+    createPiece(artist: String!, input: PieceInput!): Piece!
+    updatePiece(id: ID!, input: PieceInput!): Piece!
+    setPieceFeatured(id: ID!, featured: Boolean!): Piece!
+    deletePiece(id: ID!): Boolean!
   }
 `;
