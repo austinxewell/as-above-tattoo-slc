@@ -11,7 +11,22 @@ export const aboutTypeDefs = /* GraphQL */ `
     values: [AboutValue!]!
   }
 
+  input AboutValueInput {
+    title: String!
+    description: String!
+  }
+
+  input AboutInput {
+    heading: String
+    body: String
+    values: [AboutValueInput!]
+  }
+
   extend type Query {
     about: About!
+  }
+
+  extend type Mutation {
+    updateAbout(input: AboutInput!): About!
   }
 `;

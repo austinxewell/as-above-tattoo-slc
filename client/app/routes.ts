@@ -31,9 +31,7 @@ export default [
           route("site-content", "routes/portal/admin/site-content/layout.tsx", [
             index("routes/portal/admin/site-content/index.tsx"),
             route("settings", "routes/portal/admin/site-content/settings.tsx"),
-            route("about", "routes/portal/admin/site-content/coming-soon.tsx", {
-              id: "site-content-about",
-            }),
+            route("about", "routes/portal/admin/site-content/about.tsx"),
             route("pricing", "routes/portal/admin/site-content/coming-soon.tsx", {
               id: "site-content-pricing",
             }),
