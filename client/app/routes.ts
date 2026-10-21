@@ -34,9 +34,7 @@ export default [
             route("about", "routes/portal/admin/site-content/about.tsx"),
             route("pricing", "routes/portal/admin/site-content/pricing.tsx"),
             route("booking", "routes/portal/admin/site-content/booking.tsx"),
-            route("aftercare", "routes/portal/admin/site-content/coming-soon.tsx", {
-              id: "site-content-aftercare",
-            }),
+            route("aftercare", "routes/portal/admin/site-content/aftercare.tsx"),
           ]),
           route("staff", "routes/portal/admin/staff.tsx"),
           route("staff/:id/remove", "routes/portal/admin/staff-remove.tsx"),

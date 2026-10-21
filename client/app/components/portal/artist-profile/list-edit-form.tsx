@@ -1,7 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { useFetcher } from "react-router";
 import { LoaderCircle, Plus, X } from "lucide-react";
-import type { ProfileActionResult } from "~/lib/artist-profile";
 import { Button } from "~/components/ui/button";
 import { controlClasses } from "./text-edit-form";
 
@@ -37,7 +36,7 @@ export function ListEditForm({
   placeholder,
   onClose,
 }: ListEditFormProps) {
-  const fetcher = useFetcher<ProfileActionResult>();
+  const fetcher = useFetcher<{ ok: boolean; error: string | null }>();
   const [items, setItems] = useState(() => toItems(initialItems));
   const statusId = useId();
   const isSaving = fetcher.state !== "idle";

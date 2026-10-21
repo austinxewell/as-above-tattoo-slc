@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { ArrowUpRight } from "lucide-react";
 import type { Route } from "./+types/booking";
 import { fetchBookingContent, handleBookingContentAction } from "~/lib/booking-content";
 import { ProofGroup } from "~/components/portal/artist-profile/proof-row";
@@ -8,6 +7,7 @@ import { EditableRow } from "~/components/portal/artist-profile/editable-row";
 import { TextEditForm } from "~/components/portal/artist-profile/text-edit-form";
 import { StatusDot } from "~/components/portal/status-dot";
 import { PairListEditForm } from "~/components/portal/site-content/pair-list-edit-form";
+import { PublicPageLink } from "~/components/portal/site-content/public-page-link";
 
 type TextField = "intro" | "whyRequest" | "disclaimer";
 type EditingState = { field: TextField | "steps"; draft: string } | null;
@@ -63,16 +63,7 @@ export default function SiteContentBooking({ loaderData }: Route.ComponentProps)
           </Link>
         </p>
 
-        <Link
-          to="/booking"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.2em] text-accent underline-offset-4 hover:underline"
-        >
-          View booking page
-          <ArrowUpRight className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
-          <span className="sr-only">(opens in a new tab)</span>
-        </Link>
+        <PublicPageLink to="/booking" label="View booking page" />
       </div>
 
       <div className="mt-8 grid gap-10">

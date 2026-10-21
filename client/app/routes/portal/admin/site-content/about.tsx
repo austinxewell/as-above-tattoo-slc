@@ -6,6 +6,7 @@ import { EditableRow } from "~/components/portal/artist-profile/editable-row";
 import { TextEditForm } from "~/components/portal/artist-profile/text-edit-form";
 import { PairListEditForm } from "~/components/portal/site-content/pair-list-edit-form";
 import { AboutPreview } from "~/components/home/about-preview";
+import { PublicPageLink } from "~/components/portal/site-content/public-page-link";
 
 type TextField = "heading" | "body";
 type EditingState = { field: TextField | "values"; draft: string } | null;
@@ -48,70 +49,76 @@ export default function SiteContentAbout({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="mt-8">
-      <ProofGroup title="About the shop">
-        <EditableRow
-          mark="i."
-          label="Heading"
-          {...rowProps("heading")}
-          editor={<TextEditForm label="Heading" maxLength={80} {...textProps("heading")} />}
-        >
-          <p className="font-display text-2xl uppercase leading-tight">{about.heading}</p>
-        </EditableRow>
+      <div className="flex justify-end">
+        <PublicPageLink to="/" label="View home page" />
+      </div>
 
-        <EditableRow
-          mark="ii."
-          label="Body"
-          {...rowProps("body")}
-          editor={<TextEditForm label="Body" multiline maxLength={1500} {...textProps("body")} />}
-        >
-          <p className="max-w-prose whitespace-pre-line leading-7">{about.body}</p>
-        </EditableRow>
+      <div className="mt-8">
+        <ProofGroup title="About the shop">
+          <EditableRow
+            mark="i."
+            label="Heading"
+            {...rowProps("heading")}
+            editor={<TextEditForm label="Heading" maxLength={80} {...textProps("heading")} />}
+          >
+            <p className="font-display text-2xl uppercase leading-tight">{about.heading}</p>
+          </EditableRow>
 
-        <EditableRow
-          mark="iii."
-          label="Values"
-          isEditing={editing?.field === "values"}
-          onEdit={() => setEditing({ field: "values", draft: "" })}
-          editor={
-            <PairListEditForm
-              intent="values"
-              label="Values"
-              noun="Value"
-              max={8}
-              first={{
-                name: "title",
-                label: "Title",
-                placeholder: "Title, e.g. Cleanliness",
-                maxLength: 40,
-              }}
-              second={{
-                name: "description",
-                label: "Description",
-                placeholder: "A sentence or two about it",
-                maxLength: 300,
-              }}
-              initialItems={about.values.map((value) => ({
-                first: value.title,
-                second: value.description,
-              }))}
-              onClose={close}
-            />
-          }
-        >
-          {about.values.length > 0 ? (
-            <dl className="grid gap-3">
-              {about.values.map((value) => (
-                <div key={value.id}>
-                  <dt className="font-display text-lg text-accent">{value.title}</dt>
-                  <dd className="text-sm leading-6 text-muted-foreground">{value.description}</dd>
-                </div>
-              ))}
-            </dl>
-          ) : (
-            <span className="text-sm text-muted-foreground">No values yet</span>
-          )}
-        </EditableRow>
-      </ProofGroup>
+          <EditableRow
+            mark="ii."
+            label="Body"
+            {...rowProps("body")}
+            editor={<TextEditForm label="Body" multiline maxLength={1500} {...textProps("body")} />}
+          >
+            <p className="max-w-prose whitespace-pre-line leading-7">{about.body}</p>
+          </EditableRow>
+
+          <EditableRow
+            mark="iii."
+            label="Values"
+            isEditing={editing?.field === "values"}
+            onEdit={() => setEditing({ field: "values", draft: "" })}
+            editor={
+              <PairListEditForm
+                intent="values"
+                label="Values"
+                noun="Value"
+                max={8}
+                first={{
+                  name: "title",
+                  label: "Title",
+                  placeholder: "Title, e.g. Cleanliness",
+                  maxLength: 40,
+                }}
+                second={{
+                  name: "description",
+                  label: "Description",
+                  placeholder: "A sentence or two about it",
+                  maxLength: 300,
+                }}
+                initialItems={about.values.map((value) => ({
+                  first: value.title,
+                  second: value.description,
+                }))}
+                onClose={close}
+              />
+            }
+          >
+            {about.values.length > 0 ? (
+              <dl className="grid gap-3">
+                {about.values.map((value) => (
+                  <div key={value.id}>
+                    <dt className="font-display text-lg text-accent">{value.title}</dt>
+                    <dd className="text-sm leading-6 text-muted-foreground">{value.description}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <span className="text-sm text-muted-foreground">No values yet</span>
+            )}
+          </EditableRow>
+        </ProofGroup>
+      </div>
 
       <section aria-label="Preview" className="mt-12">
         <p className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">Preview · home page</p>
