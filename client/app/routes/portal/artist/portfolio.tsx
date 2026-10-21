@@ -5,7 +5,6 @@ import type { Route } from "./+types/portfolio";
 import { cn } from "~/lib/utils";
 import { currentUserContext } from "~/lib/current-user";
 import {
-  PIECES_TO_PUBLISH,
   fetchManagedPortfolio,
   fetchMyPortfolioStatus,
   handlePortfolioAction,
@@ -50,7 +49,8 @@ export default function ArtistPortfolio({ loaderData }: Route.ComponentProps) {
     navigation.state === "loading" && navigation.location.pathname === location.pathname;
   const hasFilters = searchParams.has("style") || searchParams.has("q");
   const { status } = loaderData;
-  const piecesLeft = status ? Math.max(0, PIECES_TO_PUBLISH - status.pieceCount) : 0;
+  const piecesGoal = status?.piecesGoal ?? 0;
+  const piecesLeft = status ? Math.max(0, piecesGoal - status.pieceCount) : 0;
 
   const handleDone = useCallback((id: string, piece: ManagedPiece | null) => {
     setOverrides((current) => ({ ...current, [id]: piece }));
@@ -70,7 +70,7 @@ export default function ArtistPortfolio({ loaderData }: Route.ComponentProps) {
         </div>
 
         <div className="flex flex-wrap items-end gap-6">
-          {status && !status.isPublished && (
+          {status && !status.isPublished && piecesGoal > 0 && (
             <div className="min-w-52">
               <p className="text-sm">
                 <span className="tabular-nums">{status.pieceCount}</span>{" "}
@@ -81,7 +81,7 @@ export default function ArtistPortfolio({ loaderData }: Route.ComponentProps) {
                 <div
                   className="h-full bg-accent"
                   style={{
-                    width: `${Math.min(100, (status.pieceCount / PIECES_TO_PUBLISH) * 100)}%`,
+                    width: `${Math.min(100, (status.pieceCount / piecesGoal) * 100)}%`,
                   }}
                 />
               </div>

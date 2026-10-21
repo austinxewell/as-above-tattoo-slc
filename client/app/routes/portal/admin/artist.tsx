@@ -38,6 +38,7 @@ export default function AdminArtist({ loaderData }: Route.ComponentProps) {
           key={loaderData.artist.slug}
           artist={loaderData.artist}
           eyebrow="Artist profile"
+          canUnpublish
         />
       </div>
     </>

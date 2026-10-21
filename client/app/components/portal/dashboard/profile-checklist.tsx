@@ -2,13 +2,29 @@ import { Link } from "react-router";
 import { Check } from "lucide-react";
 import type { ProfileTask } from "~/lib/dashboard";
 
-export function ProfileChecklist({ tasks }: { tasks: ProfileTask[] }) {
-  if (tasks.length === 0) return null;
+type ProfileChecklistProps = {
+  isPublished: boolean;
+  tasks: ProfileTask[];
+};
 
+export function ProfileChecklist({ isPublished, tasks }: ProfileChecklistProps) {
   const doneCount = tasks.filter((task) => task.done).length;
+  const isComplete = doneCount === tasks.length;
+
+  if (isPublished && isComplete) {
+    return <p className="font-display text-xl uppercase text-accent">Published</p>;
+  }
+
+  if (tasks.length === 0) return null;
 
   return (
     <div>
+      {isPublished && (
+        <p className="mb-3 font-display text-base uppercase text-accent">
+          Published, needs attention
+        </p>
+      )}
+
       <p className="text-sm text-muted-foreground">
         <span className="text-foreground tabular-nums">
           {doneCount} of {tasks.length}
@@ -38,8 +54,13 @@ export function ProfileChecklist({ tasks }: { tasks: ProfileTask[] }) {
             ) : (
               <Link to={task.to} className="group flex items-start gap-2.5 text-sm">
                 <span aria-hidden="true" className="mt-0.5 size-4 shrink-0 border border-accent" />
-                <span className="border-b border-transparent transition-colors group-hover:border-accent">
-                  {task.label}
+                <span>
+                  <span className="border-b border-transparent transition-colors group-hover:border-accent">
+                    {task.label}
+                  </span>
+                  {task.detail && (
+                    <span className="block text-xs text-muted-foreground">{task.detail}</span>
+                  )}
                 </span>
               </Link>
             )}

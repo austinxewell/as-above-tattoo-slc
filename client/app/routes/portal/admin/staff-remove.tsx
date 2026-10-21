@@ -9,7 +9,7 @@ import { RemovalSummary, type RemovalScope } from "~/components/portal/staff/rem
 import { RemovalScopePicker } from "~/components/portal/staff/removal-scope";
 import { HandoffList } from "~/components/portal/staff/handoff-list";
 import { RemovalConfirm } from "~/components/portal/staff/removal-confirm";
-import { RemovalStep } from "~/components/portal/staff/removal-step";
+import { SectionBand } from "~/components/portal/section-band";
 
 export function meta({ loaderData }: Route.MetaArgs) {
   return [
@@ -96,18 +96,18 @@ export default function StaffRemove({ loaderData, actionData }: Route.ComponentP
 
           <div className="mt-8 border-b border-border">
             {isAdminArtist && (
-              <RemovalStep
+              <SectionBand
                 id="scope-heading"
                 step={stepNumber("scope")}
                 title="What to remove"
                 hint={`Choose whether ${firstName} keeps their admin login.`}
               >
                 <RemovalScopePicker firstName={firstName} value={scope} onChange={setScope} />
-              </RemovalStep>
+              </SectionBand>
             )}
 
             {handoff && (
-              <RemovalStep
+              <SectionBand
                 id="handoff-heading"
                 step={stepNumber("handoff")}
                 title="Hand off open requests"
@@ -118,10 +118,10 @@ export default function StaffRemove({ loaderData, actionData }: Route.ComponentP
                   total={handoff.openTotal}
                   reassignTo={handoff.reassignTo}
                 />
-              </RemovalStep>
+              </SectionBand>
             )}
 
-            <RemovalStep
+            <SectionBand
               id="confirm-heading"
               step={stepNumber("confirm")}
               title="Review and confirm"
@@ -144,7 +144,7 @@ export default function StaffRemove({ loaderData, actionData }: Route.ComponentP
                     : null
                 }
               />
-            </RemovalStep>
+            </SectionBand>
           </div>
         </>
       )}

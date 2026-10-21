@@ -32,6 +32,7 @@ const artistSchema = new Schema(
     instagram: { type: String, trim: true },
     isBooking: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false, index: true },
+    sortOrder: { type: Number },
     booking: { type: bookingSchema, default: () => ({}) },
   },
   { timestamps: true },

@@ -11,7 +11,23 @@ type ArtistCardProps = {
   login: ArtistLogin;
 };
 
+function publishStatus({ isPublished, publishChecklist }: ArtistSummary) {
+  const isReady = publishChecklist.every((item) => item.done);
+
+  if (isPublished) {
+    return isReady
+      ? { tone: "success" as const, label: "Published" }
+      : { tone: "accent" as const, label: "Published, needs attention" };
+  }
+
+  return isReady
+    ? { tone: "accent" as const, label: "Ready to publish" }
+    : { tone: "muted" as const, label: "Draft" };
+}
+
 export function ArtistCard({ artist, login }: ArtistCardProps) {
+  const status = publishStatus(artist);
+
   return (
     <Link
       to={`/portal/admin/artists/${artist.slug}`}
@@ -30,12 +46,12 @@ export function ArtistCard({ artist, login }: ArtistCardProps) {
         </p>
 
         <div className="mt-3 grid gap-1">
-          <StatusDot tone={artist.isPublished ? "success" : "muted"}>
-            {artist.isPublished ? "Published" : "Draft"}
-          </StatusDot>
+          <StatusDot tone={status.tone}>{status.label}</StatusDot>
+
           <StatusDot tone={artist.isBooking ? "success" : "muted"}>
             {artist.isBooking ? "Books open" : "Books closed"}
           </StatusDot>
+
           <StatusDot
             tone={login === "active" ? "success" : login === "pending" ? "accent" : "muted"}
           >

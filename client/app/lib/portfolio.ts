@@ -190,22 +190,36 @@ export async function handlePortfolioAction(
   }
 }
 
-export const PIECES_TO_PUBLISH = 6;
-
 const MY_PORTFOLIO_STATUS_QUERY = /* GraphQL */ `
   query MyPortfolioStatus {
     me {
       artist {
         isPublished
-        pieceCount
+        publishChecklist {
+          key
+          current
+          goal
+        }
       }
     }
   }
 `;
 
+type StatusItem = { key: string; current: number | null; goal: number | null };
+
 export async function fetchMyPortfolioStatus(signal?: AbortSignal) {
   const { me } = await graphqlRequest<{
-    me: { artist: { isPublished: boolean; pieceCount: number } | null } | null;
+    me: { artist: { isPublished: boolean; publishChecklist: StatusItem[] } | null } | null;
   }>(MY_PORTFOLIO_STATUS_QUERY, undefined, signal);
-  return me?.artist ?? null;
+
+  const artist = me?.artist;
+  if (!artist) return null;
+
+  const pieces = artist.publishChecklist.find((item) => item.key === "pieces");
+
+  return {
+    isPublished: artist.isPublished,
+    pieceCount: pieces?.current ?? 0,
+    piecesGoal: pieces?.goal ?? null,
+  };
 }

@@ -10,6 +10,7 @@ import { pricingTypeDefs } from "./pricing/type-defs.js";
 import { afterCareTypeDefs } from "./after-care/type-defs.js";
 import { authTypeDefs } from "./auth/type-defs.js";
 import { userTypeDefs } from "./user/type-defs.js";
+import { siteSettingsTypeDefs } from "./site-settings/type-defs.js";
 
 import { aboutResolvers } from "./about/resolvers.js";
 import { artistResolvers } from "./artist/resolvers.js";
@@ -20,6 +21,7 @@ import { pricingResolvers } from "./pricing/resolvers.js";
 import { afterCareResolvers } from "./after-care/resolvers.js";
 import { authResolvers } from "./auth/resolvers.js";
 import { userResolvers } from "./user/resolvers.js";
+import { siteSettingsResolvers } from "./site-settings/resolvers.js";
 
 const baseTypeDefs = /* GraphQL */ `
   type Query
@@ -38,6 +40,7 @@ export const schema = createSchema<GraphQLContext>({
     afterCareTypeDefs,
     authTypeDefs,
     userTypeDefs,
+    siteSettingsTypeDefs,
   ],
   resolvers: [
     aboutResolvers,
@@ -49,5 +52,6 @@ export const schema = createSchema<GraphQLContext>({
     afterCareResolvers,
     authResolvers,
     userResolvers,
+    siteSettingsResolvers,
   ],
 });
