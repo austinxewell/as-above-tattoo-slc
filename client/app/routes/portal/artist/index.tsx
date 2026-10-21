@@ -2,10 +2,10 @@ import type { Route } from "./+types/index";
 import { bookingStatuses, fetchBookingList } from "~/lib/bookings";
 import { currentUserContext } from "~/lib/current-user";
 import {
+  fetchProfileStatus,
   fetchSiteStatus,
   mockArtistShopStats,
   mockOldestNewRequestDays,
-  mockProfileTasks,
   type ArtistDashboard as ArtistDashboardData,
   type DashboardStat,
   type PublicLink,
@@ -31,16 +31,18 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
   const me = context.get(currentUserContext);
   const mySlug = me.artist?.slug;
 
-  const [newRequests, active, site] = await Promise.all([
+  const [newRequests, open, active, site, profile] = await Promise.all([
     fetchBookingList({ mine: true, status: "new" }, 1, request.signal),
+    fetchBookingList({ mine: true, statuses: ["new", "contacted"] }, 1, request.signal),
     fetchBookingList({ mine: true }, 1, request.signal),
     fetchSiteStatus(request.signal),
+    mySlug ? fetchProfileStatus(mySlug, request.signal) : { isPublished: false, tasks: [] },
   ]);
 
-  const countFor = (slug: string | null | undefined) =>
-    newRequests.counts.byArtist.find((group) => group.slug === slug)?.count ?? 0;
-  const mineCount = mySlug ? countFor(mySlug) : 0;
-  const unclaimedCount = countFor(null);
+  const countIn = (list: typeof newRequests, slug: string | null | undefined) =>
+    list.counts.byArtist.find((group) => group.slug === slug)?.count ?? 0;
+  const mineCount = mySlug ? countIn(newRequests, mySlug) : 0;
+  const unclaimedCount = countIn(open, null);
   const oldestDays = mockOldestNewRequestDays(newRequests.page.total);
 
   return {
@@ -58,7 +60,7 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
         value: unclaimedCount,
         unit: "unclaimed",
         hint: unclaimedCount > 0 ? "Any artist can pick these up" : "Nothing to pick up",
-        to: unclaimedCount > 0 ? `${requestsPath}?status=new&for=none` : undefined,
+        to: unclaimedCount > 0 ? `${requestsPath}?for=none` : undefined,
       },
       {
         label: "Oldest unanswered",
@@ -76,10 +78,16 @@ export async function clientLoader({ request, context }: Route.ClientLoaderArgs)
     shop: mockArtistShopStats,
     bookingRequestsEnabled: site.bookingRequestsEnabled,
     myBooks: site.artists.find((artist) => artist.slug === mySlug) ?? null,
-    profileTasks: mockProfileTasks,
+    profile,
     publicLinks: [
       ...(mySlug
-        ? [{ label: "Your artist page", to: `/artists/${mySlug}`, badge: "/images/logos/artist-badge.svg" }]
+        ? [
+            {
+              label: "Your artist page",
+              to: `/artists/${mySlug}`,
+              badge: "/images/logos/artist-badge.svg",
+            },
+          ]
         : []),
       { label: "Booking page", to: "/booking", badge: "/images/logos/booking-badge.svg" },
       { label: "Aftercare page", to: "/after-care", badge: "/images/logos/after-care-badge.svg" },
@@ -100,7 +108,10 @@ export default function ArtistDashboard({ loaderData }: Route.ComponentProps) {
             <PipelineBar stages={loaderData.pipeline} basePath={requestsPath} />
           </DashboardSection>
 
-          <DashboardSection title="Recent requests" action={{ label: "View all", to: requestsPath }}>
+          <DashboardSection
+            title="Recent requests"
+            action={{ label: "View all", to: requestsPath }}
+          >
             <RecentRequests bookings={loaderData.recentRequests} basePath={requestsPath} />
           </DashboardSection>
 
@@ -120,7 +131,10 @@ export default function ArtistDashboard({ loaderData }: Route.ComponentProps) {
           )}
 
           <DashboardSection title="Your profile">
-            <ProfileChecklist tasks={loaderData.profileTasks} />
+            <ProfileChecklist
+              isPublished={loaderData.profile.isPublished}
+              tasks={loaderData.profile.tasks}
+            />
           </DashboardSection>
 
           <DashboardSection title="Website">

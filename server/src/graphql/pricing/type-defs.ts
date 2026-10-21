@@ -19,7 +19,29 @@ export const pricingTypeDefs = /* GraphQL */ `
     faqs: [PricingFaqValue!]!
   }
 
+  input PricingTitledInput {
+    title: String!
+    description: String!
+  }
+
+  input PricingFaqInput {
+    question: String!
+    answer: String!
+  }
+
+  input PricingInput {
+    intro: String
+    shopMinimum: String
+    factors: [PricingTitledInput!]
+    policies: [PricingTitledInput!]
+    faqs: [PricingFaqInput!]
+  }
+
   extend type Query {
     pricing: Pricing!
+  }
+
+  extend type Mutation {
+    updatePricing(input: PricingInput!): Pricing!
   }
 `;

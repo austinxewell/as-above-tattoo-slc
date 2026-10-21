@@ -2,16 +2,16 @@ import { Schema, model, type InferSchemaType } from "mongoose";
 
 const bookingSchema = new Schema(
   {
-    minimum: { type: String, required: true, trim: true },
-    rate: { type: String, required: true, trim: true },
-    deposit: { type: String, required: true, trim: true },
-    availability: { type: String, required: true, trim: true },
+    minimum: { type: String, trim: true, default: "" },
+    rate: { type: String, trim: true, default: "" },
+    deposit: { type: String, trim: true, default: "" },
+    availability: { type: String, trim: true, default: "" },
     notes: { type: [String], default: [] },
   },
   { _id: false },
 );
 
-function slugify(value: string) {
+export function slugify(value: string) {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // é → e
@@ -26,12 +26,14 @@ const artistSchema = new Schema(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
     name: { type: String, required: true, trim: true },
     specialties: { type: [String], default: [] },
-    bio: { type: String, required: true, trim: true },
-    statement: { type: String, required: true, trim: true },
-    imgUrl: { type: String, required: true, trim: true },
+    bio: { type: String, trim: true, default: "" },
+    statement: { type: String, trim: true, default: "" },
+    imgUrl: { type: String, trim: true, default: "" },
     instagram: { type: String, trim: true },
     isBooking: { type: Boolean, default: false },
-    booking: { type: bookingSchema, required: true },
+    isPublished: { type: Boolean, default: false, index: true },
+    sortOrder: { type: Number },
+    booking: { type: bookingSchema, default: () => ({}) },
   },
   { timestamps: true },
 );

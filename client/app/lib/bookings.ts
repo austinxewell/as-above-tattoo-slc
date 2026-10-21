@@ -6,6 +6,7 @@ export type BookingSize = "small" | "medium" | "large" | "project";
 export type Booking = {
   id: string;
   artist: { slug: string; name: string } | null;
+  formerArtistName: string | null;
   name: string;
   email: string;
   phone: string | null;
@@ -19,13 +20,24 @@ export type Booking = {
   createdAt: string;
 };
 
-const BOOKING_FIELDS = /* GraphQL */ `
+export type BookingActivity = {
+  id: string;
+  type: "note" | "event";
+  text: string;
+  authorName: string;
+  createdAt: string;
+};
+
+export type BookingWithActivity = Booking & { activity: BookingActivity[] };
+
+export const BOOKING_FIELDS = /* GraphQL */ `
   fragment BookingFields on BookingRequest {
     id
     artist {
       slug
       name
     }
+    formerArtistName
     name
     email
     phone
@@ -44,13 +56,20 @@ const BOOKING_QUERY = /* GraphQL */ `
   query Booking($id: ID!) {
     booking(id: $id) {
       ...BookingFields
+      activity {
+        id
+        type
+        text
+        authorName
+        createdAt
+      }
     }
   }
   ${BOOKING_FIELDS}
 `;
 
 export async function fetchBooking(id: string, signal?: AbortSignal) {
-  const { booking } = await graphqlRequest<{ booking: Booking | null }>(
+  const { booking } = await graphqlRequest<{ booking: BookingWithActivity | null }>(
     BOOKING_QUERY,
     { id },
     signal,
@@ -72,6 +91,15 @@ export const sizeLabels: Record<BookingSize, string> = {
   project: "Large project",
 };
 
+export function artistLabel(
+  booking: Pick<Booking, "artist" | "formerArtistName">,
+  noneLabel = "No artist preference",
+) {
+  if (booking.artist) return `For ${booking.artist.name}`;
+  if (booking.formerArtistName) return `Formerly ${booking.formerArtistName}`;
+  return noneLabel;
+}
+
 export const bookingStatuses: BookingStatus[] = ["new", "contacted", "scheduled", "declined"];
 
 export function isBookingStatus(value: string | null): value is BookingStatus {
@@ -82,6 +110,7 @@ export type BookingFilter = {
   mine?: boolean;
   archived?: boolean;
   status?: BookingStatus | null;
+  statuses?: BookingStatus[];
   assignment?: string | null;
   search?: string | null;
 };
@@ -235,8 +264,42 @@ export async function deleteBookings(ids: string[], signal?: AbortSignal) {
   return count;
 }
 
+const ASSIGN_BOOKINGS_MUTATION = /* GraphQL */ `
+  mutation AssignBookings($ids: [ID!]!, $artist: String) {
+    count: assignBookings(ids: $ids, artist: $artist)
+  }
+`;
+
+export async function assignBookings(ids: string[], artist: string | null, signal?: AbortSignal) {
+  const { count } = await graphqlRequest<{ count: number }>(
+    ASSIGN_BOOKINGS_MUTATION,
+    { ids, artist },
+    signal,
+  );
+  return count;
+}
+
+const ADD_BOOKING_NOTE_MUTATION = /* GraphQL */ `
+  mutation AddBookingNote($id: ID!, $text: String!) {
+    addBookingNote(id: $id, text: $text) {
+      id
+    }
+  }
+`;
+
+export async function addBookingNote(id: string, text: string, signal?: AbortSignal) {
+  await graphqlRequest(ADD_BOOKING_NOTE_MUTATION, { id, text }, signal);
+}
+
+const bookingIntents = ["status", "archive", "unarchive", "delete", "note", "assign"] as const;
+type BookingIntent = (typeof bookingIntents)[number];
+
+function isBookingIntent(value: unknown): value is BookingIntent {
+  return bookingIntents.includes(value as BookingIntent);
+}
+
 export type BookingActionResult = {
-  intent: "status" | "archive" | "unarchive" | "delete";
+  intent: BookingIntent;
   error: string | null;
   count: number;
   updatedTo: BookingStatus | null;
@@ -249,12 +312,34 @@ export async function handleBookingAction(
   const formData = await request.formData();
   const ids = id ? [id] : formData.getAll("ids").map(String);
   const rawIntent = formData.get("intent");
-  const intent =
-    rawIntent === "archive" || rawIntent === "unarchive" || rawIntent === "delete"
-      ? rawIntent
-      : "status";
+  const intent = isBookingIntent(rawIntent) ? rawIntent : "status";
 
   try {
+    if (intent === "note") {
+      if (!id) {
+        return {
+          intent,
+          error: "Notes can only be added to one request.",
+          count: 0,
+          updatedTo: null,
+        };
+      }
+
+      await addBookingNote(id, String(formData.get("text") ?? ""), request.signal);
+      return { intent, error: null, count: 1, updatedTo: null };
+    }
+
+    if (intent === "assign") {
+      const artist = String(formData.get("artist") ?? "");
+
+      if (!artist) {
+        return { intent, error: "Choose who to reassign them to.", count: 0, updatedTo: null };
+      }
+
+      const count = await assignBookings(ids, artist === "none" ? null : artist, request.signal);
+      return { intent, error: null, count, updatedTo: null };
+    }
+
     if (intent === "delete") {
       const count = await deleteBookings(ids, request.signal);
       return { intent, error: null, count, updatedTo: null };

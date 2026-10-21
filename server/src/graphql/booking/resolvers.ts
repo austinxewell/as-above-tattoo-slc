@@ -4,6 +4,7 @@ import { createRateLimiter } from "../../security/rate-limit.js";
 import { ArtistModel } from "../../models/artist.js";
 import { BookingModel, type Booking } from "../../models/booking.js";
 import { UserModel } from "../../models/user.js";
+import { getBookingRequestsEnabled } from "../../models/site-settings.js";
 import { sendEmail } from "../../email/send-email.js";
 import { requireUser, requireRole } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
@@ -25,9 +26,38 @@ const isRateLimited = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
+const MAX_NOTE_LENGTH = 2000;
+const noPreference = { artist: null, formerArtistName: null };
 
-export function bookingRequestsEnabled() {
-  return process.env.BOOKING_REQUESTS_ENABLED === "true";
+async function findAccessibleBooking(user: ReturnType<typeof requireUser>, id: string) {
+  if (!isValidObjectId(id)) return null;
+
+  const booking = await BookingModel.findById(id);
+  if (!booking) return null;
+
+  if (user.role === "admin") return booking;
+
+  const isOpenToAll = !booking.artist && !booking.formerArtistName;
+  const isTheirs = Boolean(user.artist && booking.artist?.equals(user.artist));
+
+  return isOpenToAll || isTheirs ? booking : null;
+}
+
+const statusLabels: Record<Booking["status"], string> = {
+  new: "New",
+  contacted: "Contacted",
+  scheduled: "Scheduled",
+  declined: "Declined",
+};
+
+export function activityEvent(user: ReturnType<typeof requireUser>, text: string) {
+  return {
+    type: "event" as const,
+    text,
+    author: user._id,
+    authorName: user.name,
+    createdAt: new Date(),
+  };
 }
 
 async function findRecipients(artistId?: Types.ObjectId) {
@@ -53,8 +83,17 @@ async function setArchivedAt(ids: string[], archivedAt: Date | null, context: Gr
   const access = user.role === "admin" ? {} : { artist: user.artist };
   const filter = { _id: { $in: ids.filter((id) => isValidObjectId(id)) }, ...access };
 
-  const result = await BookingModel.updateMany(filter, { archivedAt });
-  return result.matchedCount;
+  await BookingModel.updateMany(
+    { ...filter, archivedAt: archivedAt ? null : { $ne: null } },
+    {
+      $set: { archivedAt },
+      $push: {
+        activity: activityEvent(user, archivedAt ? "Archived" : "Restored from the archive"),
+      },
+    },
+  );
+
+  return BookingModel.countDocuments(filter);
 }
 
 function escapeRegex(text: string) {
@@ -65,13 +104,14 @@ type BookingFilterArgs = {
   mine?: boolean | null;
   archived?: boolean | null;
   status?: Booking["status"] | null;
+  statuses?: Booking["status"][] | null;
   assignment?: string | null;
   search?: string | null;
 };
 
 async function buildBookingFilter(
   user: ReturnType<typeof requireUser>,
-  { mine, archived, status, assignment, search }: BookingFilterArgs = {},
+  { mine, archived, status, statuses, assignment, search }: BookingFilterArgs = {},
 ): Promise<QueryFilter<Booking> | null> {
   const onlyMine = mine === true || user.role !== "admin";
 
@@ -82,15 +122,19 @@ async function buildBookingFilter(
   ];
 
   if (onlyMine) {
-    conditions.push({ $or: [{ artist: user.artist }, { artist: null }] });
+    conditions.push({ $or: [{ artist: user.artist }, noPreference] });
   }
 
   if (status) {
     conditions.push({ status });
   }
 
+  if (statuses?.length) {
+    conditions.push({ status: { $in: statuses } });
+  }
+
   if (assignment === "none") {
-    conditions.push({ artist: null });
+    conditions.push(noPreference);
   } else if (assignment === "mine") {
     if (!user.artist) return null;
     conditions.push({ artist: user.artist });
@@ -112,7 +156,7 @@ async function buildBookingFilter(
 
 export const bookingResolvers = {
   Query: {
-    bookingRequestsEnabled: () => bookingRequestsEnabled(),
+    bookingRequestsEnabled: () => getBookingRequestsEnabled(),
     bookingPage: async (
       _parent: unknown,
       {
@@ -152,7 +196,7 @@ export const bookingResolvers = {
       const [activeQuery, archivedQuery, statusQuery, artistQuery] = await Promise.all([
         buildBookingFilter(user, { ...args, archived: false }),
         buildBookingFilter(user, { ...args, archived: true }),
-        buildBookingFilter(user, { ...args, status: null }),
+        buildBookingFilter(user, { ...args, status: null, statuses: null }),
         buildBookingFilter(user, { ...args, assignment: null }),
       ]);
 
@@ -166,14 +210,21 @@ export const bookingResolvers = {
             ])
           : [],
         artistQuery
-          ? BookingModel.aggregate<{ _id: Types.ObjectId | null; count: number }>([
+          ? BookingModel.aggregate<{ _id: Types.ObjectId | string | null; count: number }>([
               { $match: artistQuery },
-              { $group: { _id: "$artist", count: { $sum: 1 } } },
+              {
+                $group: {
+                  _id: { $ifNull: ["$artist", "$formerArtistName"] },
+                  count: { $sum: 1 },
+                },
+              },
             ])
           : [],
       ]);
 
-      const artistIds = artistGroups.flatMap((group) => (group._id ? [group._id] : []));
+      const artistIds = artistGroups.flatMap((group) =>
+        group._id instanceof Types.ObjectId ? [group._id] : [],
+      );
       const artists = await ArtistModel.find({ _id: { $in: artistIds } });
       const slugById = new Map(artists.map((artist) => [artist._id.toString(), artist.slug]));
 
@@ -197,21 +248,8 @@ export const bookingResolvers = {
         artistTotal: sum(artistGroups),
       };
     },
-    booking: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
-      const user = requireUser(context);
-
-      if (!isValidObjectId(id)) return null;
-
-      const booking = await BookingModel.findById(id);
-      if (!booking) return null;
-
-      if (user.role === "admin") return booking;
-
-      const isOpenToAll = !booking.artist;
-      const isTheirs = Boolean(user.artist && booking.artist?.equals(user.artist));
-
-      return isOpenToAll || isTheirs ? booking : null;
-    },
+    booking: (_parent: unknown, { id }: { id: string }, context: GraphQLContext) =>
+      findAccessibleBooking(requireUser(context), id),
   },
   Mutation: {
     requestBooking: async (
@@ -219,7 +257,7 @@ export const bookingResolvers = {
       { input }: { input: BookingRequestInput },
       context: GraphQLContext,
     ) => {
-      if (!bookingRequestsEnabled()) {
+      if (!(await getBookingRequestsEnabled())) {
         throw new GraphQLError("Online booking requests aren't open yet.");
       }
 
@@ -240,7 +278,7 @@ export const bookingResolvers = {
 
       if (artistSlug) {
         const found = await ArtistModel.findOne(
-          { slug: artistSlug },
+          { slug: artistSlug, isPublished: true },
           { _id: 1, name: 1, isBooking: 1 },
         );
         if (!found) throw new GraphQLError("That artist doesn't exist.");
@@ -296,19 +334,21 @@ export const bookingResolvers = {
         return 0;
       }
 
-      const access =
-        user.role === "admin" ? {} : { $or: [{ artist: user.artist }, { artist: null }] };
+      const access = user.role === "admin" ? {} : { $or: [{ artist: user.artist }, noPreference] };
+
       const filter = { _id: { $in: ids.filter((id) => isValidObjectId(id)) }, ...access };
 
       if (status === "scheduled") {
         let assignee: Types.ObjectId | null | undefined =
           user.role === "artist" ? user.artist : null;
+        let assignedText = `Claimed by ${user.name}`;
 
         if (user.role === "admin" && assignTo) {
           const artist = await ArtistModel.findOne({ slug: assignTo });
 
           if (!artist) throw new GraphQLError("That artist doesn't exist.");
           assignee = artist._id;
+          assignedText = `Assigned to ${artist.name}`;
         }
 
         const unassigned = { ...filter, artist: null };
@@ -318,12 +358,22 @@ export const bookingResolvers = {
         }
 
         if (assignee) {
-          await BookingModel.updateMany(unassigned, { artist: assignee });
+          await BookingModel.updateMany(unassigned, {
+            $set: { artist: assignee },
+            $push: { activity: activityEvent(user, assignedText) },
+          });
         }
       }
 
-      const result = await BookingModel.updateMany(filter, { status });
-      return result.matchedCount;
+      await BookingModel.updateMany(
+        { ...filter, status: { $ne: status } },
+        {
+          $set: { status },
+          $push: { activity: activityEvent(user, `Marked as ${statusLabels[status]}`) },
+        },
+      );
+
+      return BookingModel.countDocuments(filter);
     },
     archiveBookings: (_parent: unknown, { ids }: { ids: string[] }, context: GraphQLContext) =>
       setArchivedAt(ids, new Date(), context),
@@ -345,6 +395,79 @@ export const bookingResolvers = {
       });
       return result.deletedCount;
     },
+    addBookingNote: async (
+      _parent: unknown,
+      { id, text }: { id: string; text: string },
+      context: GraphQLContext,
+    ) => {
+      const user = requireUser(context);
+      const note = text.trim();
+
+      if (!note) {
+        throw new GraphQLError("Write a note before saving.", {
+          extensions: { code: "BAD_USER_INPUT", field: "text" },
+        });
+      }
+
+      if (note.length > MAX_NOTE_LENGTH) {
+        throw new GraphQLError(`Notes can be up to ${MAX_NOTE_LENGTH} characters.`, {
+          extensions: { code: "BAD_USER_INPUT", field: "text" },
+        });
+      }
+
+      const booking = await findAccessibleBooking(user, id);
+
+      if (!booking) {
+        throw new GraphQLError("That request doesn't exist.", {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
+
+      booking.activity.push({ type: "note", text: note, author: user._id, authorName: user.name });
+      await booking.save();
+
+      return booking.activity.at(-1);
+    },
+    assignBookings: async (
+      _parent: unknown,
+      { ids, artist: slug }: { ids: string[]; artist?: string | null },
+      context: GraphQLContext,
+    ) => {
+      const user = requireRole(context, "admin");
+
+      if (ids.length > 100) {
+        throw new GraphQLError("You can update up to 100 requests at a time.");
+      }
+
+      const filter = { _id: { $in: ids.filter((id) => isValidObjectId(id)) } };
+      const target = slug ? await ArtistModel.findOne({ slug }) : null;
+
+      if (slug && !target) {
+        throw new GraphQLError("That artist doesn't exist.");
+      }
+
+      if (!target && (await BookingModel.exists({ ...filter, status: "scheduled" }))) {
+        throw new GraphQLError(
+          "Scheduled requests need an artist. Choose an artist for them, or archive them.",
+        );
+      }
+
+      await BookingModel.updateMany(
+        target ? { ...filter, artist: { $ne: target._id } } : { ...filter, $nor: [noPreference] },
+        {
+          $set: { artist: target?._id ?? null },
+          $unset: { formerArtistName: 1 },
+          $push: {
+            activity: activityEvent(
+              user,
+              target ? `Reassigned to ${target.name}` : "Moved to No preference",
+            ),
+          },
+        },
+      );
+
+      return BookingModel.countDocuments(filter);
+    },
   },
   BookingRequest: {
     artist: (booking: { artist?: unknown }) =>
@@ -352,5 +475,8 @@ export const bookingResolvers = {
     archivedAt: (booking: { archivedAt?: Date | null }) =>
       booking.archivedAt?.toISOString() ?? null,
     createdAt: (booking: { createdAt: Date }) => booking.createdAt.toISOString(),
+  },
+  BookingActivity: {
+    createdAt: (entry: { createdAt: Date }) => entry.createdAt.toISOString(),
   },
 };

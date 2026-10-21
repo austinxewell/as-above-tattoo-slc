@@ -46,3 +46,7 @@ Desktop.ini
 *.temp
 
 server/private/
+
+
+# Claude Code local settings
+.claude/

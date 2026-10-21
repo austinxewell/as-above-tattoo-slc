@@ -13,9 +13,23 @@ export const bookingTypeDefs = /* GraphQL */ `
     declined
   }
 
+  enum BookingActivityType {
+    note
+    event
+  }
+
+  type BookingActivity {
+    id: ID!
+    type: BookingActivityType!
+    text: String!
+    authorName: String!
+    createdAt: String!
+  }
+
   type BookingRequest {
     id: ID!
     artist: Artist
+    formerArtistName: String
     name: String!
     email: String!
     phone: String
@@ -27,6 +41,7 @@ export const bookingTypeDefs = /* GraphQL */ `
     status: BookingStatus!
     archivedAt: String
     createdAt: String!
+    activity: [BookingActivity!]!
   }
 
   type BookingPage {
@@ -72,6 +87,7 @@ export const bookingTypeDefs = /* GraphQL */ `
     mine: Boolean
     archived: Boolean
     status: BookingStatus
+    statuses: [BookingStatus!]
     assignment: String
     search: String
   }
@@ -82,6 +98,8 @@ export const bookingTypeDefs = /* GraphQL */ `
     archiveBookings(ids: [ID!]!): Int!
     unarchiveBookings(ids: [ID!]!): Int!
     deleteBookings(ids: [ID!]!): Int!
+    addBookingNote(id: ID!, text: String!): BookingActivity!
+    assignBookings(ids: [ID!]!, artist: String): Int!
   }
 
   extend type Query {

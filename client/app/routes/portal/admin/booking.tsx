@@ -3,10 +3,10 @@ import { redirect } from "react-router";
 import type { Route } from "./+types/booking";
 import { fetchBooking, handleBookingAction, fetchAssignableArtists } from "~/lib/bookings";
 import { Button } from "~/components/ui/button";
-import { BookingDetail } from "~/components/portal/booking-detail";
-import { StatusForm } from "~/components/portal/status-form";
-import { ArchiveForm } from "~/components/portal/archive-form";
-import { DeleteDialog } from "~/components/portal/delete-dialog";
+import { BookingDetail } from "~/components/portal/bookings/booking-detail";
+import { StatusForm } from "~/components/portal/bookings/status-form";
+import { ArchiveForm } from "~/components/portal/bookings/archive-form";
+import { DeleteDialog } from "~/components/portal/bookings/delete-dialog";
 
 export function meta() {
   return [{ title: "Booking request | Portal" }, { name: "robots", content: "noindex" }];

@@ -12,7 +12,23 @@ export const bookingContentTypeDefs = /* GraphQL */ `
     disclaimer: String!
   }
 
+  input BookingContentStepInput {
+    title: String!
+    description: String!
+  }
+
+  input BookingContentInput {
+    intro: String
+    steps: [BookingContentStepInput!]
+    whyRequest: String
+    disclaimer: String
+  }
+
   extend type Query {
     bookingContent: BookingContent!
+  }
+
+  extend type Mutation {
+    updateBookingContent(input: BookingContentInput!): BookingContent!
   }
 `;
