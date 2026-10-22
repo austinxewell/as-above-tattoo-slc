@@ -24,18 +24,32 @@ function toTimeValue(hour: string, minute: string, period: Period) {
   return `${String(hours).padStart(2, "0")}:${minute}`;
 }
 
+function fromTimeValue(value: string | undefined) {
+  const match = value?.match(/^(\d{2}):(\d{2})$/);
+  if (!match) return { hour: null, minute: "00", period: "PM" as Period };
+
+  const hours = Number(match[1]);
+  return {
+    hour: String(hours % 12 || 12),
+    minute: match[2],
+    period: (hours < 12 ? "AM" : "PM") as Period,
+  };
+}
+
 type TimeFieldProps = {
   name: string;
   legend: string;
   legendClassName?: string;
+  defaultValue?: string;
 };
 
 // Submits the time as 24-hour HH:MM, like <input type="time">. Empty until an hour is chosen.
-export function TimeField({ name, legend, legendClassName }: TimeFieldProps) {
+export function TimeField({ name, legend, legendClassName, defaultValue }: TimeFieldProps) {
   const id = useId();
-  const [hour, setHour] = useState<string | null>(null);
-  const [minute, setMinute] = useState("00");
-  const [period, setPeriod] = useState<Period>("PM");
+  const [initial] = useState(() => fromTimeValue(defaultValue));
+  const [hour, setHour] = useState<string | null>(initial.hour);
+  const [minute, setMinute] = useState(initial.minute);
+  const [period, setPeriod] = useState<Period>(initial.period);
 
   return (
     <fieldset>

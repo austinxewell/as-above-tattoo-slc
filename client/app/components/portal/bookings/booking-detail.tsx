@@ -15,6 +15,7 @@ type BookingDetailProps = {
   actions?: ReactNode;
   canManageSessions?: boolean;
   sessionsHint?: string;
+  shopLocation?: string;
 };
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
@@ -35,6 +36,7 @@ export function BookingDetail({
   actions,
   canManageSessions = false,
   sessionsHint,
+  shopLocation,
 }: BookingDetailProps) {
   const details = [
     {
@@ -129,7 +131,12 @@ export function BookingDetail({
           ))}
         </dl>
 
-        <SessionsPanel booking={booking} canManage={canManageSessions} hint={sessionsHint} />
+        <SessionsPanel
+          booking={booking}
+          canManage={canManageSessions}
+          hint={sessionsHint}
+          location={shopLocation}
+        />
 
         <section className="mt-8 max-w-2xl">
           <h2 className="text-[0.65rem] uppercase tracking-[0.2em] text-accent">Their idea</h2>

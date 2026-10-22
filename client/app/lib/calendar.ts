@@ -1,7 +1,5 @@
 import { sizeLabels, type BookingSession, type BookingWithActivity } from "~/lib/bookings";
 
-const SHOP_LOCATION = "As Above Tattoo, 7692 S Maple St, Midvale, UT 84047";
-
 export type CalendarEvent = {
   uid: string;
   title: string;
@@ -22,6 +20,7 @@ export function sessionEvent(
   booking: BookingWithActivity,
   session: BookingSession,
   portalUrl: string,
+  location = "",
 ): CalendarEvent {
   const start = new Date(session.startsAt);
   const end = new Date(start.getTime() + session.durationMinutes * 60_000);
@@ -47,7 +46,7 @@ export function sessionEvent(
     uid: `${session.id}@asabovetattoo`,
     title: `Tattoo: ${shortName(booking.name)}${sessionLabel}`,
     description,
-    location: SHOP_LOCATION,
+    location,
     url: portalUrl,
     start,
     end,
@@ -67,8 +66,9 @@ export function googleCalendarUrl(event: CalendarEvent) {
     text: event.title,
     dates: `${toUtcStamp(event.start)}/${toUtcStamp(event.end)}`,
     details: event.description,
-    location: event.location,
   });
+
+  if (event.location) params.set("location", event.location);
 
   return `https://calendar.google.com/calendar/render?${params}`;
 }
@@ -102,7 +102,7 @@ export function icsFile(event: CalendarEvent) {
     `DTEND:${toUtcStamp(event.end)}`,
     `SUMMARY:${escapeText(event.title)}`,
     `DESCRIPTION:${escapeText(event.description)}`,
-    `LOCATION:${escapeText(event.location)}`,
+    ...(event.location ? [`LOCATION:${escapeText(event.location)}`] : []),
     `URL:${event.url}`,
     "END:VEVENT",
     "END:VCALENDAR",

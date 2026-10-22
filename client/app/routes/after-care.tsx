@@ -1,10 +1,15 @@
 import type { Route } from "./+types/after-care";
-import { useSearchParams } from "react-router";
+import { useRouteLoaderData, useSearchParams } from "react-router";
 import { graphqlRequest } from "~/lib/graphql";
+import { facebookUrl, formatPhone, instagramUrl } from "~/lib/shop";
+import type { clientLoader as siteLayoutLoader } from "~/layouts/site-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Check, X, TriangleAlert, Printer } from "lucide-react";
 import { PageHeader } from "~/components/shared/page-header";
 import { HealingTimeline } from "~/components/after-care/healing-timeline";
+
+const contactLinkClasses =
+  "border-b border-accent text-foreground transition-colors hover:text-accent-hover";
 
 const AFTER_CARE_QUERY = /* GraphQL */ `
   query AfterCare {
@@ -75,6 +80,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 
 export default function AfterCare({ loaderData }: Route.ComponentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const shop = useRouteLoaderData<typeof siteLayoutLoader>("layouts/site-layout")?.shop;
   const { methods } = loaderData.afterCare;
   const activeMethod =
     methods.find((method) => method.slug === searchParams.get("method")) ?? methods[0];
@@ -219,16 +225,43 @@ export default function AfterCare({ loaderData }: Route.ComponentProps) {
 
           <p className="mt-10 border-t border-destructive/30 pt-6 text-sm leading-6 text-muted-foreground">
             Fever, chills, or red streaks spreading from the tattoo need medical attention right
-            away. For other healing questions, message the shop on{" "}
-            <a
-              href="https://www.instagram.com/asabovetattooslc/"
-              target="_blank"
-              rel="noreferrer"
-              className="border-b border-accent text-foreground"
-            >
-              Instagram
-            </a>
-            .
+            away.
+            {shop && (
+              <>
+                {" "}
+                For other healing questions, contact the shop at{" "}
+                <a href={`tel:${shop.phone}`} className={contactLinkClasses}>
+                  {formatPhone(shop.phone)}
+                </a>
+                , on{" "}
+                <a
+                  href={instagramUrl(shop.instagram)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={contactLinkClasses}
+                >
+                  Instagram
+                </a>
+                {shop.email ? ", " : " or "}
+                <a
+                  href={facebookUrl(shop.facebook)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={contactLinkClasses}
+                >
+                  Facebook
+                </a>
+                {shop.email && (
+                  <>
+                    , or by email at{" "}
+                    <a href={`mailto:${shop.email}`} className={contactLinkClasses}>
+                      {shop.email}
+                    </a>
+                  </>
+                )}
+                .
+              </>
+            )}
           </p>
         </div>
       </section>

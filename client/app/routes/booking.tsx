@@ -1,5 +1,5 @@
 import type { Route } from "./+types/booking";
-import { Link, type ShouldRevalidateFunctionArgs } from "react-router";
+import { Link, useRouteLoaderData, type ShouldRevalidateFunctionArgs } from "react-router";
 import { ArrowDown } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { graphqlRequest } from "~/lib/graphql";
@@ -9,6 +9,7 @@ import { PageHeader } from "~/components/shared/page-header";
 import { BookingForm } from "~/components/booking/booking-form";
 import { BookingSuccess } from "~/components/booking/booking-success";
 import { InstagramNotice } from "~/components/booking/instagram-notice";
+import type { clientLoader as siteLayoutLoader } from "~/layouts/site-layout";
 
 const BOOKING_QUERY = /* GraphQL */ `
   query Booking {
@@ -147,6 +148,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function Booking({ loaderData, actionData }: Route.ComponentProps) {
+  const shop = useRouteLoaderData<typeof siteLayoutLoader>("layouts/site-layout")?.shop;
+
   return (
     <>
       <section
@@ -213,7 +216,7 @@ export default function Booking({ loaderData, actionData }: Route.ComponentProps
 
         <div className="mt-12 max-w-3xl">
           {!loaderData.bookingRequestsEnabled ? (
-            <InstagramNotice artists={loaderData.artists} />
+            <InstagramNotice artists={loaderData.artists} shop={shop} />
           ) : actionData?.ok ? (
             <BookingSuccess name={actionData.name} />
           ) : (

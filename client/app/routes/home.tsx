@@ -1,11 +1,14 @@
 import type { Route } from "./+types/home";
+import { useRouteLoaderData } from "react-router";
 import { graphqlRequest } from "~/lib/graphql";
+import type { clientLoader as siteLayoutLoader } from "~/layouts/site-layout";
 import type { Artist } from "~/components/artists/artist-list";
 import { Hero } from "~/components/home/hero";
 import { PortfolioPreview } from "~/components/home/portfolio-preview";
 import { AboutPreview } from "~/components/home/about-preview";
 import { ArtistsPreview } from "~/components/home/artists-preview";
 import { StudioProcess } from "~/components/home/studio-process";
+import { VisitStudio } from "~/components/home/visit-studio";
 
 const HOME_QUERY = /* GraphQL */ `
   query Home {
@@ -68,6 +71,8 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  const shop = useRouteLoaderData<typeof siteLayoutLoader>("layouts/site-layout")?.shop;
+
   return (
     <>
       <Hero />
@@ -75,6 +80,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <AboutPreview about={loaderData.about} />
       <ArtistsPreview artists={loaderData.artists} />
       <StudioProcess />
+      {shop && <VisitStudio shop={shop} />}
     </>
   );
 }
