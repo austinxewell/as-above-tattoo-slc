@@ -1,5 +1,8 @@
-import { replace } from "react-router";
+import { Link, replace } from "react-router";
 import type { Route } from "./+types/requests";
+import { Plus } from "lucide-react";
+import { cn } from "~/lib/utils";
+import { buttonVariants } from "~/components/ui/button";
 import {
   assignmentTabs,
   fetchBookingList,
@@ -64,8 +67,21 @@ export default function ArtistRequests({ loaderData, actionData }: Route.Compone
           </p>
         </div>
 
-        <div className="hidden md:block">
-          <ViewSwitch counts={loaderData.viewCounts} />
+        <div className="flex items-center gap-3">
+          <Link
+            to="/portal/artist/requests/new"
+            className={cn(
+              buttonVariants({ variant: "brand" }),
+              "h-auto gap-2 px-4 py-1.5 text-[0.65rem] uppercase tracking-[0.2em]",
+            )}
+          >
+            <Plus className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+            New booking
+          </Link>
+
+          <div className="hidden md:block">
+            <ViewSwitch counts={loaderData.viewCounts} />
+          </div>
         </div>
       </div>
 

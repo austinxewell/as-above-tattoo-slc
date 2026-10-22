@@ -30,6 +30,10 @@ export default function ArtistRequest({ loaderData, actionData }: Route.Componen
       booking={loaderData.booking}
       backTo="/portal/artist/requests"
       backLabel="My requests"
+      canManageSessions={
+        Boolean(loaderData.mySlug) && loaderData.booking.artist?.slug === loaderData.mySlug
+      }
+      sessionsHint={loaderData.booking.artist ? undefined : "Claim this request to add sessions."}
       actions={
         <>
           <StatusForm

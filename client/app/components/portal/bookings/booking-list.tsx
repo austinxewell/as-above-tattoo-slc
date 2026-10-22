@@ -11,6 +11,7 @@ import { Check } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { StatusBadge } from "./status-badge";
+import { SourceBadge } from "./source-badge";
 import { StatusForm } from "./status-form";
 import { DeleteDialog } from "./delete-dialog";
 
@@ -224,6 +225,7 @@ export function BookingList({
                   <p className="font-medium">{booking.name}</p>
 
                   <StatusBadge status={booking.status} />
+                  <SourceBadge source={booking.source} />
 
                   {(showArtist || !booking.artist) && (
                     <span className="text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground">

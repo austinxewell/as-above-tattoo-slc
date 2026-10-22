@@ -22,12 +22,31 @@ type BookingRequestInput = {
   website?: string | null;
 };
 
+type NewBookingInput = {
+  source: Booking["source"];
+  status: Booking["status"];
+  artist?: string | null;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  instagram?: string | null;
+  placement: string;
+  size: Booking["size"];
+  budget?: string | null;
+  idea: string;
+  availability?: string | null;
+};
+
 const isRateLimited = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
 const MAX_NOTE_LENGTH = 2000;
 const noPreference = { artist: null, formerArtistName: null };
+
+function optionalText(value?: string | null) {
+  return value?.trim() || undefined;
+}
 
 async function findAccessibleBooking(user: ReturnType<typeof requireUser>, id: string) {
   if (!isValidObjectId(id)) return null;
@@ -50,6 +69,13 @@ const statusLabels: Record<Booking["status"], string> = {
   declined: "Declined",
 };
 
+const sourceLabels: Record<Booking["source"], string> = {
+  website: "the website",
+  instagram: "Instagram",
+  facebook: "Facebook",
+  other: "another source",
+};
+
 export function activityEvent(user: ReturnType<typeof requireUser>, text: string) {
   return {
     type: "event" as const,
@@ -58,6 +84,43 @@ export function activityEvent(user: ReturnType<typeof requireUser>, text: string
     authorName: user.name,
     createdAt: new Date(),
   };
+}
+
+const sessionDateFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Denver",
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+function formatDuration(minutes: number) {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return [hours && `${hours} hr`, rest && `${rest} min`].filter(Boolean).join(" ");
+}
+
+function describeSession(session: { startsAt: Date; durationMinutes: number }) {
+  return `${sessionDateFormat.format(session.startsAt)} (${formatDuration(session.durationMinutes)})`;
+}
+
+async function findSessionBooking(user: ReturnType<typeof requireUser>, id: string) {
+  const booking = await findAccessibleBooking(user, id);
+
+  if (!booking) {
+    throw new GraphQLError("That request doesn't exist.", { extensions: { code: "NOT_FOUND" } });
+  }
+
+  if (!booking.artist) {
+    throw new GraphQLError("Assign an artist before adding sessions.");
+  }
+
+  if (user.role !== "admin" && !(user.artist && booking.artist.equals(user.artist))) {
+    throw new GraphQLError("Only the assigned artist can manage sessions.");
+  }
+
+  return booking;
 }
 
 async function findRecipients(artistId?: Types.ObjectId) {
@@ -315,6 +378,54 @@ export const bookingResolvers = {
 
       return booking.id;
     },
+    createBooking: async (
+      _parent: unknown,
+      { input }: { input: NewBookingInput },
+      context: GraphQLContext,
+    ) => {
+      const user = requireUser(context);
+      const { artist: artistSlug, ...details } = input;
+
+      if (details.source === "website") {
+        throw new GraphQLError("Website request can only come from the booking form.");
+      }
+      const contact = {
+        email: optionalText(details.email),
+        phone: optionalText(details.phone),
+        instagram: optionalText(details.instagram?.trim().replace(/^@+/, "")),
+      };
+
+      if (!contact.email && !contact.phone && !contact.instagram) {
+        throw new GraphQLError("Add an email, phone number or Instagram handle.");
+      }
+
+      let artist: Types.ObjectId | null = null;
+
+      if (user.role !== "admin") {
+        if (!user.artist) throw new GraphQLError("You need an artist profile to add bookings.");
+        artist = user.artist;
+      } else if (artistSlug) {
+        const found = await ArtistModel.findOne({ slug: artistSlug });
+
+        if (!found) throw new GraphQLError("That artist doesn't exist.");
+        artist = found._id;
+      }
+
+      if (details.status === "scheduled" && !artist) {
+        throw new GraphQLError("Choose an artist for a scheduled booking.");
+      }
+
+      const booking = await BookingModel.create({
+        ...details,
+        ...contact,
+        budget: optionalText(details.budget),
+        availability: optionalText(details.availability),
+        artist,
+        activity: [activityEvent(user, `Added from ${sourceLabels[details.source]}`)],
+      });
+
+      return booking.id;
+    },
     updateBookingStatus: async (
       _parent: unknown,
       {
@@ -468,6 +579,52 @@ export const bookingResolvers = {
 
       return BookingModel.countDocuments(filter);
     },
+    addBookingSession: async (
+      _parent: unknown,
+      { id, startsAt, durationMinutes }: { id: string; startsAt: string; durationMinutes: number },
+      context: GraphQLContext,
+    ) => {
+      const user = requireUser(context);
+      const start = new Date(startsAt);
+
+      if (Number.isNaN(start.getTime())) {
+        throw new GraphQLError("Choose a valid date and time.");
+      }
+
+      if (!Number.isInteger(durationMinutes) || durationMinutes < 15 || durationMinutes > 720) {
+        throw new GraphQLError("Sessions can be 15 minutes to 12 hours long.");
+      }
+
+      const booking = await findSessionBooking(user, id);
+      const session = { startsAt: start, durationMinutes };
+
+      booking.sessions.push(session);
+      booking.activity.push(activityEvent(user, `Session added: ${describeSession(session)}`));
+      await booking.save();
+
+      return booking.sessions.at(-1);
+    },
+    removeBookingSession: async (
+      _parent: unknown,
+      { id, sessionId }: { id: string; sessionId: string },
+      context: GraphQLContext,
+    ) => {
+      const user = requireUser(context);
+      const booking = await findSessionBooking(user, id);
+      const session = isValidObjectId(sessionId) ? booking.sessions.id(sessionId) : null;
+
+      if (!session) {
+        throw new GraphQLError("That session doesn't exist.", {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
+
+      session.deleteOne();
+      booking.activity.push(activityEvent(user, `Session removed: ${describeSession(session)}`));
+      await booking.save();
+
+      return true;
+    },
   },
   BookingRequest: {
     artist: (booking: { artist?: unknown }) =>
@@ -475,8 +632,13 @@ export const bookingResolvers = {
     archivedAt: (booking: { archivedAt?: Date | null }) =>
       booking.archivedAt?.toISOString() ?? null,
     createdAt: (booking: { createdAt: Date }) => booking.createdAt.toISOString(),
+    sessions: (booking: { sessions: { startsAt: Date }[] }) =>
+      [...booking.sessions].sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime()),
   },
   BookingActivity: {
     createdAt: (entry: { createdAt: Date }) => entry.createdAt.toISOString(),
+  },
+  BookingSession: {
+    startsAt: (session: { startsAt: Date }) => session.startsAt.toISOString(),
   },
 };

@@ -44,6 +44,8 @@ export default function AdminBooking({ loaderData, actionData }: Route.Component
       backTo="/portal/admin/bookings"
       backLabel="All bookings"
       showArtist
+      canManageSessions={Boolean(loaderData.booking.artist)}
+      sessionsHint={loaderData.booking.artist ? undefined : "Assign an artist to add sessions."}
       actions={
         <>
           <StatusForm
