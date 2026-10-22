@@ -24,6 +24,7 @@ export default [
         ...prefix("admin", [
           index("routes/portal/admin/index.tsx"),
           route("bookings", "routes/portal/admin/bookings.tsx"),
+          route("bookings/new", "routes/portal/admin/booking-new.tsx"),
           route("bookings/:id", "routes/portal/admin/booking.tsx"),
           route("artists", "routes/portal/admin/artists.tsx"),
           route("artists/:slug", "routes/portal/admin/artist.tsx"),
@@ -45,6 +46,7 @@ export default [
         ...prefix("artist", [
           index("routes/portal/artist/index.tsx"),
           route("requests", "routes/portal/artist/requests.tsx"),
+          route("requests/new", "routes/portal/artist/request-new.tsx"),
           route("requests/:id", "routes/portal/artist/request.tsx"),
           route("profile", "routes/portal/artist/profile.tsx"),
           route("portfolio", "routes/portal/artist/portfolio.tsx"),

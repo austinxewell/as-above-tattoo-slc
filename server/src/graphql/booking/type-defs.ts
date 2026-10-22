@@ -13,6 +13,13 @@ export const bookingTypeDefs = /* GraphQL */ `
     declined
   }
 
+  enum BookingSource {
+    website
+    instagram
+    facebook
+    other
+  }
+
   enum BookingActivityType {
     note
     event
@@ -26,18 +33,27 @@ export const bookingTypeDefs = /* GraphQL */ `
     createdAt: String!
   }
 
+  type BookingSession {
+    id: ID!
+    startsAt: String!
+    durationMinutes: Int!
+  }
+
   type BookingRequest {
     id: ID!
     artist: Artist
     formerArtistName: String
     name: String!
-    email: String!
+    email: String
     phone: String
+    instagram: String
+    source: BookingSource!
     placement: String!
     size: BookingSize!
     budget: String
     idea: String!
     availability: String
+    sessions: [BookingSession!]!
     status: BookingStatus!
     archivedAt: String
     createdAt: String!
@@ -83,6 +99,21 @@ export const bookingTypeDefs = /* GraphQL */ `
     website: String
   }
 
+  input NewBookingInput {
+    source: BookingSource!
+    status: BookingStatus!
+    artist: String
+    name: String!
+    email: String
+    phone: String
+    instagram: String
+    placement: String!
+    size: BookingSize!
+    budget: String
+    idea: String!
+    availability: String
+  }
+
   input BookingFilter {
     mine: Boolean
     archived: Boolean
@@ -100,6 +131,9 @@ export const bookingTypeDefs = /* GraphQL */ `
     deleteBookings(ids: [ID!]!): Int!
     addBookingNote(id: ID!, text: String!): BookingActivity!
     assignBookings(ids: [ID!]!, artist: String): Int!
+    createBooking(input: NewBookingInput!): ID!
+    addBookingSession(id: ID!, startsAt: String!, durationMinutes: Int!): BookingSession!
+    removeBookingSession(id: ID!, sessionId: ID!): Boolean!
   }
 
   extend type Query {
