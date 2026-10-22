@@ -2,6 +2,7 @@ import { useState } from "react";
 import { redirect } from "react-router";
 import type { Route } from "./+types/booking";
 import { fetchBooking, handleBookingAction, fetchAssignableArtists } from "~/lib/bookings";
+import { fetchShopDetails, fullAddress } from "~/lib/shop";
 import { Button } from "~/components/ui/button";
 import { BookingDetail } from "~/components/portal/bookings/booking-detail";
 import { StatusForm } from "~/components/portal/bookings/status-form";
@@ -13,12 +14,13 @@ export function meta() {
 }
 
 export async function clientLoader({ params, request }: Route.ClientLoaderArgs) {
-  const [booking, artists] = await Promise.all([
+  const [booking, artists, shop] = await Promise.all([
     fetchBooking(params.id, request.signal),
     fetchAssignableArtists(request.signal),
+    fetchShopDetails(request.signal).catch(() => null),
   ]);
 
-  return { booking, artists };
+  return { booking, artists, shopLocation: shop ? fullAddress(shop) : undefined };
 }
 
 export async function clientAction({ params, request }: Route.ClientActionArgs) {
@@ -44,6 +46,7 @@ export default function AdminBooking({ loaderData, actionData }: Route.Component
       backTo="/portal/admin/bookings"
       backLabel="All bookings"
       showArtist
+      shopLocation={loaderData.shopLocation}
       canManageSessions={Boolean(loaderData.booking.artist)}
       sessionsHint={loaderData.booking.artist ? undefined : "Assign an artist to add sessions."}
       actions={

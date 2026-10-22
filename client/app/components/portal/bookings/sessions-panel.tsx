@@ -42,17 +42,19 @@ function SessionRow({
   booking,
   session,
   canManage,
+  location,
 }: {
   booking: BookingWithActivity;
   session: BookingSession;
   canManage: boolean;
+  location?: string;
 }) {
   const fetcher = useFetcher<BookingActionResult>();
   const [isConfirming, setIsConfirming] = useState(false);
   const start = new Date(session.startsAt);
   const end = new Date(start.getTime() + session.durationMinutes * 60_000);
   const { pathname } = useLocation();
-  const event = sessionEvent(booking, session, `${window.location.origin}${pathname}`);
+  const event = sessionEvent(booking, session, `${window.location.origin}${pathname}`, location);
   const isRemoving = fetcher.state !== "idle";
   const error = fetcher.state === "idle" ? fetcher.data?.error : null;
 
@@ -120,9 +122,10 @@ type SessionsPanelProps = {
   booking: BookingWithActivity;
   canManage: boolean;
   hint?: string;
+  location?: string;
 };
 
-export function SessionsPanel({ booking, canManage, hint }: SessionsPanelProps) {
+export function SessionsPanel({ booking, canManage, hint, location }: SessionsPanelProps) {
   const { sessions } = booking;
   const fetcher = useFetcher<BookingActionResult>();
   const [isAdding, setIsAdding] = useState(false);
@@ -148,6 +151,7 @@ export function SessionsPanel({ booking, canManage, hint }: SessionsPanelProps) 
             <SessionRow
               key={session.id}
               booking={booking}
+              location={location}
               session={session}
               canManage={canManage}
             />
