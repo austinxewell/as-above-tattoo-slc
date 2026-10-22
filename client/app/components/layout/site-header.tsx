@@ -9,8 +9,9 @@ import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { MenuTrigger } from "../shared/menu-trigger";
 import { AppearanceSection } from "../shared/appearance-section";
+import { facebookUrl, instagramUrl, type ShopDetails } from "~/lib/shop";
 
-export function SiteHeader() {
+export function SiteHeader({ shop }: { shop?: ShopDetails | null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -37,25 +38,29 @@ export function SiteHeader() {
 
         {/* Desktop utility controls */}
         <div className="hidden shrink-0 items-center gap-2 lg:flex 2xl:gap-3">
-          <a
-            href="https://www.instagram.com/asabovetattooslc/"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Instagram"
-            className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
-          >
-            <FaInstagram className="size-5" aria-hidden="true" />
-          </a>
+          {shop && (
+            <>
+              <a
+                href={instagramUrl(shop.instagram)}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+                className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
+              >
+                <FaInstagram className="size-5" aria-hidden="true" />
+              </a>
 
-          <a
-            href="https://www.facebook.com/AsAboveTattooSLC"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Facebook"
-            className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
-          >
-            <FaFacebook className="size-5" aria-hidden="true" />
-          </a>
+              <a
+                href={facebookUrl(shop.facebook)}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Facebook"
+                className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
+              >
+                <FaFacebook className="size-5" aria-hidden="true" />
+              </a>
+            </>
+          )}
 
           <Link
             to="/shop/cart"
@@ -118,25 +123,29 @@ export function SiteHeader() {
                 </Link>
 
                 <div className="mt-8 flex items-center gap-5 border-t border-border pt-6">
-                  <a
-                    href="https://www.instagram.com/asabovetattooslc/"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Instagram"
-                    className="inline-flex size-10 items-center justify-center text-accent transition-colors hover:text-accent-hover"
-                  >
-                    <FaInstagram className="size-5" aria-hidden="true" />
-                  </a>
+                  {shop && (
+                    <>
+                      <a
+                        href={instagramUrl(shop.instagram)}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="Instagram"
+                        className="inline-flex size-10 items-center justify-center text-accent transition-colors hover:text-accent-hover"
+                      >
+                        <FaInstagram className="size-5" aria-hidden="true" />
+                      </a>
 
-                  <a
-                    href="https://www.facebook.com/AsAboveTattooSLC"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Facebook"
-                    className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
-                  >
-                    <FaFacebook className="size-5" aria-hidden="true" />
-                  </a>
+                      <a
+                        href={facebookUrl(shop.facebook)}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="Facebook"
+                        className="inline-flex size-9 items-center justify-center text-accent transition-colors hover:text-accent-hover 2xl:size-10"
+                      >
+                        <FaFacebook className="size-5" aria-hidden="true" />
+                      </a>
+                    </>
+                  )}
 
                   <Link
                     to="/shop/cart"

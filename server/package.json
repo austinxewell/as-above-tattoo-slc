@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec tsx src/index.ts",
     "seed": "tsx src/seed/index.ts",
-    "migrate:publish-artists": "tsx src/migrations/publish-existing-artists.ts",
+    "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint .",

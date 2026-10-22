@@ -2,8 +2,11 @@ import {
   SiteSettingsModel,
   getBookingRequestsEnabled,
   getPublishingStandards,
+  getShopDetails,
   type PublishingStandards,
+  type ShopDetails,
 } from "../../models/site-settings.js";
+import { cleanShopInput, type ShopDetailsInput } from "./validate.js";
 import { requireRole } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
 import { invalid } from "../validate.js";
@@ -29,12 +32,17 @@ async function readSiteSettings() {
   return { bookingRequestsEnabled, publishing };
 }
 
+function toShopDetails(shop: ShopDetails) {
+  return { ...shop, email: shop.email || null };
+}
+
 export const siteSettingsResolvers = {
   Query: {
     siteSettings: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
       requireRole(context, "admin");
       return readSiteSettings();
     },
+    shopDetails: async () => toShopDetails(await getShopDetails()),
   },
   Mutation: {
     updateSiteSettings: async (
@@ -70,6 +78,23 @@ export const siteSettingsResolvers = {
 
       await settings.save();
       return readSiteSettings();
+    },
+    updateShopDetails: async (
+      _parent: unknown,
+      { input }: { input: ShopDetailsInput },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, "admin");
+
+      const changes = cleanShopInput(input);
+      const settings = (await SiteSettingsModel.findOne()) ?? new SiteSettingsModel();
+
+      for (const [key, value] of Object.entries(changes)) {
+        settings.set(`shop.${key}`, value);
+      }
+
+      await settings.save();
+      return toShopDetails(await getShopDetails());
     },
   },
 };

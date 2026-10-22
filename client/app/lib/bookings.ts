@@ -1,15 +1,19 @@
+import { redirect } from "react-router";
 import { graphqlRequest } from "~/lib/graphql";
 
 export type BookingStatus = "new" | "contacted" | "scheduled" | "declined";
 export type BookingSize = "small" | "medium" | "large" | "project";
+export type BookingSource = "website" | "instagram" | "facebook" | "other";
 
 export type Booking = {
   id: string;
   artist: { slug: string; name: string } | null;
   formerArtistName: string | null;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
+  instagram: string | null;
+  source: BookingSource;
   placement: string;
   size: BookingSize;
   budget: string | null;
@@ -28,7 +32,16 @@ export type BookingActivity = {
   createdAt: string;
 };
 
-export type BookingWithActivity = Booking & { activity: BookingActivity[] };
+export type BookingSession = {
+  id: string;
+  startsAt: string;
+  durationMinutes: number;
+};
+
+export type BookingWithActivity = Booking & {
+  activity: BookingActivity[];
+  sessions: BookingSession[];
+};
 
 export const BOOKING_FIELDS = /* GraphQL */ `
   fragment BookingFields on BookingRequest {
@@ -41,6 +54,8 @@ export const BOOKING_FIELDS = /* GraphQL */ `
     name
     email
     phone
+    instagram
+    source
     placement
     size
     budget
@@ -62,6 +77,11 @@ const BOOKING_QUERY = /* GraphQL */ `
         text
         authorName
         createdAt
+      }
+      sessions {
+        id
+        startsAt
+        durationMinutes
       }
     }
   }
@@ -90,6 +110,15 @@ export const sizeLabels: Record<BookingSize, string> = {
   large: "Large (5+ in)",
   project: "Large project",
 };
+
+export const sourceLabels: Record<BookingSource, string> = {
+  website: "Website",
+  instagram: "Instagram",
+  facebook: "Facebook",
+  other: "Other",
+};
+
+export const manualSources = ["instagram", "facebook", "other"] as const;
 
 export function artistLabel(
   booking: Pick<Booking, "artist" | "formerArtistName">,
@@ -291,7 +320,121 @@ export async function addBookingNote(id: string, text: string, signal?: AbortSig
   await graphqlRequest(ADD_BOOKING_NOTE_MUTATION, { id, text }, signal);
 }
 
-const bookingIntents = ["status", "archive", "unarchive", "delete", "note", "assign"] as const;
+const ADD_BOOKING_SESSION_MUTATION = /* GraphQL */ `
+  mutation AddBookingSession($id: ID!, $startsAt: String!, $durationMinutes: Int!) {
+    addBookingSession(id: $id, startsAt: $startsAt, durationMinutes: $durationMinutes) {
+      id
+    }
+  }
+`;
+
+export async function addBookingSession(
+  id: string,
+  startsAt: string,
+  durationMinutes: number,
+  signal?: AbortSignal,
+) {
+  await graphqlRequest(ADD_BOOKING_SESSION_MUTATION, { id, startsAt, durationMinutes }, signal);
+}
+
+const REMOVE_BOOKING_SESSION_MUTATION = /* GraphQL */ `
+  mutation RemoveBookingSession($id: ID!, $sessionId: ID!) {
+    removeBookingSession(id: $id, sessionId: $sessionId)
+  }
+`;
+
+export async function removeBookingSession(id: string, sessionId: string, signal?: AbortSignal) {
+  await graphqlRequest(REMOVE_BOOKING_SESSION_MUTATION, { id, sessionId }, signal);
+}
+
+export type NewBookingInput = {
+  source: BookingSource;
+  status: BookingStatus;
+  artist: string | null;
+  name: string;
+  email: string;
+  phone: string;
+  instagram: string;
+  placement: string;
+  size: BookingSize;
+  budget: string;
+  idea: string;
+  availability: string;
+};
+
+const CREATE_BOOKING_MUTATION = /* GraphQL */ `
+  mutation CreateBooking($input: NewBookingInput!) {
+    createBooking(input: $input)
+  }
+`;
+
+export async function createBooking(input: NewBookingInput, signal?: AbortSignal) {
+  const { createBooking: id } = await graphqlRequest<{ createBooking: string }>(
+    CREATE_BOOKING_MUTATION,
+    { input },
+    signal,
+  );
+  return id;
+}
+
+type ManualSource = (typeof manualSources)[number];
+
+function isManualSource(value: string): value is ManualSource {
+  return manualSources.includes(value as ManualSource);
+}
+
+function isBookingSize(value: string): value is BookingSize {
+  return Object.hasOwn(sizeLabels, value);
+}
+
+export async function handleCreateBooking(request: Request, basePath: string, assignTo?: string) {
+  const formData = await request.formData();
+  const text = (name: string) => String(formData.get(name) ?? "");
+  const source = text("source");
+  const status = text("status");
+  const size = text("size");
+
+  if (!isManualSource(source)) return { error: "Choose where this booking came from." };
+  if (!isBookingStatus(status)) return { error: "Choose a status." };
+  if (!isBookingSize(size)) return { error: "Choose a size." };
+
+  try {
+    const id = await createBooking(
+      {
+        source,
+        status,
+        size,
+        artist: assignTo ?? (text("artist") === "none" ? null : text("artist") || null),
+        name: text("name"),
+        email: text("email"),
+        phone: text("phone"),
+        instagram: text("instagram"),
+        placement: text("placement"),
+        budget: text("budget"),
+        idea: text("idea"),
+        availability: text("availability"),
+      },
+      request.signal,
+    );
+
+    return redirect(`${basePath}/${id}`);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+    };
+  }
+}
+
+const bookingIntents = [
+  "status",
+  "archive",
+  "unarchive",
+  "delete",
+  "note",
+  "assign",
+  "addSession",
+  "removeSession",
+] as const;
 type BookingIntent = (typeof bookingIntents)[number];
 
 function isBookingIntent(value: unknown): value is BookingIntent {
@@ -326,6 +469,33 @@ export async function handleBookingAction(
       }
 
       await addBookingNote(id, String(formData.get("text") ?? ""), request.signal);
+      return { intent, error: null, count: 1, updatedTo: null };
+    }
+
+    if (intent === "addSession" || intent === "removeSession") {
+      if (!id) {
+        return { intent, error: "Sessions belong to one request.", count: 0, updatedTo: null };
+      }
+
+      if (intent === "removeSession") {
+        await removeBookingSession(id, String(formData.get("sessionId") ?? ""), request.signal);
+        return { intent, error: null, count: 1, updatedTo: null };
+      }
+
+      const date = String(formData.get("date") ?? "");
+      const time = String(formData.get("time") ?? "");
+      const startsAt = new Date(`${date}T${time}`);
+
+      if (!date || !time || Number.isNaN(startsAt.getTime())) {
+        return { intent, error: "Choose a date and start time.", count: 0, updatedTo: null };
+      }
+
+      await addBookingSession(
+        id,
+        startsAt.toISOString(),
+        Number(formData.get("duration")),
+        request.signal,
+      );
       return { intent, error: null, count: 1, updatedTo: null };
     }
 
