@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { Form, Link, NavLink, useLocation } from "react-router";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { ArrowLeft, Flag, LogOut } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { canUseAdmin, canUseArtist, type CurrentUser } from "~/lib/current-user";
 import { adminNav, artistNav } from "~/lib/portal-nav";
 import { PortalBrand } from "./portal-brand";
 import { AppearanceSection } from "../shared/appearance-section";
+import { ReportIssueDialog } from "./report-issue-dialog";
 
 type PortalSidebarProps = {
   user: CurrentUser;
@@ -32,6 +34,7 @@ export function PortalSidebar({ user, onNavigate }: PortalSidebarProps) {
       : null;
   const items = dashboard === "artist" ? artistNav : dashboard === "admin" ? adminNav : [];
   const canSwitch = canUseAdmin(user) && canUseArtist(user);
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   return (
     <div className="flex h-full flex-col gap-8 py-6">
@@ -75,6 +78,15 @@ export function PortalSidebar({ user, onNavigate }: PortalSidebarProps) {
       </div>
 
       <div className="grid gap-1 border-t border-border px-4 pt-6">
+        <button
+          type="button"
+          onClick={() => setIsReportOpen(true)}
+          className="flex items-center gap-3 py-2 text-sm font-medium uppercase tracking-widest text-foreground/80 transition-colors hover:text-accent-hover"
+        >
+          <Flag className="size-4" strokeWidth={1.5} aria-hidden="true" />
+          Report an issue
+        </button>
+
         <Link
           to="/"
           className="flex items-center gap-3 py-2 text-sm font-medium uppercase tracking-widest text-foreground/80 transition-colors hover:text-accent-hover"
@@ -93,6 +105,8 @@ export function PortalSidebar({ user, onNavigate }: PortalSidebarProps) {
           </button>
         </Form>
       </div>
+
+      <ReportIssueDialog open={isReportOpen} onOpenChange={setIsReportOpen} />
     </div>
   );
 }

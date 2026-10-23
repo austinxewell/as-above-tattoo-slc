@@ -54,6 +54,7 @@ export default [
           route("*", "routes/portal/not-found.tsx", { id: "portal-artist-not-found" }),
         ]),
       ]),
+      route("report-issue", "routes/portal/report-issue.tsx"),
       route("*", "routes/portal/not-found.tsx", { id: "portal-not-found" }),
     ]),
   ]),
