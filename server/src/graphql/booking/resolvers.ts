@@ -6,6 +6,7 @@ import { BookingModel, type Booking } from "../../models/booking.js";
 import { UserModel } from "../../models/user.js";
 import { getBookingRequestsEnabled } from "../../models/site-settings.js";
 import { sendEmail } from "../../email/send-email.js";
+import { bookingRequestEmail } from "../../email/booking-request-email.js";
 import { requireUser, requireRole } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
 
@@ -356,21 +357,11 @@ export const bookingResolvers = {
         await sendEmail({
           to: await findRecipients(artist),
           replyTo: details.email,
-          subject: `New tattoo request from ${details.name} (${artistName ?? "no preference"})`,
-          text: [
-            `Artist: ${artistName ?? "No preference"}`,
-            `Name: ${details.name}`,
-            `Email: ${details.email}`,
-            `Phone: ${details.phone || "Not given"}`,
-            `Placement: ${details.placement}`,
-            `Size: ${details.size}`,
-            `Budget: ${details.budget || "Not given"}`,
-            `Availability: ${details.availability || "Not given"}`,
-            "",
-            details.idea,
-            "",
-            "Reply to this email to contact the client directly.",
-          ].join("\n"),
+          ...bookingRequestEmail({
+            ...details,
+            artistName,
+            portalUrl: `${process.env.CLIENT_URL}/portal`,
+          }),
         });
       } catch (error) {
         console.error(`Booking ${booking.id} was saved, but the email failed:`, error);
