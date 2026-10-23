@@ -6,13 +6,10 @@ import { ArtistModel } from "../../models/artist.js";
 import { UserModel } from "../../models/user.js";
 import { SESSION_COOKIE, createSession, deleteSession } from "../../auth/session.js";
 import { createRateLimiter } from "../../security/rate-limit.js";
-import {
-  createPasswordReset,
-  consumePasswordReset,
-  RESET_MINUTES,
-} from "../../auth/password-reset.js";
+import { createPasswordReset, consumePasswordReset } from "../../auth/password-reset.js";
 import { SessionModel } from "../../models/session.js";
 import { sendEmail } from "../../email/send-email.js";
+import { passwordResetEmail } from "../../email/account-email.js";
 
 const INVALID_LOGIN = "Incorrect email or password.";
 const isLoginRateLimited = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
@@ -86,15 +83,7 @@ export const authResolvers = {
 
         void sendEmail({
           to: [user.email],
-          subject: "Reset your As Above Tattoo password",
-          text: [
-            `Hi ${user.name},`,
-            "",
-            `Use this link to set a new password. It expires in ${RESET_MINUTES} minutes and works once:`,
-            link,
-            "",
-            "If you didn't ask for this, you can ignore this email. Your password won't change.",
-          ].join("\n"),
+          ...passwordResetEmail({ name: user.name, link }),
         }).catch((error) => console.error("Password reset email failed:", error));
       }
 
