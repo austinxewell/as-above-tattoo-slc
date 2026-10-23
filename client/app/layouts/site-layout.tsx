@@ -20,9 +20,10 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 export default function SiteLayout({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex min-h-screen flex-col">
-      {loaderData.staffName && <StaffBar name={loaderData.staffName} />}
-
-      <SiteHeader shop={loaderData.shop} />
+      <div className="sticky top-0 z-50">
+        {loaderData.staffName && <StaffBar name={loaderData.staffName} />}
+        <SiteHeader shop={loaderData.shop} />
+      </div>
 
       <main className="flex-1">
         <Outlet />
