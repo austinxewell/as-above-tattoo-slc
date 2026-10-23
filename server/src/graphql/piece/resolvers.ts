@@ -1,10 +1,12 @@
 import { GraphQLError } from "graphql";
 import { isValidObjectId } from "mongoose";
+import { requireRole, requireUser } from "../../auth/guards.js";
+import { deleteImageFile } from "../../images/imagekit.js";
+import type { GraphQLContext } from "../context.js";
+import { invalid } from "../validate.js";
 import { ArtistModel } from "../../models/artist.js";
 import { PieceModel } from "../../models/piece.js";
-import { requireRole, requireUser } from "../../auth/guards.js";
-import type { GraphQLContext } from "../context.js";
-import { cleanPieceInput, type PieceInput } from "./validate.js";
+import { cleanPieceInput, portfolioImage, type PieceInput } from "./validate.js";
 
 type PageArgs = {
   first?: number | null;
@@ -95,6 +97,7 @@ function notFound(): never {
 
 async function editablePiece(user: ReturnType<typeof requireUser>, id: string) {
   const piece = isValidObjectId(id) ? await PieceModel.findById(id) : null;
+
   if (!piece) notFound();
 
   if (user.role !== "admin" && !user.artist?.equals(piece.artist)) {
@@ -186,7 +189,12 @@ export const pieceResolvers = {
         });
       }
 
-      const piece = await PieceModel.create({ ...cleanPieceInput(input), artist: artist._id });
+      const fields = cleanPieceInput(input);
+      if (!input.fileId) invalid("fileId", "Add a photo of the piece.");
+
+      const image = await portfolioImage(artist.slug, input.fileId);
+      const piece = await PieceModel.create({ ...fields, ...image, artist: artist._id });
+
       return piece.populate("artist");
     },
     updatePiece: async (
@@ -195,8 +203,22 @@ export const pieceResolvers = {
       context: GraphQLContext,
     ) => {
       const piece = await editablePiece(requireUser(context), id);
+      const previousFileId = piece.fileId;
       piece.set(cleanPieceInput(input));
+
+      if (input.fileId) {
+        const artist = await ArtistModel.findById(piece.artist, { slug: 1 });
+        if (!artist) notFound();
+        piece.set(await portfolioImage(artist.slug, input.fileId));
+      }
+
       await piece.save();
+
+      // Only after the save, so a failed save never leaves the piece pointing at a deleted file.
+      if (previousFileId && previousFileId !== piece.fileId) {
+        await deleteImageFile(previousFileId);
+      }
+
       return piece.populate("artist");
     },
     setPieceFeatured: async (
@@ -215,6 +237,7 @@ export const pieceResolvers = {
     deletePiece: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
       const piece = await editablePiece(requireUser(context), id);
       await piece.deleteOne();
+      if (piece.fileId) await deleteImageFile(piece.fileId);
       return true;
     },
   },
