@@ -8,6 +8,9 @@ import { PortalBrand } from "~/components/portal/portal-brand";
 import { MenuTrigger } from "~/components/shared/menu-trigger";
 import { ErrorState } from "~/components/shared/error-state";
 import { NotFound } from "~/components/shared/not-found";
+import { portalAppLinks } from "~/lib/portal-app";
+
+export const links: Route.LinksFunction = () => portalAppLinks;
 
 export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
   async ({ request, context }) => {
