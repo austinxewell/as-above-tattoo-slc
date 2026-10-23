@@ -2,6 +2,7 @@ import { Form, Link, redirect, useNavigation } from "react-router";
 import { LoaderCircle, TriangleAlert } from "lucide-react";
 import type { Route } from "./+types/login";
 import { graphqlRequest } from "~/lib/graphql";
+import { portalAppLinks } from "~/lib/portal-app";
 import { Button } from "~/components/ui/button";
 import { AuthShell } from "~/components/auth/auth-shell";
 import { PasswordInput } from "~/components/auth/password-input";
@@ -25,6 +26,8 @@ const ME_QUERY = /* GraphQL */ `
 const labelClasses = "text-[0.65rem] uppercase tracking-[0.2em] text-accent";
 const fieldClasses =
   "mt-3 w-full border border-border bg-background px-4 py-3 outline-none transition-colors focus:border-accent";
+
+export const links: Route.LinksFunction = () => portalAppLinks;
 
 export function meta() {
   return [{ title: "Staff login | As Above Tattoo" }, { name: "robots", content: "noindex" }];
