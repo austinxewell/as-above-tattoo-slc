@@ -1,4 +1,5 @@
 import { GraphQLError } from "graphql";
+import { artistFolder, getImageFile, type ArtistImageKind } from "../images/imagekit.js";
 
 export function invalid(field: string, message: string): never {
   throw new GraphQLError(message, { extensions: { code: "BAD_USER_INPUT", field } });
@@ -32,16 +33,13 @@ export function textList(
   return items;
 }
 
-export function imageUrl(value: string | null | undefined) {
-  const text = requiredText("imgUrl", "Photo address", value, 2048);
+// Looks the upload up on ImageKit, so the URL and the folder come from ImageKit, not the client.
+export async function artistImage(slug: string, kind: ArtistImageKind, fileId: string) {
+  const file = await getImageFile(fileId.trim());
 
-  let url: URL;
-  try {
-    url = new URL(text);
-  } catch {
-    invalid("imgUrl", "Enter a full web address, starting with https://.");
+  if (!file || !file.filePath.startsWith(`${artistFolder(slug, kind)}/`)) {
+    invalid("fileId", "That photo upload wasn't found. Please upload it again.");
   }
 
-  if (url.protocol !== "https:") invalid("imgUrl", "The photo address must start with https://.");
-  return url.toString();
+  return { imgUrl: file.url, fileId: file.fileId };
 }

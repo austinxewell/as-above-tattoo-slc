@@ -3,10 +3,11 @@ import { GraphQLError } from "graphql";
 import { requireUser } from "../../auth/guards.js";
 import { ArtistModel } from "../../models/artist.js";
 import type { GraphQLContext } from "../context.js";
+import { artistFolder, type ArtistImageKind } from "../../images/imagekit.js";
 
 type ImageKind = "PORTFOLIO" | "PROFILE";
 
-const folderNames: Record<ImageKind, string> = {
+const folderNames: Record<ImageKind, ArtistImageKind> = {
   PORTFOLIO: "portfolio",
   PROFILE: "profile",
 };
@@ -55,7 +56,7 @@ export const imageUploadResolvers = {
         expire,
         signature,
         publicKey,
-        folder: `/artists/${artist.slug}/${folderNames[kind]}`,
+        folder: artistFolder(artist.slug, folderNames[kind]),
       };
     },
   },

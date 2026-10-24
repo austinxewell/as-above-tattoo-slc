@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
+import { sizedImage } from "~/lib/image-url";
 import { SectionHeading } from "./section-heading";
 
 type ArtistsPreviewProps = {
@@ -26,7 +27,7 @@ export function ArtistsPreview({ artists }: ArtistsPreviewProps) {
             >
               <div className="overflow-hidden border border-border">
                 <img
-                  src={artist.imgUrl}
+                  src={sizedImage(artist.imgUrl, 800)}
                   alt=""
                   loading="lazy"
                   className="aspect-[3/4] w-full object-cover saturate-[0.65] contrast-[1.08] transition duration-700 ease-out group-hover:scale-105 group-hover:saturate-100"

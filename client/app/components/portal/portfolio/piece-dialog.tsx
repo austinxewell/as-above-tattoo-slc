@@ -7,6 +7,7 @@ import type { ManagedPiece, PortfolioActionResult } from "~/lib/portfolio";
 import { TagListInput } from "./tag-list-input";
 import { DialogCloseButton } from "~/components/shared/dialog-close-button";
 import { ImageUploader } from "~/components/shared/image-uploader";
+import { sizedImage } from "~/lib/image-url";
 
 const labelClasses = "text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground";
 const fieldNames = ["artist", "fileId", "style", "tags"];
@@ -101,7 +102,7 @@ function PieceForm({ piece, styles, artists, defaultArtist, onClose, onDone }: P
         key={artistSlug ?? "none"}
         artist={artistSlug}
         kind="PORTFOLIO"
-        currentUrl={piece?.imgUrl}
+        currentUrl={piece && sizedImage(piece.imgUrl, 600)}
         error={errorFor("fileId")}
         onUploadingChange={setIsUploading}
         className="mx-auto w-full max-w-xs min-w-0 sm:max-w-none"

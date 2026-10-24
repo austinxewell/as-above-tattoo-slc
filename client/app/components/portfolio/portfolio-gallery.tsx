@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { DialogCloseButton } from "~/components/shared/dialog-close-button";
 import { FadeInImage } from "~/components/shared/fade-in-image";
+import { sizedImage } from "~/lib/image-url";
 
 export type PortfolioPiece = {
   id: string;
@@ -51,7 +52,7 @@ export function PortfolioGallery<T extends PortfolioPiece>({
                 className={`group block h-full w-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ${onSelect ? "cursor-pointer" : "cursor-zoom-in"}`}
               >
                 <FadeInImage
-                  src={piece.imgUrl}
+                  src={sizedImage(piece.imgUrl, 800)}
                   alt={`${piece.style} tattoo by ${piece.artist.name}`}
                   className="h-full w-full object-contain saturate-[0.65] contrast-[1.08] group-hover:scale-105 group-hover:saturate-100 group-focus-visible:saturate-100"
                 />
@@ -88,7 +89,7 @@ export function PortfolioGallery<T extends PortfolioPiece>({
               </DialogTitle>
 
               <img
-                src={selectedPiece.imgUrl}
+                src={sizedImage(selectedPiece.imgUrl, 1600)}
                 alt={`${selectedPiece.style} tattoo by ${selectedPiece.artist.name}`}
                 className="max-h-[80vh] w-full sm:w-auto object-contain"
               />

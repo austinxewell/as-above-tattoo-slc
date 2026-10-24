@@ -6,6 +6,8 @@ import { getPublishingStandards } from "../../models/site-settings.js";
 import { publishChecklist } from "./checklist.js";
 import { requireRole, requireUser } from "../../auth/guards.js";
 import type { GraphQLContext } from "../context.js";
+import { deleteImageFile } from "../../images/imagekit.js";
+import { artistImage } from "../validate.js";
 import { cleanArtistInput, type ArtistUpdateInput } from "./validate.js";
 
 function notFound(): never {
@@ -66,8 +68,19 @@ export const artistResolvers = {
       context: GraphQLContext,
     ) => {
       const artist = await editableArtist(requireUser(context), slug);
+      const previousFileId = artist.fileId;
       artist.set(cleanArtistInput(input));
+
+      if (input.fileId) {
+        artist.set(await artistImage(artist.slug, "profile", input.fileId));
+      }
+
       await artist.save();
+
+      if (previousFileId && previousFileId !== artist.fileId) {
+        await deleteImageFile(previousFileId);
+      }
+
       return artist;
     },
     publishArtist: async (

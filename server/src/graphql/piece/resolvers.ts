@@ -3,10 +3,10 @@ import { isValidObjectId } from "mongoose";
 import { requireRole, requireUser } from "../../auth/guards.js";
 import { deleteImageFile } from "../../images/imagekit.js";
 import type { GraphQLContext } from "../context.js";
-import { invalid } from "../validate.js";
 import { ArtistModel } from "../../models/artist.js";
 import { PieceModel } from "../../models/piece.js";
-import { cleanPieceInput, portfolioImage, type PieceInput } from "./validate.js";
+import { artistImage, invalid } from "../validate.js";
+import { cleanPieceInput, type PieceInput } from "./validate.js";
 
 type PageArgs = {
   first?: number | null;
@@ -192,7 +192,7 @@ export const pieceResolvers = {
       const fields = cleanPieceInput(input);
       if (!input.fileId) invalid("fileId", "Add a photo of the piece.");
 
-      const image = await portfolioImage(artist.slug, input.fileId);
+      const image = await artistImage(artist.slug, "portfolio", input.fileId);
       const piece = await PieceModel.create({ ...fields, ...image, artist: artist._id });
 
       return piece.populate("artist");
@@ -209,7 +209,7 @@ export const pieceResolvers = {
       if (input.fileId) {
         const artist = await ArtistModel.findById(piece.artist, { slug: 1 });
         if (!artist) notFound();
-        piece.set(await portfolioImage(artist.slug, input.fileId));
+        piece.set(await artistImage(artist.slug, "portfolio", input.fileId));
       }
 
       await piece.save();

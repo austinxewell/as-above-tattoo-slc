@@ -29,6 +29,7 @@ const artistSchema = new Schema(
     bio: { type: String, trim: true, default: "" },
     statement: { type: String, trim: true, default: "" },
     imgUrl: { type: String, trim: true, default: "" },
+    fileId: { type: String, trim: true, unique: true, sparse: true },
     instagram: { type: String, trim: true },
     isBooking: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false, index: true },

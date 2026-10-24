@@ -29,7 +29,7 @@ export type ArtistProfile = {
   publishChecklist: PublishChecklistItem[];
 };
 
-export const profileTextFields = ["name", "bio", "statement", "instagram", "imgUrl"] as const;
+export const profileTextFields = ["name", "bio", "statement", "instagram"] as const;
 export type ProfileTextField = (typeof profileTextFields)[number];
 
 export function isProfileTextField(value: string): value is ProfileTextField {
@@ -124,8 +124,8 @@ const UPDATE_ARTIST_MUTATION = /* GraphQL */ `
 `;
 
 export type ArtistProfileInput = Partial<
-  Omit<ArtistProfile, "slug" | "isPublished" | "publishChecklist">
->;
+  Omit<ArtistProfile, "slug" | "imgUrl" | "isPublished" | "publishChecklist">
+> & { fileId?: string };
 
 export async function updateArtistProfile(
   slug: string,
@@ -186,6 +186,16 @@ export async function handleProfileAction(
         { isBooking: formData.get("isBooking") === "true" },
         request.signal,
       );
+      return { intent, ok: true, error: null, field: null };
+    }
+
+    if (intent === "photo") {
+      const fileId = String(formData.get("fileId") ?? "");
+      if (!fileId) {
+        return { intent, ok: false, error: "Choose a photo to upload first.", field: "fileId" };
+      }
+
+      await updateArtistProfile(slug, { fileId }, request.signal);
       return { intent, ok: true, error: null, field: null };
     }
 

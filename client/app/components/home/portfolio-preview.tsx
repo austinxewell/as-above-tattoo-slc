@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { FadeInImage } from "../shared/fade-in-image";
+import { sizedImage } from "~/lib/image-url";
 
 type PortfolioPreviewProps = {
   portfolio: { id: string; style: string; imgUrl: string; artist: { name: string } }[];
@@ -38,7 +39,7 @@ export function PortfolioPreview({ portfolio }: PortfolioPreviewProps) {
             <figure>
               <div className="relative overflow-hidden border border-border">
                 <FadeInImage
-                  src={piece.imgUrl}
+                  src={sizedImage(piece.imgUrl, 800)}
                   alt={`${piece.style} tattoo by ${piece.artist.name}`}
                   className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08]"
                 />

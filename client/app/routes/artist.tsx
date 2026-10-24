@@ -8,6 +8,7 @@ import { PortfolioGallery, type PortfolioPiece } from "~/components/portfolio/po
 import { PageHeader } from "~/components/shared/page-header";
 import { ArtistInfo } from "~/components/artists/artist-info";
 import { ArtistBooking } from "~/components/artists/artist-booking";
+import { sizedImage } from "~/lib/image-url";
 
 const ARTIST_QUERY = /* GraphQL */ `
   query Artist($slug: String!) {
@@ -127,7 +128,7 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
         <div className="mt-14 grid items-center gap-10 md:grid-cols-2 md:gap-16">
           <div className="overflow-hidden border border-border">
             <img
-              src={artist.imgUrl}
+              src={sizedImage(artist.imgUrl, 1200)}
               alt={`Portrait of ${artist.name}`}
               className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08]"
             />
@@ -212,7 +213,7 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
               <Link to={`/artists/${other.slug}`} className="group block">
                 <div className="overflow-hidden border border-border">
                   <img
-                    src={other.imgUrl}
+                    src={sizedImage(other.imgUrl, 800)}
                     alt=""
                     loading="lazy"
                     className="aspect-[3/4] w-full object-cover saturate-[0.65] contrast-[1.08] transition duration-700 ease-out group-hover:scale-105 group-hover:saturate-100"

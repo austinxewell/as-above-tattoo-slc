@@ -1,4 +1,11 @@
 const FILES_API = "https://api.imagekit.io/v1/files";
+const FOLDER_API = "https://api.imagekit.io/v1/folder";
+
+export type ArtistImageKind = "portfolio" | "profile";
+
+export function artistFolder(slug: string, kind?: ArtistImageKind) {
+  return kind ? `/artists/${slug}/${kind}` : `/artists/${slug}`;
+}
 
 type ImageKitFile = {
   fileId: string;
@@ -39,5 +46,26 @@ export async function deleteImageFile(fileId: string) {
     }
   } catch (error) {
     console.error("deleteImageFile:", error);
+  }
+}
+
+export async function deleteArtistFolder(slug: string) {
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    console.error(`deleteArtistFolder: refusing unexpected slug "${slug}".`);
+    return;
+  }
+
+  try {
+    const res = await fetch(FOLDER_API, {
+      method: "DELETE",
+      headers: { Authorization: authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ folderPath: artistFolder(slug) }),
+    });
+
+    if (!res.ok && res.status !== 404) {
+      console.error(`deleteArtistFolder: ImageKit returned ${res.status} for ${slug}.`);
+    }
+  } catch (error) {
+    console.error("deleteArtistFolder:", error);
   }
 }
