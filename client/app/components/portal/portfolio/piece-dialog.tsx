@@ -6,9 +6,10 @@ import { controlClasses } from "~/components/portal/artist-profile/text-edit-for
 import type { ManagedPiece, PortfolioActionResult } from "~/lib/portfolio";
 import { TagListInput } from "./tag-list-input";
 import { DialogCloseButton } from "~/components/shared/dialog-close-button";
+import { ImageUploader } from "~/components/shared/image-uploader";
 
 const labelClasses = "text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground";
-const fieldNames = ["artist", "imgUrl", "style", "tags"];
+const fieldNames = ["artist", "fileId", "style", "tags"];
 
 export type PieceTarget = ManagedPiece | "new" | null;
 
@@ -67,7 +68,8 @@ function PieceForm({ piece, styles, artists, defaultArtist, onClose, onDone }: P
   const fetcher = useFetcher<PortfolioActionResult>();
   const id = useId();
   const isNew = piece === null;
-  const [imgUrl, setImgUrl] = useState(piece?.imgUrl ?? "");
+  const [artist, setArtist] = useState(defaultArtist ?? "");
+  const [isUploading, setIsUploading] = useState(false);
   const [style, setStyle] = useState(piece?.style ?? "");
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const pendingIntent = fetcher.state !== "idle" ? fetcher.formData?.get("intent") : null;
@@ -75,7 +77,7 @@ function PieceForm({ piece, styles, artists, defaultArtist, onClose, onDone }: P
   const failed = fetcher.state === "idle" && fetcher.data && !fetcher.data.ok ? fetcher.data : null;
   const errorFor = (field: string) => (failed?.field === field ? failed.error : null);
   const formError = failed && !fieldNames.includes(failed.field ?? "") ? failed.error : null;
-  const previewUrl = imgUrl.trim().startsWith("https://") ? imgUrl.trim() : null;
+  const artistSlug = piece?.artist.slug ?? (artist || null);
   const pieceId = piece?.id ?? "";
 
   useEffect(() => {
@@ -95,16 +97,15 @@ function PieceForm({ piece, styles, artists, defaultArtist, onClose, onDone }: P
     >
       {piece && <input type="hidden" name="id" value={piece.id} />}
 
-      <div
-        aria-hidden="true"
-        className="mx-auto grid aspect-square w-full max-w-xs min-w-0 place-items-center overflow-hidden border border-border bg-surface-raised text-center text-[0.6rem] uppercase tracking-[0.15em] text-muted-foreground sm:max-w-none"
-      >
-        {previewUrl ? (
-          <img src={previewUrl} alt="" className="block size-full max-w-full object-contain" />
-        ) : (
-          <span className="p-3">Paste a photo address to see it here</span>
-        )}
-      </div>
+      <ImageUploader
+        key={artistSlug ?? "none"}
+        artist={artistSlug}
+        kind="PORTFOLIO"
+        currentUrl={piece?.imgUrl}
+        error={errorFor("fileId")}
+        onUploadingChange={setIsUploading}
+        className="mx-auto w-full max-w-xs min-w-0 sm:max-w-none"
+      />
 
       <div className="grid min-w-0 content-start gap-5">
         <DialogTitle className="font-display text-2xl uppercase">
@@ -119,7 +120,8 @@ function PieceForm({ piece, styles, artists, defaultArtist, onClose, onDone }: P
             <select
               id={`${id}-artist`}
               name="artist"
-              defaultValue={defaultArtist ?? ""}
+              value={artist}
+              onChange={(event) => setArtist(event.target.value)}
               aria-invalid={errorFor("artist") ? true : undefined}
               className={controlClasses}
             >
@@ -134,30 +136,6 @@ function PieceForm({ piece, styles, artists, defaultArtist, onClose, onDone }: P
             {errorFor("artist") && <p className="text-sm text-destructive">{errorFor("artist")}</p>}
           </div>
         )}
-
-        <div className="grid gap-1.5">
-          <label htmlFor={`${id}-url`} className={labelClasses}>
-            Photo address
-          </label>
-          <input
-            id={`${id}-url`}
-            type="url"
-            name="imgUrl"
-            value={imgUrl}
-            onChange={(event) => setImgUrl(event.target.value)}
-            placeholder="https://…"
-            autoComplete="off"
-            autoFocus={isNew}
-            aria-invalid={errorFor("imgUrl") ? true : undefined}
-            aria-describedby={errorFor("imgUrl") ? `${id}-url-error` : undefined}
-            className={controlClasses}
-          />
-          {errorFor("imgUrl") && (
-            <p id={`${id}-url-error`} className="text-sm text-destructive">
-              {errorFor("imgUrl")}
-            </p>
-          )}
-        </div>
 
         <div className="grid gap-1.5">
           <label htmlFor={`${id}-style`} className={labelClasses}>
@@ -213,7 +191,7 @@ function PieceForm({ piece, styles, artists, defaultArtist, onClose, onDone }: P
             value={isNew ? "create" : "update"}
             variant="brand"
             size="sm"
-            disabled={isBusy}
+            disabled={isBusy || isUploading}
           >
             {pendingIntent === "create"
               ? "Adding…"

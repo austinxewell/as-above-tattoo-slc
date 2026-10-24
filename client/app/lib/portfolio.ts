@@ -124,7 +124,7 @@ export type PortfolioActionResult = {
 
 function readPieceInput(formData: FormData) {
   return {
-    imgUrl: String(formData.get("imgUrl") ?? ""),
+    fileId: String(formData.get("fileId") ?? "") || null,
     style: String(formData.get("style") ?? ""),
     tags: formData.getAll("tags").map(String),
   };
