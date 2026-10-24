@@ -1,4 +1,4 @@
-import { imageUrl, invalid, requiredText, textList } from "../validate.js";
+import { invalid, requiredText, textList } from "../validate.js";
 
 type ArtistBookingInput = {
   minimum: string;
@@ -14,7 +14,7 @@ export type ArtistUpdateInput = {
   statement?: string | null;
   specialties?: string[] | null;
   instagram?: string | null;
-  imgUrl?: string | null;
+  fileId?: string | null;
   isBooking?: boolean | null;
   booking?: ArtistBookingInput | null;
 };
@@ -25,7 +25,6 @@ type ArtistChanges = {
   statement?: string;
   specialties?: string[];
   instagram?: string | undefined;
-  imgUrl?: string;
   isBooking?: boolean;
   booking?: ArtistBookingInput;
 };
@@ -56,7 +55,6 @@ export function cleanArtistInput(input: ArtistUpdateInput): ArtistChanges {
     });
   }
   if ("instagram" in input) changes.instagram = instagramHandle(input.instagram);
-  if ("imgUrl" in input) changes.imgUrl = imageUrl(input.imgUrl);
 
   if ("isBooking" in input) {
     if (typeof input.isBooking !== "boolean") invalid("isBooking", "Choose open or closed.");

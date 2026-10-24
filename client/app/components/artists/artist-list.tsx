@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { sizedImage } from "~/lib/image-url";
 import { ArtistInfo } from "./artist-info";
 
 export type Artist = {
@@ -31,7 +32,7 @@ export function ArtistList({ artists }: ArtistListProps) {
             aria-hidden="true"
           >
             <img
-              src={artist.imgUrl}
+              src={sizedImage(artist.imgUrl, 1200)}
               alt=""
               loading="lazy"
               className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08] transition duration-700 ease-out group-hover:scale-105 group-hover:saturate-100"

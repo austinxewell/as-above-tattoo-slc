@@ -5,6 +5,7 @@ import { BookingModel } from "../../models/booking.js";
 import { PieceModel } from "../../models/piece.js";
 import { UserModel } from "../../models/user.js";
 import type { requireUser } from "../../auth/guards.js";
+import { deleteArtistFolder } from "../../images/imagekit.js";
 import { activityEvent } from "../booking/resolvers.js";
 
 export async function retireArtist(
@@ -33,4 +34,5 @@ export async function retireArtist(
   await PieceModel.deleteMany({ artist: artist._id });
   await UserModel.updateMany({ artist: artist._id }, { $unset: { artist: 1 } });
   await artist.deleteOne();
+  await deleteArtistFolder(artist.slug);
 }

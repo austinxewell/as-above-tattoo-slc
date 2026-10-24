@@ -12,6 +12,7 @@ import { authTypeDefs } from "./auth/type-defs.js";
 import { userTypeDefs } from "./user/type-defs.js";
 import { siteSettingsTypeDefs } from "./site-settings/type-defs.js";
 import { issueReportTypeDefs } from "./issue-report/type-defs.js";
+import { imageUploadTypeDefs } from "./image-upload/type-defs.js";
 
 import { aboutResolvers } from "./about/resolvers.js";
 import { artistResolvers } from "./artist/resolvers.js";
@@ -24,6 +25,7 @@ import { authResolvers } from "./auth/resolvers.js";
 import { userResolvers } from "./user/resolvers.js";
 import { siteSettingsResolvers } from "./site-settings/resolvers.js";
 import { issueReportResolvers } from "./issue-report/resolvers.js";
+import { imageUploadResolvers } from "./image-upload/resolvers.js";
 
 const baseTypeDefs = /* GraphQL */ `
   type Query
@@ -44,6 +46,7 @@ export const schema = createSchema<GraphQLContext>({
     userTypeDefs,
     siteSettingsTypeDefs,
     issueReportTypeDefs,
+    imageUploadTypeDefs,
   ],
   resolvers: [
     aboutResolvers,
@@ -57,5 +60,6 @@ export const schema = createSchema<GraphQLContext>({
     userResolvers,
     siteSettingsResolvers,
     issueReportResolvers,
+    imageUploadResolvers,
   ],
 });

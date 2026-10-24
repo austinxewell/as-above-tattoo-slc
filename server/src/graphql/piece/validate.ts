@@ -1,14 +1,13 @@
-import { imageUrl, requiredText, textList } from "../validate.js";
+import { requiredText, textList } from "../validate.js";
 
 export type PieceInput = {
-  imgUrl: string;
+  fileId?: string | null;
   style: string;
   tags: string[];
 };
 
-export function cleanPieceInput(input: PieceInput): PieceInput {
+export function cleanPieceInput(input: PieceInput) {
   return {
-    imgUrl: imageUrl(input.imgUrl),
     style: requiredText("style", "Style", input.style, 40).toLowerCase(),
     tags: textList(
       "tags",
