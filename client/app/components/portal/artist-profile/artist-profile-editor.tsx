@@ -9,6 +9,7 @@ import { ProfilePreview } from "./profile-preview";
 import { BooksToggle } from "./books-toggle";
 import { EditableRow } from "./editable-row";
 import { TextEditForm } from "./text-edit-form";
+import { PhotoEditForm } from "./photo-edit-form";
 import { ListEditForm } from "./list-edit-form";
 import { BookingEditForm } from "./booking-edit-form";
 import { PublishPanel } from "./publish-panel";
@@ -16,7 +17,7 @@ import { ArtistPhoto } from "~/components/shared/artist-photo";
 
 const quietClasses = "text-sm text-muted-foreground";
 
-type EditableField = ProfileTextField | "specialties" | "prices" | "notes";
+type EditableField = ProfileTextField | "photo" | "specialties" | "prices" | "notes";
 type EditingState = { field: EditableField; draft: string } | null;
 
 export function ArtistProfileEditor({
@@ -95,15 +96,9 @@ export function ArtistProfileEditor({
             <EditableRow
               mark="ii."
               label="Photo"
-              {...rowProps("imgUrl")}
+              {...rowProps("photo")}
               editor={
-                <TextEditForm
-                  label="Photo"
-                  inputType="url"
-                  maxLength={2048}
-                  hint="Paste an https:// address for an image"
-                  {...textProps("imgUrl")}
-                />
+                <PhotoEditForm slug={artist.slug} currentUrl={artist.imgUrl} onClose={close} />
               }
             >
               <div className="flex items-center gap-4">
@@ -114,9 +109,7 @@ export function ArtistProfileEditor({
                   className="size-14 shrink-0 border border-border"
                 />
 
-                <p className={`min-w-0 break-all ${quietClasses}`}>
-                  {artist.imgUrl || "No photo yet"}
-                </p>
+                {!artist.imgUrl && <p className={quietClasses}>No photo yet</p>}
               </div>
             </EditableRow>
 

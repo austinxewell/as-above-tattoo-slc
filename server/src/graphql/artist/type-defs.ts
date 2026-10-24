@@ -52,6 +52,7 @@ export const artistTypeDefs = /* GraphQL */ `
     specialties: [String!]
     instagram: String
     imgUrl: String
+    fileId: String
     isBooking: Boolean
     booking: ArtistBookingInput
   }

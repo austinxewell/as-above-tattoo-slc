@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { sizedImage } from "~/lib/image-url";
 import { cn } from "~/lib/utils";
 
 type ArtistPhotoProps = {
@@ -42,7 +43,7 @@ export function ArtistPhoto({ src, alt, className, compact = false }: ArtistPhot
 
   return (
     <img
-      src={src}
+      src={sizedImage(src, 600)}
       alt={alt}
       onError={() => setFailedSrc(src)}
       className={cn("object-cover saturate-[0.65] contrast-[1.08]", className)}

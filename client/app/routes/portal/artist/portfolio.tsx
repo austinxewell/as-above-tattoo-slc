@@ -22,7 +22,7 @@ export function meta() {
   return [{ title: "My portfolio | Portal" }, { name: "robots", content: "noindex" }];
 }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+export async function clientLoader({ request, context }: Route.ClientLoaderArgs) {
   const [portfolio, status] = await Promise.all([
     fetchManagedPortfolio(
       { ...readPortfolioParams(new URL(request.url)), mine: true },
@@ -31,7 +31,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     fetchMyPortfolioStatus(request.signal),
   ]);
 
-  return { ...portfolio, status };
+  return { ...portfolio, status, ownSlug: context.get(currentUserContext).artist?.slug ?? null };
 }
 
 export async function clientAction({ request, context }: Route.ClientActionArgs) {
@@ -131,6 +131,7 @@ export default function ArtistPortfolio({ loaderData }: Route.ComponentProps) {
       <PieceDialog
         target={editing}
         styles={loaderData.shopStyles}
+        defaultArtist={loaderData.ownSlug}
         onClose={handleClose}
         onDone={handleDone}
       />

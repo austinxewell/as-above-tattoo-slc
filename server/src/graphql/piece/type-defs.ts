@@ -14,7 +14,8 @@ export const pieceTypeDefs = /* GraphQL */ `
   }
 
   input PieceInput {
-    imgUrl: String!
+    "ImageKit file ID from an upload. Required when creating; leave out when updating to keep the current image."
+    fileId: String
     style: String!
     tags: [String!]!
   }
@@ -38,7 +39,6 @@ export const pieceTypeDefs = /* GraphQL */ `
       after: String
     ): PiecePage!
     portfolioStyles(mine: Boolean, shopWide: Boolean): [String!]!
-    portfolioStyles(shopWide: Boolean): [String!]!
   }
 
   extend type Mutation {
