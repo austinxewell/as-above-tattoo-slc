@@ -1,14 +1,14 @@
-import { data } from "react-router";
+import { data, Link } from "react-router";
 import type { Route } from "./+types/artist";
-import { Link } from "react-router";
-import { graphqlRequest } from "~/lib/graphql";
-import type { Artist } from "~/components/artists/artist-list";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { graphqlRequest } from "~/lib/graphql";
+import { sizedImage } from "~/lib/image-url";
+import type { Artist } from "~/components/artists/artist-list";
 import { PortfolioGallery, type PortfolioPiece } from "~/components/portfolio/portfolio-gallery";
 import { PageHeader } from "~/components/shared/page-header";
 import { ArtistInfo } from "~/components/artists/artist-info";
 import { ArtistBooking } from "~/components/artists/artist-booking";
-import { sizedImage } from "~/lib/image-url";
+import { FadeInImage } from "~/components/shared/fade-in-image";
 
 const ARTIST_QUERY = /* GraphQL */ `
   query Artist($slug: String!) {
@@ -126,10 +126,11 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
         </div>
 
         <div className="mt-14 grid items-center gap-10 md:grid-cols-2 md:gap-16">
-          <div className="overflow-hidden border border-border">
-            <img
+          <div className="relative overflow-hidden border border-border">
+            <FadeInImage
               src={sizedImage(artist.imgUrl, 1200)}
               alt={`Portrait of ${artist.name}`}
+              loading="eager"
               className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08]"
             />
           </div>
@@ -211,14 +212,14 @@ export default function Artist({ loaderData }: Route.ComponentProps) {
           {loaderData.otherArtists.map((other) => (
             <li key={other.id}>
               <Link to={`/artists/${other.slug}`} className="group block">
-                <div className="overflow-hidden border border-border">
-                  <img
+                <div className="relative overflow-hidden border border-border">
+                  <FadeInImage
                     src={sizedImage(other.imgUrl, 800)}
                     alt=""
-                    loading="lazy"
-                    className="aspect-[3/4] w-full object-cover saturate-[0.65] contrast-[1.08] transition duration-700 ease-out group-hover:scale-105 group-hover:saturate-100"
+                    className="aspect-[3/4] w-full object-cover saturate-[0.65] contrast-[1.08] group-hover:scale-105 group-hover:saturate-100"
                   />
                 </div>
+
                 <h3 className="mt-5 font-display text-2xl">{other.name}</h3>
                 <p className="mt-1 text-[0.65rem] uppercase tracking-[0.17em] text-muted-foreground">
                   {other.specialties.join(" & ")}

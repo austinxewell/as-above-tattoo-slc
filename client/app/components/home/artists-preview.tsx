@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { sizedImage } from "~/lib/image-url";
 import { SectionHeading } from "./section-heading";
+import { FadeInImage } from "../shared/fade-in-image";
 
 type ArtistsPreviewProps = {
   artists: { id: string; name: string; slug: string; specialties: string[]; imgUrl: string }[];
@@ -25,14 +26,14 @@ export function ArtistsPreview({ artists }: ArtistsPreviewProps) {
               to={`/artists/${artist.slug}`}
               className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
             >
-              <div className="overflow-hidden border border-border">
-                <img
+              <div className="relative overflow-hidden border border-border">
+                <FadeInImage
                   src={sizedImage(artist.imgUrl, 800)}
                   alt=""
-                  loading="lazy"
-                  className="aspect-[3/4] w-full object-cover saturate-[0.65] contrast-[1.08] transition duration-700 ease-out group-hover:scale-105 group-hover:saturate-100"
+                  className="aspect-[3/4] w-full object-cover saturate-[0.65] contrast-[1.08] group-hover:scale-105 group-hover:saturate-100"
                 />
               </div>
+
               <h3 className="mt-5 font-display text-2xl">{artist.name}</h3>
               <p className="mt-1 text-[0.65rem] uppercase tracking-[0.17em] text-muted-foreground">
                 {artist.specialties.join(" · ")}
