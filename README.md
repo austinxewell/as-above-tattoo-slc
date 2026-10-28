@@ -9,7 +9,7 @@ The project was built with the shop owner and reviewed with them along the way, 
 ![Home Page](https://i.postimg.cc/Xvtkcbx0/Image-10-25-26-at-8-42-AM.png)
 ![Portfolio Page](https://i.postimg.cc/tgszxT3t/Image-10-25-26-at-8-44-AM.png)
 ![Artist Page](https://i.postimg.cc/rpD9rm1Z/Image-10-25-26-at-8-44-AM-(1).png)
-![After Care page](https://i.postimg.cc/NjJ4FTHT/Image-10-25-26-at-8-45-AM.png
+![After Care page](https://i.postimg.cc/NjJ4FTHT/Image-10-25-26-at-8-45-AM.png)
 ![Booking Page](https://i.postimg.cc/htyrvxdT/Image-10-25-26-at-8-46-AM.png)
 ![Admin Dashboard](https://i.postimg.cc/NjfDQb5t/Image-10-25-26-at-8-47-AM.png)
 ![Admin Booking](https://i.postimg.cc/13CHX6qD/Image-10-25-26-at-8-47-AM-(1).png)

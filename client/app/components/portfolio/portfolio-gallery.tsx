@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
-import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
-import { DialogCloseButton } from "~/components/shared/dialog-close-button";
 import { FadeInImage } from "~/components/shared/fade-in-image";
+import { PieceLightbox } from "~/components/portfolio/piece-lightbox";
 import { sizedImage } from "~/lib/image-url";
 
 export type PortfolioPiece = {
@@ -27,6 +26,7 @@ export function PortfolioGallery<T extends PortfolioPiece>({
 }: PortfolioGalleryProps<T>) {
   const [selectedPiece, setSelectedPiece] = useState<T | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedRatio, setSelectedRatio] = useState<number | null>(null);
 
   return (
     <>
@@ -36,11 +36,15 @@ export function PortfolioGallery<T extends PortfolioPiece>({
             <figure className="relative h-full overflow-hidden border border-border bg-surface-raised">
               <button
                 type="button"
-                onClick={() => {
+                onClick={(event) => {
                   if (onSelect) {
                     onSelect(piece);
                     return;
                   }
+                  const tile = event.currentTarget.querySelector("img");
+                  setSelectedRatio(
+                    tile?.naturalWidth ? tile.naturalWidth / tile.naturalHeight : null,
+                  );
                   setSelectedPiece(piece);
                   setIsOpen(true);
                 }}
@@ -77,33 +81,12 @@ export function PortfolioGallery<T extends PortfolioPiece>({
         ))}
       </ul>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent
-          showCloseButton={false}
-          className="w-full sm:w-auto max-w-[calc(100%-2rem)] gap-3 rounded-none border border-border bg-background p-3 sm:max-w-5xl"
-        >
-          {selectedPiece && (
-            <>
-              <DialogTitle className="sr-only">
-                {selectedPiece.style} tattoo by {selectedPiece.artist.name}
-              </DialogTitle>
-
-              <img
-                src={sizedImage(selectedPiece.imgUrl, 1600)}
-                alt={`${selectedPiece.style} tattoo by ${selectedPiece.artist.name}`}
-                className="max-h-[80vh] w-full sm:w-auto object-contain"
-              />
-
-              <DialogCloseButton />
-
-              <p className="flex justify-between gap-4 text-[0.65rem] uppercase tracking-[0.15em]">
-                <span>{selectedPiece.style}</span>
-                <span className="text-muted-foreground">{selectedPiece.artist.name}</span>
-              </p>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <PieceLightbox
+        piece={selectedPiece}
+        ratio={selectedRatio}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      />
     </>
   );
 }
