@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { sizedImage } from "~/lib/image-url";
 import { ArtistInfo } from "./artist-info";
+import { FadeInImage } from "../shared/fade-in-image";
 
 export type Artist = {
   id: string;
@@ -27,15 +28,15 @@ export function ArtistList({ artists }: ArtistListProps) {
         >
           <Link
             to={`/artists/${artist.slug}`}
-            className={`group block overflow-hidden border border-border ${index % 2 === 1 ? "md:order-2" : ""}`}
+            className={`group block relative overflow-hidden border border-border ${index % 2 === 1 ? "md:order-2" : ""}`}
             tabIndex={-1}
             aria-hidden="true"
           >
-            <img
+            <FadeInImage
               src={sizedImage(artist.imgUrl, 1200)}
               alt=""
-              loading="lazy"
-              className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08] transition duration-700 ease-out group-hover:scale-105 group-hover:saturate-100"
+              loading={index === 0 ? "eager" : "lazy"}
+              className="aspect-[4/5] w-full object-cover saturate-[0.65] contrast-[1.08] group-hover:scale-105 group-hover:saturate-100"
             />
           </Link>
 

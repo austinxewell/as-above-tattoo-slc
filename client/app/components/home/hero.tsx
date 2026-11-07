@@ -53,15 +53,15 @@ export function Hero() {
             Meet the artists
           </Link>
         </div>
-      </div>
 
-      <div className="hero__signature">
-        <Asterisk className="hero__signature-mark" size={46} strokeWidth={1} aria-hidden="true" />
-        <p>
-          More than ink.
-          <br />
-          <em>It's a part of you.</em>
-        </p>
+        <div className="hero__signature">
+          <Asterisk className="hero__signature-mark" size={46} strokeWidth={1} aria-hidden="true" />
+          <p>
+            More than ink.
+            <br />
+            <em>It's a part of you.</em>
+          </p>
+        </div>
       </div>
 
       <a className="hero__scroll" href="#portfolio">

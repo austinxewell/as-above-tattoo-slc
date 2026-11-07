@@ -7,8 +7,6 @@
   isolation: isolate;
   display: grid;
   grid-template-rows: 1fr auto;
-  min-height: min(850px, calc(100svh - 76px));
-  min-height: max(680px, min(850px, calc(100svh - 76px)));
   overflow: hidden;
   padding: clamp(5rem, 10vh, 8rem) clamp(1.5rem, 6.2vw, 7rem);
   padding-bottom: clamp(2rem, 6vh, 4rem);
@@ -329,7 +327,6 @@
 /* Tablet */
 @media (max-width: 900px) {
   .hero {
-    min-height: max(680px, calc(100svh - 72px));
     padding-inline: 5vw;
   }
 
@@ -345,7 +342,6 @@
 /* Mobile */
 @media (max-width: 600px) {
   .hero {
-    min-height: max(300px, calc(100svh - 97px));
     margin-top: 0;
     padding: 1.5rem 1.4rem;
   }
