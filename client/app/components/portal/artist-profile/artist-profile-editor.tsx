@@ -4,7 +4,7 @@ import {
   type ArtistProfile,
   type ProfileTextField,
 } from "~/lib/artist-profile";
-import { ProofGroup } from "./proof-row";
+import { ProofGroup, ProofRow } from "./proof-row";
 import { ProfilePreview } from "./profile-preview";
 import { BooksToggle } from "./books-toggle";
 import { EditableRow } from "./editable-row";
@@ -65,7 +65,6 @@ export function ArtistProfileEditor({
             {artist.name}
           </h1>
         </div>
-        <BooksToggle isBooking={artist.isBooking} />
       </header>
 
       <PublishPanel
@@ -197,8 +196,11 @@ export function ArtistProfileEditor({
           </ProofGroup>
 
           <ProofGroup title="Booking Details">
+            <ProofRow mark="vii." label="Taking bookings">
+              <BooksToggle isBooking={artist.isBooking} />
+            </ProofRow>
             <EditableRow
-              mark="vii."
+              mark="viii."
               label="Prices & dates"
               {...rowProps("prices")}
               editor={<BookingEditForm booking={artist.booking} onClose={close} />}
@@ -208,7 +210,7 @@ export function ArtistProfileEditor({
                   ["Minimum", minimum],
                   ["Rate", rate],
                   ["Deposit", deposit],
-                  ["Availability", availability],
+                  ["Availability notes", availability],
                 ].map(([label, value]) => (
                   <div key={label} className="contents">
                     <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground sm:pt-1">
@@ -221,7 +223,7 @@ export function ArtistProfileEditor({
             </EditableRow>
 
             <EditableRow
-              mark="viii."
+              mark="ix."
               label="Notes"
               {...rowProps("notes")}
               editor={

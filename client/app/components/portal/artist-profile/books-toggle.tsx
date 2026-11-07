@@ -13,40 +13,32 @@ export function BooksToggle({ isBooking }: { isBooking: boolean }) {
   const isSaving = fetcher.state !== "idle";
 
   return (
-    <fetcher.Form method="post" className="grid justify-items-start gap-2 sm:justify-items-end">
+    <fetcher.Form method="post" className="grid justify-items-start gap-2">
       <input type="hidden" name="intent" value="books" />
 
-      <div className="flex items-center gap-3">
-        <span
-          id="books-label"
-          className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground"
+      <div
+        role="group"
+        aria-label="Taking bookings"
+        className="grid grid-cols-2 border border-border"
+      >
+        <button
+          type="submit"
+          name="isBooking"
+          value="true"
+          aria-pressed={shownOpen}
+          className={cn(optionClasses, !shownOpen && "text-muted-foreground hover:text-accent")}
         >
-          Books
-        </span>
-        <div
-          role="group"
-          aria-labelledby="books-label"
-          className="grid grid-cols-2 border border-border"
+          Open
+        </button>
+        <button
+          type="submit"
+          name="isBooking"
+          value="false"
+          aria-pressed={!shownOpen}
+          className={cn(optionClasses, shownOpen && "text-muted-foreground hover:text-accent")}
         >
-          <button
-            type="submit"
-            name="isBooking"
-            value="true"
-            aria-pressed={shownOpen}
-            className={cn(optionClasses, !shownOpen && "text-muted-foreground hover:text-accent")}
-          >
-            Open
-          </button>
-          <button
-            type="submit"
-            name="isBooking"
-            value="false"
-            aria-pressed={!shownOpen}
-            className={cn(optionClasses, shownOpen && "text-muted-foreground hover:text-accent")}
-          >
-            Closed
-          </button>
-        </div>
+          Closed
+        </button>
       </div>
 
       <p role="status" className="min-h-5 text-xs text-muted-foreground">
