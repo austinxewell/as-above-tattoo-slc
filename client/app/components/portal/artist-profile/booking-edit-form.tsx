@@ -10,7 +10,12 @@ const bookingFields = [
   { name: "minimum", label: "Minimum", placeholder: "$120" },
   { name: "rate", label: "Rate", placeholder: "$160/hr" },
   { name: "deposit", label: "Deposit", placeholder: "$75, goes toward your tattoo" },
-  { name: "availability", label: "Availability", placeholder: "Booking through next month" },
+  {
+    name: "availability",
+    label: "Availability notes",
+    placeholder: "Booking about a month out",
+    hint: "This does not affect your booking status. These are notes on your preferred booking method.",
+  },
 ] as const;
 
 type BookingEditFormProps = {
@@ -47,6 +52,7 @@ export function BookingEditForm({ booking, onClose }: BookingEditFormProps) {
       <div className="grid gap-4 sm:grid-cols-3">
         {bookingFields.map((field, index) => {
           const id = `${baseId}-${field.name}`;
+          const hintId = `${id}-hint`;
           const isInvalid = result?.field === `booking.${field.name}`;
 
           return (
@@ -69,9 +75,18 @@ export function BookingEditForm({ booking, onClose }: BookingEditFormProps) {
                 required
                 autoFocus={index === 0}
                 aria-invalid={isInvalid || undefined}
-                aria-describedby={isInvalid ? errorId : undefined}
+                aria-describedby={
+                  ["hint" in field && hintId, isInvalid && errorId].filter(Boolean).join(" ") ||
+                  undefined
+                }
                 className={controlClasses}
               />
+
+              {"hint" in field && (
+                <p id={hintId} className="text-xs text-muted-foreground">
+                  {field.hint}
+                </p>
+              )}
             </div>
           );
         })}
